@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" [<!ENTITY serverinfo SYSTEM "server.xml">]>
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+	<appender name="CA" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="FA" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/info.log" />
+		<param name="Threshold" value="INFO" />
+		<param name="DatePattern" value=".yyyy-MM-dd" />
+		<param name="maxFileSize" value="100MB" />
+		<param name="maxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelMatchFilter">
+			<param name="LevelToMatch" value="info" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+		<filter class="org.apache.log4j.varia.DenyAllFilter" />
+	</appender>
+	<appender name="TRC" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/trace.log" />
+		<param name="Threshold" value="TRACE" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelMatchFilter">
+			<param name="LevelToMatch" value="trace" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+		<filter class="org.apache.log4j.varia.DenyAllFilter" />
+	</appender>
+	<appender name="FA2" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/Fatal.log" />
+		<param name="Threshold" value="ERROR" />
+		<param name="maxFileSize" value="100MB" />
+		<param name="maxBackupIndex" value="5" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="MorFatal" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/mor_fatal.log" />
+		<param name="Threshold" value="FATAL" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="MorInfo" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/mor_info.log" />
+		<param name="Threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="MorError" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/mor_error.log" />
+		<param name="Threshold" value="error" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="MorDebug" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/mor_debug.log" />
+		<param name="Threshold" value="debug" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="SoketFatal" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/soket_fatal.log" />
+		<param name="Threshold" value="FATAL" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="SoketInfo" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/soket_info.log" />
+		<param name="Threshold" value="info" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="SoketError" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/soket_error.log" />
+		<param name="Threshold" value="error" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+	<appender name="SoketDebug" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="./logs/soket_debug.log" />
+		<param name="Threshold" value="debug" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
+		</layout>
+	</appender>
+
+	<logger name="vn.com.vnptepay.authen.mornitor" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="CA" />
+		<appender-ref ref="MorFatal" />
+		<appender-ref ref="MorInfo" />
+		<appender-ref ref="MorError" />
+		<appender-ref ref="MorDebug" />
+	</logger>
+	<logger name="vn.com.vnptepay.netty" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="CA" />
+		<appender-ref ref="SoketFatal" />
+		<appender-ref ref="SoketInfo" />
+		<appender-ref ref="SoketError" />
+		<appender-ref ref="SoketDebug" />
+	</logger>
+	&serverinfo;
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="CA" />
+		<appender-ref ref="FA" />
+		<appender-ref ref="FA2" />
+		<appender-ref ref="FA3" />
+		<!-- <appender-ref ref="TRC" /> -->
+	</root>
+</log4j:configuration>
