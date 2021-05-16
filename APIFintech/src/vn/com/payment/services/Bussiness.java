@@ -3,8 +3,13 @@ package vn.com.payment.services;
 import vn.com.payment.config.LogType;
 import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
+import vn.com.payment.entities.TblProduct;
 import vn.com.payment.home.AccountHome;
+import vn.com.payment.home.TblProductHome;
 import vn.com.payment.object.NotifyObject;
+import vn.com.payment.object.ProducResAll;
+import vn.com.payment.object.ProductReq;
+import vn.com.payment.object.ProductRes;
 import vn.com.payment.object.ReqChangePass;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ResChangePass;
@@ -260,6 +265,46 @@ public class Bussiness {
 			resChangePass.setMessage("That bai");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
+		}
+	}
+	
+	public Response suggestInfo(String dataProducReq) {
+		FileLogger.log("----------------Bat dau suggestInfo--------------------------", LogType.REQUEST);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		Gson gson = new Gson();
+		ProducResAll producResAll = new ProducResAll();
+		ProductRes productRes = new ProductRes();
+		try {
+			ProductReq productReq = gson.fromJson(dataProducReq, ProductReq.class);
+			if (ValidData.checkNull(productReq.getProduct_type()) == false 
+					|| ValidData.checkNull(productReq.getProduct_brand()) == false
+					|| ValidData.checkNull(productReq.getProduct_modal()) == false){
+				FileLogger.log("suggestInfo invalid : ", LogType.REQUEST);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				producResAll.setStatus("111");
+				producResAll.setSuggest_info(productRes);;
+				return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+			}
+			TblProductHome tblProductHome = new TblProductHome();
+			TblProduct tblProduct = tblProductHome.getProduct(productReq.getProduct_type(), productReq.getProduct_brand(), productReq.getProduct_modal());
+			
+			if (tblProduct != null){
+				
+			}else{
+				FileLogger.log("suggestInfo tblProduct null:", LogType.REQUEST);
+				producResAll.setStatus("111");
+				producResAll.setSuggest_info(productRes);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+			}
+			
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc suggestInfo Exception "+ e.getMessage(), LogType.ERROR);
+			producResAll.setStatus("111");
+			producResAll.setSuggest_info(productRes);
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
 		}
 	}
 	

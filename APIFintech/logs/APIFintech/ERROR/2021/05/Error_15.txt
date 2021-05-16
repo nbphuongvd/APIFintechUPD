@@ -1,0 +1,12 @@
+10:25:57 AM   getProduct Exception org.hibernate.QueryException: could not resolve property: product_type of: vn.com.payment.entities.TblProduct
+
+10:29:12 AM   getProduct Exception org.hibernate.QueryException: could not resolve property: product_type of: vn.com.payment.entities.TblProduct
+
+10:31:55 AM   getProduct Exception org.hibernate.QueryException: could not resolve property: product_type of: vn.com.payment.entities.TblProduct
+
+10:32:34 AM   getProduct Exception org.hibernate.QueryException: could not resolve property: product_modal of: vn.com.payment.entities.TblProduct
+
+10:32:56 AM   getProduct Exception org.hibernate.QueryException: could not resolve property: product_modal of: vn.com.payment.entities.TblProduct
+
+10:33:43 AM   getProduct Exception java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Integer
+

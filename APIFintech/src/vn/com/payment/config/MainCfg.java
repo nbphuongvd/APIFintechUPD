@@ -49,7 +49,6 @@ public class MainCfg extends BaseConfig {
 	public static int redispool_connecttimeout 	= 2000;
 	public static int timeExp 					= 300;
 	
-	public static int timeExp11111111111 					= 300;
 
 	@Override
 	protected void getAllParas() {
