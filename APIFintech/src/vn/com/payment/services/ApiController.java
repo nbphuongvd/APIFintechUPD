@@ -23,29 +23,39 @@ public class ApiController {
    @Produces({MediaType.APPLICATION_JSON})
    public Response login(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
 	   System.out.println("Vao xooong login");
-	   Bussiness bussiness = new Bussiness();
+	   UserInfo userInfo = new UserInfo();
    	   System.out.println(formParams);
-	   return bussiness.login(formParams);
+	   return userInfo.login(formParams);
    }
    
    @POST
    @Path("/api/changePass")
    @Produces({MediaType.APPLICATION_JSON})
    public Response changePass(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
-	   System.out.println("Vao xooong login");
-	   Bussiness bussiness = new Bussiness();
+	   System.out.println("Vao xooong changePass");
+	   UserInfo userInfo = new UserInfo();
    	   System.out.println(formParams);
-	   return bussiness.changePass(formParams);
+	   return userInfo.changePass(formParams);
    }
    
    @POST
    @Path("/api/resetPass")
    @Produces({MediaType.APPLICATION_JSON})
    public Response resetPass(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
-	   System.out.println("Vao xooong login");
+	   System.out.println("Vao xooong resetPass");
+	   UserInfo userInfo = new UserInfo();
+   	   System.out.println(formParams);
+	   return userInfo.resetPass(formParams);
+   }
+   
+   @POST
+   @Path("/api/getProduct")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getProduct(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
 	   Bussiness bussiness = new Bussiness();
    	   System.out.println(formParams);
-	   return bussiness.resetPass(formParams);
+	   return bussiness.getProduct(formParams);
    }
    
    @GET

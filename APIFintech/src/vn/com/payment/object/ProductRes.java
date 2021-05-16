@@ -3,16 +3,15 @@ package vn.com.payment.object;
 import com.google.gson.Gson;
 
 public class ProductRes {
-	public String product_type;
+	public long product_type;
 	public String product_brand;
 	public String product_modal;
-	public String total_run;
-	public String product_condition;
-	public String product_own_by_borrower;
-	public String product_serial_no;
-	public String buy_a_new_price;
-	public String loan_price;
-	public String accept_loan_price;
+	public long total_run;
+	public long product_condition;
+	public long product_own_by_borrower;
+	public long buy_a_new_price;
+	public long loan_price;
+	public long accept_loan_price;
 	public String toJSON(){
 	String json	=	"";
 		try {
@@ -23,10 +22,10 @@ public class ProductRes {
 		}
 		return json;
 	}
-	public String getProduct_type() {
+	public long getProduct_type() {
 		return product_type;
 	}
-	public void setProduct_type(String product_type) {
+	public void setProduct_type(long product_type) {
 		this.product_type = product_type;
 	}
 	public String getProduct_brand() {
@@ -41,46 +40,41 @@ public class ProductRes {
 	public void setProduct_modal(String product_modal) {
 		this.product_modal = product_modal;
 	}
-	public String getTotal_run() {
+	public long getTotal_run() {
 		return total_run;
 	}
-	public void setTotal_run(String total_run) {
+	public void setTotal_run(long total_run) {
 		this.total_run = total_run;
 	}
-	public String getProduct_condition() {
+	
+	public long getProduct_condition() {
 		return product_condition;
 	}
-	public void setProduct_condition(String product_condition) {
+	public void setProduct_condition(long product_condition) {
 		this.product_condition = product_condition;
 	}
-	public String getProduct_own_by_borrower() {
+	public long getProduct_own_by_borrower() {
 		return product_own_by_borrower;
 	}
-	public void setProduct_own_by_borrower(String product_own_by_borrower) {
+	public void setProduct_own_by_borrower(long product_own_by_borrower) {
 		this.product_own_by_borrower = product_own_by_borrower;
 	}
-	public String getProduct_serial_no() {
-		return product_serial_no;
-	}
-	public void setProduct_serial_no(String product_serial_no) {
-		this.product_serial_no = product_serial_no;
-	}
-	public String getBuy_a_new_price() {
+	public long getBuy_a_new_price() {
 		return buy_a_new_price;
 	}
-	public void setBuy_a_new_price(String buy_a_new_price) {
+	public void setBuy_a_new_price(long buy_a_new_price) {
 		this.buy_a_new_price = buy_a_new_price;
 	}
-	public String getLoan_price() {
+	public long getLoan_price() {
 		return loan_price;
 	}
-	public void setLoan_price(String loan_price) {
+	public void setLoan_price(long loan_price) {
 		this.loan_price = loan_price;
 	}
-	public String getAccept_loan_price() {
+	public long getAccept_loan_price() {
 		return accept_loan_price;
 	}
-	public void setAccept_loan_price(String accept_loan_price) {
+	public void setAccept_loan_price(long accept_loan_price) {
 		this.accept_loan_price = accept_loan_price;
 	}
 	

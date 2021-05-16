@@ -83,14 +83,14 @@ public class TblProductHome extends BaseSqlHomeDao{
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			Criteria crtProduct 	= session.createCriteria(TblProduct.class);
-//			Criterion type 			= Restrictions.eq("productType", new Integer(1));
+			Criterion type 			= Restrictions.eq("productType", new Integer(product_type));
 			Criterion brand 		= Restrictions.eq("productName", product_brand);
 			Criterion modal			= Restrictions.eq("productCode", product_modal);
 //			Criterion total 		= Restrictions.eq("total_run", total_run);
 //			Criterion condition 	= Restrictions.eq("product_condition", product_condition);
 //			Criterion borrower 		= Restrictions.eq("product_own_by_borrower", product_own_by_borrower);
 //			Criterion serial 		= Restrictions.eq("product_serial_no", product_serial_no);
-//			crtProduct.add(type);
+			crtProduct.add(type);
 			crtProduct.add(brand);
 			crtProduct.add(modal);
 //			crtProduct.add(total);
@@ -114,7 +114,7 @@ public class TblProductHome extends BaseSqlHomeDao{
 	
 	public static void main(String[] args) {
 		TblProductHome tblProductHome = new TblProductHome();
-		TblProduct tblProduct = tblProductHome.getProduct("1", "Jupiter", "JU 2015");
+		TblProduct tblProduct = tblProductHome.getProduct("2", "Jupiter", "JU 2015");
 		System.out.println(tblProduct.getProductCode());
 	}
 }

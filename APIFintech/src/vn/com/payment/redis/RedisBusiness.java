@@ -52,12 +52,12 @@ public class RedisBusiness {
 		Jedis conn = null;
 		boolean result = false;
 		try {
-			FileLogger.log(">> -----setStringValue_toCacheTime: " + key +"___Value: " + value, LogType.REQUEST);
+			FileLogger.log(">> -----setStringValue_toCacheTime: " + key +"___Value: " + value, LogType.USERINFO);
 			conn = Pool.getConnection();
 			conn.set(key, value);
 			conn.expire(key, expiretime);
 			result = true;
-			FileLogger.log(">> -----setStringValue_toCacheTime: " + key +"___Value: " + value + "----result true", LogType.REQUEST);
+			FileLogger.log(">> -----setStringValue_toCacheTime: " + key +"___Value: " + value + "----result true", LogType.USERINFO);
 		} catch (Exception e) {
 			FileLogger.log(">> setValue_toCacheTime -----e: " + e, LogType.ERROR);
 			e.printStackTrace();

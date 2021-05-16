@@ -80,9 +80,13 @@ public class FileLogger {
 				LOG_FOLDER = "ERROR";
 				file_name = "Error";
 				break;			
-			case LogType.REQUEST:			
-				LOG_FOLDER = "REQUEST";
-				file_name = "Request";
+			case LogType.USERINFO:			
+				LOG_FOLDER = "USERINFO";
+				file_name = "UserInfo";
+				break;
+			case LogType.BUSSINESS:			
+				LOG_FOLDER = "BUSSINESS";
+				file_name = "Bussiness";
 				break;
 			default:
 				break;
