@@ -2,10 +2,10 @@ package vn.com.payment.object;
 
 import com.google.gson.Gson;
 
-public class ResLogin {
+public class ResCreaterLoan {
 	public long status;
-	public String token;
-	public String require_change_pass;
+	public String message;
+	public String request_code;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -16,26 +16,23 @@ public class ResLogin {
 		}
 		return json;
 	}
-	
 	public long getStatus() {
 		return status;
 	}
-
 	public void setStatus(long status) {
 		this.status = status;
 	}
-
-	public String getToken() {
-		return token;
+	public String getMessage() {
+		return message;
 	}
-	public void setToken(String token) {
-		this.token = token;
+	public void setMessage(String message) {
+		this.message = message;
 	}
-	public String getRequire_change_pass() {
-		return require_change_pass;
+	public String getRequest_code() {
+		return request_code;
 	}
-	public void setRequire_change_pass(String require_change_pass) {
-		this.require_change_pass = require_change_pass;
+	public void setRequest_code(String request_code) {
+		this.request_code = request_code;
 	}
 	
 }

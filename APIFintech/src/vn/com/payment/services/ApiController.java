@@ -58,6 +58,26 @@ public class ApiController {
 	   return bussiness.getProduct(formParams);
    }
    
+   @POST
+   @Path("/api/getRateConfig")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getRateConfig(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getRateConfig(formParams);
+   }
+   
+   @POST
+   @Path("/api/createrLoan")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response createrLoan(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.createrLoan(formParams);
+   }
+   
    @GET
    @Path("/api/payment") //=> @Path2
    	 public String payment(

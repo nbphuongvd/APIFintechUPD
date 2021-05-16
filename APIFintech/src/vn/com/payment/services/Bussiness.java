@@ -3,16 +3,25 @@ package vn.com.payment.services;
 import vn.com.payment.config.LogType;
 import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
+import vn.com.payment.entities.TblLoanReqDetail;
+import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblProduct;
+import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.home.AccountHome;
+import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.home.TblProductHome;
+import vn.com.payment.home.TblRateConfigHome;
 import vn.com.payment.object.NotifyObject;
 import vn.com.payment.object.ProducResAll;
 import vn.com.payment.object.ProductReq;
 import vn.com.payment.object.ProductRes;
+import vn.com.payment.object.RateConfigReq;
+import vn.com.payment.object.RateConfigRes;
 import vn.com.payment.object.ReqChangePass;
+import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ResChangePass;
+import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResLogin;
 import vn.com.payment.object.TokenRedis;
 import vn.com.payment.redis.RedisBusiness;
@@ -26,6 +35,7 @@ import vn.com.payment.ultities.ValidData;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -33,9 +43,11 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
@@ -65,7 +77,12 @@ import com.google.gson.Gson;
 public class Bussiness {
 	AccountHome accountHome = new AccountHome();
 	TblProductHome tblProductHome = new TblProductHome();
+	TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
 	Gson gson = new Gson();
+	long statusSuccess = 100l;
+	long statusFale = 111l;
+	long statusFaleToken = 104l;
+	int statusPending = 99;
 	public Response getProduct(String dataProducReq) {
 		FileLogger.log("----------------Bat dau getProduct--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -80,7 +97,7 @@ public class Bussiness {
 				|| ValidData.checkNull(productReq.getProduct_modal()) == false){
 				FileLogger.log("getProduct: " + productReq.getUsername()+ " invalid : ", LogType.BUSSINESS);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
-				producResAll.setStatus("111");
+				producResAll.setStatus(statusFale);
 				producResAll.setSuggest_info(productRes);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
@@ -90,7 +107,7 @@ public class Bussiness {
 				TblProduct tblProduct = tblProductHome.getProduct(String.valueOf(productReq.getProduct_type()), productReq.getProduct_brand(), productReq.getProduct_modal());
 				
 				if (tblProduct != null){
-					producResAll.setStatus("100");
+					producResAll.setStatus(statusSuccess);
 					
 					productRes.setProduct_type(tblProduct.getProductType());
 					productRes.setProduct_brand(tblProduct.getProductName());
@@ -108,23 +125,74 @@ public class Bussiness {
 					producResAll.setSuggest_info(productRes);
 				}else{
 					FileLogger.log("getProduct: " + productReq.getUsername()+ " tblProduct null:", LogType.BUSSINESS);
-					producResAll.setStatus("111");
+					producResAll.setStatus(statusFale);
 					producResAll.setSuggest_info(productRes);					
 				}
 			}else{
 				FileLogger.log("getProduct: " + productReq.getUsername()+ " check login false:", LogType.BUSSINESS);
-				producResAll.setStatus("111");
+				producResAll.setStatus(statusFale);
 				producResAll.setSuggest_info(productRes);
 			}
+			FileLogger.log("getProduct: " + productReq.getUsername()+ " response to client:" + producResAll.toJSON(), LogType.BUSSINESS);
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc getProduct Exception "+ e.getMessage(), LogType.ERROR);
-			producResAll.setStatus("111");
+			producResAll.setStatus(statusFale);
 			producResAll.setSuggest_info(productRes);
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+		}
+	}
+	
+	public Response getRateConfig(String dataRateConfig) {
+		FileLogger.log("----------------Bat dau getRateConfig--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		RateConfigRes rateConfigRes = new RateConfigRes();
+		List<TblRateConfig> arrRateCfg = new ArrayList<>();
+		try {
+			RateConfigReq rateConfigReq = gson.fromJson(dataRateConfig, RateConfigReq.class);
+			if (ValidData.checkNull(rateConfigReq.getUsername()) == false 
+				|| ValidData.checkNull(rateConfigReq.getToken()) == false){
+				FileLogger.log("getRateConfig: " + rateConfigReq.getUsername()+ " invalid : ", LogType.BUSSINESS);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				rateConfigRes.setStatus(statusFale);
+				rateConfigRes.setMessage("Lay thong tin that bai - Invalid message request");
+				rateConfigRes.setRate_config(arrRateCfg);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				return response.header(Commons.ResponseTime, getTimeNow()).entity(rateConfigRes.toJSON()).build();
+			}
+			boolean checkLG = checkLogin(rateConfigReq.getUsername(), rateConfigReq.getToken());
+			if(checkLG){			
+				List<TblRateConfig> results = tblRateConfigHome.getRateConfig();								
+				if (results != null){					
+					rateConfigRes.setStatus(statusSuccess);
+					rateConfigRes.setMessage("Lay thong tin thanh cong");
+					rateConfigRes.setRate_config(results);
+				}else{
+					FileLogger.log("getProduct: " + rateConfigReq.getUsername()+ " tblProduct null:", LogType.BUSSINESS);
+					rateConfigRes.setStatus(statusFale);
+					rateConfigRes.setMessage("Lay thong tin that bai - Khong tim thay thong tin RateConfig");
+					rateConfigRes.setRate_config(arrRateCfg);					
+				}
+			}else{
+				FileLogger.log("getRateConfig: " + rateConfigReq.getUsername()+ " check login false:", LogType.BUSSINESS);
+				rateConfigRes.setStatus(statusFale);
+				rateConfigRes.setMessage("Lay thong tin that bai - Thong tin login sai");
+				rateConfigRes.setRate_config(arrRateCfg);
+			}
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			FileLogger.log("getRateConfig: " + rateConfigReq.getUsername()+ " response to client:" + rateConfigRes.toJSON(), LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(rateConfigRes.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc getRateConfig Exception "+ e.getMessage(), LogType.ERROR);
+			rateConfigRes.setStatus(statusFale);
+			rateConfigRes.setMessage("Lay thong tin that bai -  Da co loi xay ra");
+			rateConfigRes.setRate_config(arrRateCfg);
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(rateConfigRes.toJSON()).build();
 		}
 	}
 	
@@ -155,6 +223,87 @@ public class Bussiness {
 		return result;
 	}
 	
+	public Response createrLoan (String datacreaterLoan) {
+		FileLogger.log("----------------Bat dau createrLoan--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		ResCreaterLoan resCreaterLoan = new ResCreaterLoan();
+		try {
+			ReqCreaterLoan reqCreaterLoan = gson.fromJson(datacreaterLoan, ReqCreaterLoan.class);
+			if (ValidData.checkNull(reqCreaterLoan.getUsername()) == false 
+				|| ValidData.checkNull(reqCreaterLoan.getToken()) == false){
+				FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " invalid : ", LogType.BUSSINESS);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				resCreaterLoan.setStatus(statusFale);
+				resCreaterLoan.setMessage("Yeu cau that bai - Invalid message request");
+				resCreaterLoan.setRequest_code("");
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
+			}
+			boolean checkLG = checkLogin(reqCreaterLoan.getUsername(), reqCreaterLoan.getToken());
+			if(checkLG){			
+				TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
+				BigInteger aa = tblLoanReqDetailHome.getIDAutoIncrement();
+				System.out.println(aa);
+				
+				TblLoanRequest tblLoanRequest = new TblLoanRequest();
+				tblLoanRequest.setLoanId(aa.intValue());
+				tblLoanRequest.setCreatedDate(new Date());
+				tblLoanRequest.setEditedDate(new Date());
+				tblLoanRequest.setExpireDate(new Date());
+				tblLoanRequest.setApprovedDate(new Date());
+				tblLoanRequest.setCreatedBy(reqCreaterLoan.getUsername());
+				tblLoanRequest.setApprovedBy(reqCreaterLoan.getUsername());
+				tblLoanRequest.setFinalStatus(statusPending);
+				tblLoanRequest.setPreviousStatus(statusPending);
+				tblLoanRequest.setSponsorId(1);
+				tblLoanRequest.setLatestUpdate(new Date());				
+				
+				TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
+				tblLoanReqDetail.setReqDetailId(31);
+				tblLoanReqDetail.setLoanId(aa.intValue());
+				tblLoanReqDetail.setProductId(aa.intValue());
+				tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
+				tblLoanReqDetail.setImportFrom(aa.intValue());
+				tblLoanReqDetail.setManufactureDate(aa.intValue());
+				tblLoanReqDetail.setExpectAmount(500000);
+				tblLoanReqDetail.setBorrowerId(0);
+				tblLoanReqDetail.setApprovedAmount(500000l);
+				tblLoanReqDetail.setCreatedDate(new Date());
+				tblLoanReqDetail.setEditedDate(new Date());
+				tblLoanReqDetail.setDisbursementDate(aa.intValue());
+				
+				boolean checkINS =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail);
+				if(checkINS){
+					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " thanh cong:", LogType.BUSSINESS);
+					resCreaterLoan.setStatus(999l);
+					resCreaterLoan.setMessage("Yeu cau dang duoc xu ly");
+					resCreaterLoan.setRequest_code("");
+				}else{
+					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " that bai:", LogType.BUSSINESS);
+					resCreaterLoan.setStatus(statusFale);
+					resCreaterLoan.setMessage("Yeu cau that bai");
+					resCreaterLoan.setRequest_code("");
+				}
+			}else{
+				FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " check login false:", LogType.BUSSINESS);
+				resCreaterLoan.setStatus(statusFale);
+				resCreaterLoan.setMessage("Yeu cau that bai - Thong tin login sai");
+				resCreaterLoan.setRequest_code("");
+			}
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " response to client:" + resCreaterLoan.toJSON(), LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc createrLoan Exception "+ e.getMessage(), LogType.ERROR);
+			resCreaterLoan.setStatus(statusFale);
+			resCreaterLoan.setMessage("Yeu cau that bai - Da co loi xay ra");
+			resCreaterLoan.setRequest_code("");
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
+		}
+	}
+	
 	public static String getTimeNow() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
 		return format.format(new Date());
@@ -180,34 +329,6 @@ public class Bussiness {
 		return ran;
 	}
 	
-	public boolean sentNotify(String key, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
-		boolean sent = false;
-		try {
-			NotifyObject notifyObject = new NotifyObject();
-			notifyObject.setSubject(subject);
-			notifyObject.setContent(content);
-			notifyObject.setMessage_type(message_type);
-			notifyObject.setIs_html(is_html);
-			notifyObject.setReceive_email_expect(receive_email_expect);
-			notifyObject.setReceive_sms_expect(receive_sms_expect);
-			notifyObject.setReceive_chat_id_expect(receive_chat_id_expect);
-			notifyObject.setService_code(service_code);
-			notifyObject.setSub_service_code(sub_service_code);
-			FileLogger.log("sentNotify key : " + key, LogType.BUSSINESS);
-			FileLogger.log("sentNotify notifyObject : " + notifyObject.toJSON(), LogType.BUSSINESS);
-			RedisBusiness redisBusiness = new RedisBusiness();
-			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject);
-			FileLogger.log("sentNotify checkPush : " + checkPush, LogType.BUSSINESS);
-			if(checkPush){
-				sent = true;
-			}else{
-				sent = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return sent;
-	}
 	
 	public static void main(String[] args) {
 		try {

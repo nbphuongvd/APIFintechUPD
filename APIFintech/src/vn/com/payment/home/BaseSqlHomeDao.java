@@ -23,9 +23,9 @@ import vn.com.payment.ultities.ClassUlt;
 import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.GsonUltilities;
 
-
 public class BaseSqlHomeDao {
-//	private static final FileLogger log = new FileLogger(BaseSqlHomeDao.class);
+	// private static final FileLogger log = new
+	// FileLogger(BaseSqlHomeDao.class);
 
 	public static void main(String[] args) throws Exception {
 
@@ -90,29 +90,29 @@ public class BaseSqlHomeDao {
 		return objold;
 	}
 
-//	public void persist(Object transientInstance) {
-//		// log.debug("persisting TblACategories instance");
-//		Session session = null;
-//		Transaction trs = null;
-//		try {
-//			Long preProcess = System.currentTimeMillis();
-//			session = HibernateUtil.getSessionFactory().openSession();
-//			Long finishProcess = System.currentTimeMillis();
-//			// log.info(">>>>>>>>>>>>>>>>>Total get connection="
-//			// + (finishProcess - preProcess));
-//			trs = session.beginTransaction();
-//			session.persist(transientInstance);
-//			// log.debug("persist successful");
-//			trs.commit();
-//		} catch (Exception re) {
-//			re.printStackTrace();
-////			log.fatal("persist failed", re);
-//
-//		} finally {
-//			releaseSession(session);
-//		}
-//	}
-	
+	// public void persist(Object transientInstance) {
+	// // log.debug("persisting TblACategories instance");
+	// Session session = null;
+	// Transaction trs = null;
+	// try {
+	// Long preProcess = System.currentTimeMillis();
+	// session = HibernateUtil.getSessionFactory().openSession();
+	// Long finishProcess = System.currentTimeMillis();
+	// // log.info(">>>>>>>>>>>>>>>>>Total get connection="
+	// // + (finishProcess - preProcess));
+	// trs = session.beginTransaction();
+	// session.persist(transientInstance);
+	// // log.debug("persist successful");
+	// trs.commit();
+	// } catch (Exception re) {
+	// re.printStackTrace();
+	//// log.fatal("persist failed", re);
+	//
+	// } finally {
+	// releaseSession(session);
+	// }
+	// }
+
 	public int persist(Object transientInstance) {
 		// log.debug("persisting TblACategories instance");
 		int finish = -1;
@@ -136,9 +136,9 @@ public class BaseSqlHomeDao {
 		} catch (Exception re) {
 			re.printStackTrace();
 			String object2Persist = GsonUltilities.toJson(transientInstance);
-			FileLogger.log("persist ex"+ re.getMessage(), LogType.ERROR);
-//			log.fatal("persist failed[" + object2Persist + "]", re);
-//			composeAlertAndSend(re);
+			FileLogger.log("persist ex" + re.getMessage(), LogType.ERROR);
+			// log.fatal("persist failed[" + object2Persist + "]", re);
+			// composeAlertAndSend(re);
 		} finally {
 			releaseSession(session);
 		}
@@ -153,9 +153,9 @@ public class BaseSqlHomeDao {
 			Transaction trs = session.beginTransaction();
 			session.saveOrUpdate(instance);
 			trs.commit();
-//			log.debug("attach successful");
+			// log.debug("attach successful");
 		} catch (Exception re) {
-//			log.error("attach failed", re);
+			// log.error("attach failed", re);
 
 			throw re;
 		} finally {
@@ -169,9 +169,9 @@ public class BaseSqlHomeDao {
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.lock(instance, LockMode.NONE);
-//			log.debug("attach successful");
+			// log.debug("attach successful");
 		} catch (Exception re) {
-//			log.error("attach failed", re);
+			// log.error("attach failed", re);
 
 			throw re;
 		} finally {
@@ -180,14 +180,15 @@ public class BaseSqlHomeDao {
 	}
 
 	public void delete(Object persistentInstance) {
-//		log.debug(String.format("deleting %s instance", persistentInstance.getClass().getName()));
+		// log.debug(String.format("deleting %s instance",
+		// persistentInstance.getClass().getName()));
 		Session session = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			session.delete(persistentInstance);
-//			log.debug("delete successful");
+			// log.debug("delete successful");
 		} catch (Exception re) {
-//			log.error("delete failed", re);
+			// log.error("delete failed", re);
 
 			throw re;
 		} finally {
@@ -205,11 +206,11 @@ public class BaseSqlHomeDao {
 			Transaction tx = session.beginTransaction();
 			Object result = session.merge(detachedInstance);
 
-//			log.debug("merge successful");
+			// log.debug("merge successful");
 			tx.commit();
 			return result;
 		} catch (Exception re) {
-//			log.error("merge failed", re);
+			// log.error("merge failed", re);
 
 			throw re;
 		} finally {
@@ -227,11 +228,11 @@ public class BaseSqlHomeDao {
 			Transaction tx = session.beginTransaction();
 			session.saveOrUpdate(detachedInstance);
 
-//			log.debug("save or update successful");
+			// log.debug("save or update successful");
 			tx.commit();
 
 		} catch (Exception re) {
-//			log.error("save or update", re);
+			// log.error("save or update", re);
 
 			throw re;
 		} finally {
@@ -253,11 +254,11 @@ public class BaseSqlHomeDao {
 			updateObject(objOld, detachedInstance);
 			session.update(objOld);
 
-//			log.debug("merge successful");
+			// log.debug("merge successful");
 			tx.commit();
 
 		} catch (Exception re) {
-//			log.error("merge failed", re);
+			// log.error("merge failed", re);
 
 			throw re;
 		} finally {
@@ -275,17 +276,44 @@ public class BaseSqlHomeDao {
 			Transaction tx = session.beginTransaction();
 			// session.save(detachedInstance);
 			Serializable serializable = session.save(detachedInstance);
-//			log.debug("save successful");
+			// log.debug("save successful");
 			tx.commit();
 			return serializable;
 
 		} catch (Exception re) {
-//			log.error("merge failed", re);
+			// log.error("merge failed", re);
 
 			throw re;
 		} finally {
 			releaseSession(session);
 		}
+	}
+
+	public boolean saveTransaction(Object obj1, Object obj2) throws Exception {
+		Session session = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+
+			Transaction transaction = session.beginTransaction();
+			try {
+				session.save(obj1);
+				session.save(obj2);
+				transaction.commit();
+				result = true;
+			} catch (Exception e) {
+				session.flush();
+				session.clear();
+			}
+			session.close();
+			return result;
+		} catch (Exception re) {
+			re.printStackTrace();
+			FileLogger.log("saveTransaction Exception " + re, LogType.ERROR);
+		} finally {
+			releaseSession(session);
+		}
+		return result;
 	}
 
 	public Object findById(Object objId, Class rootObj) {
@@ -294,13 +322,13 @@ public class BaseSqlHomeDao {
 			session = HibernateUtil.getSessionFactory().openSession();
 			Object instance = session.get(rootObj, (Serializable) objId);
 			if (instance == null) {
-//				log.debug("get successful, no instance found");
+				// log.debug("get successful, no instance found");
 			} else {
-//				log.debug("get successful, instance found");
+				// log.debug("get successful, instance found");
 			}
 			return instance;
 		} catch (Exception re) {
-//			log.error("get failed", re);
+			// log.error("get failed", re);
 
 			throw re;
 		} finally {
@@ -316,13 +344,13 @@ public class BaseSqlHomeDao {
 		try {
 			Object instance = session.get(rootObj, (Serializable) objId);
 			if (instance == null) {
-//				log.debug("get successful, no instance found");
+				// log.debug("get successful, no instance found");
 			} else {
-//				log.debug("get successful, instance found");
+				// log.debug("get successful, instance found");
 			}
 			return instance;
 		} catch (Exception re) {
-//			log.error("get failed", re);
+			// log.error("get failed", re);
 
 			throw re;
 		} finally {
@@ -374,10 +402,11 @@ public class BaseSqlHomeDao {
 			@SuppressWarnings("unchecked")
 			List<Object> results = (List<Object>) session.createCriteria(instance.getClass().getName())
 					.add(create(instance)).list();
-//			log.debug("find by example successful, result size: " + results.size());
+			// log.debug("find by example successful, result size: " +
+			// results.size());
 			return results;
 		} catch (Exception re) {
-//			log.fatal("find by example failed", re);
+			// log.fatal("find by example failed", re);
 
 			throw re;
 		} finally {
@@ -396,10 +425,11 @@ public class BaseSqlHomeDao {
 			// + (finishProcess - preProcess));
 			@SuppressWarnings("unchecked")
 			List<Object> results = (List<Object>) session.createCriteria(instance.getClass()).list();
-//			log.debug("find by example successful, result size: " + results.size());
+			// log.debug("find by example successful, result size: " +
+			// results.size());
 			return results;
 		} catch (Exception re) {
-//			log.fatal("find by example failed", re);
+			// log.fatal("find by example failed", re);
 
 			throw re;
 		} finally {
@@ -418,7 +448,7 @@ public class BaseSqlHomeDao {
 			return Long.valueOf(1);
 		} catch (Exception e) {
 			// TODO: handle exception
-//			log.fatal(e.getLocalizedMessage(), e);
+			// log.fatal(e.getLocalizedMessage(), e);
 
 			return Long.valueOf(1);
 		} finally {
@@ -434,31 +464,33 @@ public class BaseSqlHomeDao {
 			Object uniqueRs = session.createSQLQuery(sql).executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
-//			log.fatal(e.getLocalizedMessage(), e);
+			// log.fatal(e.getLocalizedMessage(), e);
 
 		} finally {
 			releaseSession(session);
 		}
 	}
 
-//	public void executeProcedure1cccc(String procedureName, String param, String value) {
-//		Session session = null;
-//		
-//		try {
-//			session = HibernateUtil.getSessionFactory().openSession();
-//			// String sql = "CALL " + procedureName + "()";
-////			Query query = session.createSQLQuery("call " + procedureName + " (:" + param + ")").setParameter(param,value);
-//			Query query = session.createSQLQuery("call").setParameter(
-//			query.executeUpdate();
-//			// Object uniqueRs = session.createSQLQuery(sql).executeUpdate();
-//		} catch (Exception e) {
-//			// TODO: handle exception
-//			log.fatal(e.getLocalizedMessage(), e);
-//
-//		} finally {
-//			releaseSession(session);
-//		}
-//	}
+	// public void executeProcedure1cccc(String procedureName, String param,
+	// String value) {
+	// Session session = null;
+	//
+	// try {
+	// session = HibernateUtil.getSessionFactory().openSession();
+	// // String sql = "CALL " + procedureName + "()";
+	//// Query query = session.createSQLQuery("call " + procedureName + " (:" +
+	// param + ")").setParameter(param,value);
+	// Query query = session.createSQLQuery("call").setParameter(
+	// query.executeUpdate();
+	// // Object uniqueRs = session.createSQLQuery(sql).executeUpdate();
+	// } catch (Exception e) {
+	// // TODO: handle exception
+	// log.fatal(e.getLocalizedMessage(), e);
+	//
+	// } finally {
+	// releaseSession(session);
+	// }
+	// }
 
 	/**
 	 * @param e

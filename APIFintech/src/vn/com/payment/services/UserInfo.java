@@ -36,6 +36,9 @@ import vn.com.payment.ultities.ValidData;
 public class UserInfo {
 	public static String prefixKey = "APIFintech";
 	Gson gson = new Gson();
+	long statusSuccess = 100l;
+	long statusFale = 111l;
+	long statusFaleToken = 104l;
 	public Response login(String dataLogin) {
 		FileLogger.log("----------------Bat dau login--------------------------", LogType.USERINFO);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -45,7 +48,7 @@ public class UserInfo {
 			if (ValidData.checkNull(reqLogin.getUsername()) == false){
 				FileLogger.log("login invalid : ", LogType.USERINFO);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
-				resLogin.setStatus("111");
+				resLogin.setStatus(statusFale);
 				resLogin.setToken("");
 				resLogin.setRequire_change_pass("");
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
@@ -66,13 +69,13 @@ public class UserInfo {
 					boolean checkPush = RedisBusiness.setValue_toCacheTime(key, tokenRedis.toJSON(), MainCfg.timeExp);
 					if(checkPush == true){
 						FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
-						resLogin.setStatus("100");
+						resLogin.setStatus(statusSuccess);
 						resLogin.setToken(token);
 						resLogin.setRequire_change_pass(acc.getRequireChangePass()+"");
 						response = response.header(Commons.ReceiveTime, getTimeNow());
 					}else{
 						FileLogger.log("login Gettoken setValue_toCacheTime false ------", LogType.USERINFO);
-						resLogin.setStatus("111");
+						resLogin.setStatus(statusFale);
 						resLogin.setToken("");
 						resLogin.setRequire_change_pass("");
 						response = response.header(Commons.ReceiveTime, getTimeNow());
@@ -80,14 +83,14 @@ public class UserInfo {
 				}else{
 					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
 					FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
-					resLogin.setStatus("100");
+					resLogin.setStatus(statusSuccess);
 					resLogin.setToken(tokenRedis.getToken());
 					resLogin.setRequire_change_pass("");
 					response = response.header(Commons.ReceiveTime, getTimeNow());
 				}
 			}else{
 				FileLogger.log("login Gettoken false username or pass", LogType.USERINFO);
-				resLogin.setStatus("104");
+				resLogin.setStatus(statusFaleToken);
 				resLogin.setToken("");
 				resLogin.setRequire_change_pass("");
 				response = response.header(Commons.ReceiveTime, getTimeNow());
@@ -96,7 +99,7 @@ public class UserInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc login Exception "+ e.getMessage(), LogType.ERROR);
-			resLogin.setStatus("111");
+			resLogin.setStatus(statusFale);
 			resLogin.setToken("");
 			resLogin.setRequire_change_pass("");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
@@ -113,8 +116,8 @@ public class UserInfo {
 			if (ValidData.checkNull(reqChangePass.getUsername()) == false){
 				FileLogger.log("changePass invalid : ", LogType.USERINFO);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
-				resChangePass.setStatus("111");
-				resChangePass.setMessage("That bai");
+				resChangePass.setStatus(statusFale);
+				resChangePass.setMessage("That bai - invalid message request");
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 			}
 			
@@ -136,16 +139,16 @@ public class UserInfo {
 						acc.setPassword(MD5.hash(MD5.hash(reqChangePass.getNew_pwd())));
 						boolean checkUPD = accountHome.updateAccount(acc);
 						if(checkUPD){
-							resChangePass.setStatus("100");
+							resChangePass.setStatus(statusSuccess);
 							resChangePass.setMessage("Thanh cong");
 						}else{
-							resChangePass.setStatus("111");
+							resChangePass.setStatus(statusFale);
 							resChangePass.setMessage("That bai");
 						}
 					}else{
 						FileLogger.log("changePass Gettoken setValue_toCacheTime false ------", LogType.USERINFO);
-						resChangePass.setStatus("111");
-						resChangePass.setMessage("That bai");
+						resChangePass.setStatus(statusFale);
+						resChangePass.setMessage("That bai - Token sai hoac het han");
 					}
 				}else{
 //					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
@@ -153,16 +156,16 @@ public class UserInfo {
 					acc.setPassword(MD5.hash(MD5.hash(reqChangePass.getNew_pwd())));
 					boolean checkUPD = accountHome.updateAccount(acc);
 					if(checkUPD){
-						resChangePass.setStatus("100");
+						resChangePass.setStatus(statusSuccess);
 						resChangePass.setMessage("Thanh cong");
 					}else{
-						resChangePass.setStatus("111");
+						resChangePass.setStatus(statusFale);
 						resChangePass.setMessage("That bai");
 					}
 				}
 			}else{
 				FileLogger.log("changePass Gettoken false username or pass", LogType.USERINFO);
-				resChangePass.setStatus("111");
+				resChangePass.setStatus(statusFale);
 				resChangePass.setMessage("That bai");
 			}
 			response = response.header(Commons.ReceiveTime, getTimeNow());
@@ -170,7 +173,7 @@ public class UserInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc changePass Exception "+ e.getMessage(), LogType.ERROR);
-			resChangePass.setStatus("111");
+			resChangePass.setStatus(statusFale);
 			resChangePass.setMessage("That bai");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
@@ -186,7 +189,7 @@ public class UserInfo {
 			if (ValidData.checkNull(reqChangePass.getUsername()) == false){
 				FileLogger.log("changePass invalid : ", LogType.USERINFO);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
-				resChangePass.setStatus("111");
+				resChangePass.setStatus(statusFale);
 				resChangePass.setMessage("That bai");
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 			}
@@ -198,7 +201,7 @@ public class UserInfo {
 				boolean checkUPD = accountHome.updateAccount(acc);
 				FileLogger.log("changePass username: " + reqChangePass.getUsername() + " checkUPD newPass:" + checkUPD, LogType.USERINFO);
 				if(checkUPD){
-					resChangePass.setStatus("100");
+					resChangePass.setStatus(statusSuccess);
 					resChangePass.setMessage("Thanh cong");
 					response = response.header(Commons.ReceiveTime, getTimeNow());
 					
@@ -216,13 +219,13 @@ public class UserInfo {
 					boolean sentNoti = sentNotify(key, subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
 					FileLogger.log("changePass sentNoti : " + sentNoti, LogType.USERINFO);
 				}else{
-					resChangePass.setStatus("111");
+					resChangePass.setStatus(statusFale);
 					resChangePass.setMessage("That bai");
 					response = response.header(Commons.ReceiveTime, getTimeNow());
 				}
 			}else{
 				FileLogger.log("changePass username: " + reqChangePass.getUsername() + " false getAccountUsename null:", LogType.USERINFO);
-				resChangePass.setStatus("111");
+				resChangePass.setStatus(statusFale);
 				resChangePass.setMessage("That bai");
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 			}
@@ -230,7 +233,7 @@ public class UserInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc resetPass Exception "+ e.getMessage(), LogType.ERROR);
-			resChangePass.setStatus("111");
+			resChangePass.setStatus(statusFale);
 			resChangePass.setMessage("That bai");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();

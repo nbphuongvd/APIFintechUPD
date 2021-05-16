@@ -1,0 +1,6 @@
+01:53:58 PM   getProduct Exception org.hibernate.QueryException: could not resolve property: active_status of: vn.com.payment.entities.TblRateConfig
+
+04:54:52 PM  saveTransaction Exception org.hibernate.AssertionFailure: null id in vn.com.payment.entities.TblLoanReqDetail entry (don't flush the Session after an exception occurs)
+
+04:56:06 PM  saveTransaction Exception org.hibernate.AssertionFailure: null id in vn.com.payment.entities.TblLoanReqDetail entry (don't flush the Session after an exception occurs)
+

@@ -1,10 +1,16 @@
 package vn.com.payment.object;
 
-import com.google.gson.Gson;
+import java.util.List;
 
-public class ResChangePass {
+import com.google.gson.Gson;
+import com.sun.tools.javac.code.Attribute.Array;
+
+import vn.com.payment.entities.TblRateConfig;
+
+public class RateConfigRes {
 	public long status;
 	public String message;
+	public List<TblRateConfig> rate_config;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -29,6 +35,12 @@ public class ResChangePass {
 	}
 	public void setMessage(String message) {
 		this.message = message;
+	}
+	public List<TblRateConfig> getRate_config() {
+		return rate_config;
+	}
+	public void setRate_config(List<TblRateConfig> rate_config) {
+		this.rate_config = rate_config;
 	}
 	
 }

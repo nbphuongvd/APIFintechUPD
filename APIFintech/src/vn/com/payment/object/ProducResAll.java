@@ -3,7 +3,7 @@ package vn.com.payment.object;
 import com.google.gson.Gson;
 
 public class ProducResAll {
-	public String status;
+	public long status;
 	public ProductRes suggest_info;
 	public String toJSON(){
 	String json	=	"";
@@ -15,12 +15,15 @@ public class ProducResAll {
 		}
 		return json;
 	}
-	public String getStatus() {
+	
+	public long getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
+
+	public void setStatus(long status) {
 		this.status = status;
 	}
+
 	public ProductRes getSuggest_info() {
 		return suggest_info;
 	}

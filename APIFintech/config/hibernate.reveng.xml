@@ -3,5 +3,6 @@
 
 <hibernate-reverse-engineering>
 <!-- 	<table-filter match-name="tbl_transactions" /> -->
-	<table-filter match-name="tbl_product"/>
+	<table-filter match-name="tbl_loan_request"/>
+	<table-filter match-name="tbl_loan_req_detail"/>
 </hibernate-reverse-engineering>
