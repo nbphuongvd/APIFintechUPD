@@ -26,6 +26,13 @@ public class ValidData {
 		return false;
 	}
 	
+	public static boolean checkNullInt(int str) {
+		if (!"".equals(str)) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static void main(String[] args) {
 		long a = 0;
 		

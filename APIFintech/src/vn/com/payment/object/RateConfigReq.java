@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 public class RateConfigReq {
 	public String username;
 	public String token;
+	public int type;
 	
 	public String getUsername() {
 		return username;
@@ -20,6 +21,14 @@ public class RateConfigReq {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+	
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 
 	public String toJSON(){

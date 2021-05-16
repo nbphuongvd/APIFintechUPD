@@ -78,16 +78,47 @@ public class AccountHome extends BaseSqlHomeDao{
 			throw re;
 		}
 	}
+	public Account getAccountLogin(String u_name, String password, int type) {
+		Account acc = null;
+		Session session = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			Criteria listTrans = session.createCriteria(Account.class);
+			Criterion name = Restrictions.eq("email", u_name);
+			Criterion pwd = Restrictions.eq("password", password);
+			Criterion status = Restrictions.eq("status", new Integer(1));
+			Criterion typeCr = Restrictions.eq("type", type);
+			listTrans.add(name);
+			listTrans.add(pwd);
+			listTrans.add(status);
+			listTrans.add(typeCr);
+			// listTrans.setMaxResults(1);
+			@SuppressWarnings("unchecked")
+			List<Account> listAcc = listTrans.list();
+			if (listAcc.size() > 0) {
+				acc = listAcc.get(0);
+			}
+		} catch (Exception e) {
+			FileLogger.log(" getAccount Exception "+ e, LogType.ERROR);
+			throw e;
+		} finally {
+			releaseSession(session);
+		}
+		return acc;
+	}
+	
 	public Account getAccount(String u_name, String password) {
 		Account acc = null;
 		Session session = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			Criteria listTrans = session.createCriteria(Account.class);
-			Criterion name = Restrictions.eq("UName", u_name);
+			Criterion name = Restrictions.eq("email", u_name);
 			Criterion pwd = Restrictions.eq("password", password);
+			Criterion status = Restrictions.eq("status", new Integer(1));
 			listTrans.add(name);
 			listTrans.add(pwd);
+			listTrans.add(status);
 			// listTrans.setMaxResults(1);
 			@SuppressWarnings("unchecked")
 			List<Account> listAcc = listTrans.list();
@@ -108,7 +139,7 @@ public class AccountHome extends BaseSqlHomeDao{
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			Criteria listTrans = session.createCriteria(Account.class);
-			Criterion name = Restrictions.eq("UName", u_name);
+			Criterion name = Restrictions.eq("email", u_name);
 			listTrans.add(name);
 			// listTrans.setMaxResults(1);
 			@SuppressWarnings("unchecked")

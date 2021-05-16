@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 public class ResLogin {
 	public long status;
 	public String token;
-	public String require_change_pass;
+	public int require_change_pass;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -31,10 +31,12 @@ public class ResLogin {
 	public void setToken(String token) {
 		this.token = token;
 	}
-	public String getRequire_change_pass() {
+
+	public int getRequire_change_pass() {
 		return require_change_pass;
 	}
-	public void setRequire_change_pass(String require_change_pass) {
+
+	public void setRequire_change_pass(int require_change_pass) {
 		this.require_change_pass = require_change_pass;
 	}
 	

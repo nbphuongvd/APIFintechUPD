@@ -82,14 +82,16 @@ public class TblRateConfigHome extends BaseSqlHomeDao{
 		}
 	}
 
-	public List<TblRateConfig> getRateConfig() {
+	public List<TblRateConfig> getRateConfig(int type) {
 		List<TblRateConfig> results = new ArrayList<>();
 		Session session = null;
 		try {
 			session						 	= HibernateUtil.getSessionFactory().openSession();
 			Criteria crtProduct 			= session.createCriteria(TblRateConfig.class);
 			Criterion active_status 		= Restrictions.eq("activeStatus", new Integer(1));
+			Criterion rateType 				= Restrictions.eq("rateType", type);
 			crtProduct.add(active_status);
+			crtProduct.add(rateType);
 			results = crtProduct.list();
 			return results;
 		} catch (Exception e) {
@@ -103,7 +105,7 @@ public class TblRateConfigHome extends BaseSqlHomeDao{
 	
 	public static void main(String[] args) {
 		TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
-		List<TblRateConfig> results = tblRateConfigHome.getRateConfig();
+		List<TblRateConfig> results = tblRateConfigHome.getRateConfig(2);
 		System.out.println(results);
 		for (TblRateConfig tblRateConfig : results) {
 			System.out.println(tblRateConfig.getRateName());

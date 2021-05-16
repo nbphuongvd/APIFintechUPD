@@ -77,7 +77,6 @@
 				value="%d{dd MM yy HH:mm:ss,SSS} %L %-4r [%t] %-5p %c %x - %m%n" />
 		</layout>
 	</appender>
-
 	<appender name="SoketFatal" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="File" value="./logs/soket_fatal.log" />
 		<param name="Threshold" value="FATAL" />

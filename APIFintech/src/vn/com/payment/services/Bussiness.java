@@ -154,7 +154,8 @@ public class Bussiness {
 		try {
 			RateConfigReq rateConfigReq = gson.fromJson(dataRateConfig, RateConfigReq.class);
 			if (ValidData.checkNull(rateConfigReq.getUsername()) == false 
-				|| ValidData.checkNull(rateConfigReq.getToken()) == false){
+				|| ValidData.checkNull(rateConfigReq.getToken()) == false
+				|| ValidData.checkNullInt(rateConfigReq.getType()) == false){
 				FileLogger.log("getRateConfig: " + rateConfigReq.getUsername()+ " invalid : ", LogType.BUSSINESS);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 				rateConfigRes.setStatus(statusFale);
@@ -165,7 +166,7 @@ public class Bussiness {
 			}
 			boolean checkLG = checkLogin(rateConfigReq.getUsername(), rateConfigReq.getToken());
 			if(checkLG){			
-				List<TblRateConfig> results = tblRateConfigHome.getRateConfig();								
+				List<TblRateConfig> results = tblRateConfigHome.getRateConfig(rateConfigReq.getType());								
 				if (results != null){					
 					rateConfigRes.setStatus(statusSuccess);
 					rateConfigRes.setMessage("Lay thong tin thanh cong");

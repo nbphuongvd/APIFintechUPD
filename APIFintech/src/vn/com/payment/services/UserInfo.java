@@ -45,16 +45,18 @@ public class UserInfo {
 		ResLogin resLogin = new ResLogin();
 		try {
 			ReqLogin reqLogin = gson.fromJson(dataLogin, ReqLogin.class);
-			if (ValidData.checkNull(reqLogin.getUsername()) == false){
+			if (ValidData.checkNull(reqLogin.getUsername()) == false
+				|| ValidData.checkNull(reqLogin.getPwd()) == false
+				|| ValidData.checkNullInt(reqLogin.getType()) == false){
 				FileLogger.log("login invalid : ", LogType.USERINFO);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 				resLogin.setStatus(statusFale);
 				resLogin.setToken("");
-				resLogin.setRequire_change_pass("");
+				resLogin.setRequire_change_pass(0);
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
 			}
 			AccountHome accountHome = new AccountHome();
-			Account acc = accountHome.getAccount(reqLogin.getUsername(), MD5.hash(MD5.hash(reqLogin.getPwd())));
+			Account acc = accountHome.getAccountLogin(reqLogin.getUsername(), MD5.hash(reqLogin.getPwd()), reqLogin.getType());
 
 			if (acc != null){
 				String key = prefixKey + reqLogin.getUsername();
@@ -71,13 +73,13 @@ public class UserInfo {
 						FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
 						resLogin.setStatus(statusSuccess);
 						resLogin.setToken(token);
-						resLogin.setRequire_change_pass(acc.getRequireChangePass()+"");
+						resLogin.setRequire_change_pass(acc.getRequireChangePass());
 						response = response.header(Commons.ReceiveTime, getTimeNow());
 					}else{
 						FileLogger.log("login Gettoken setValue_toCacheTime false ------", LogType.USERINFO);
 						resLogin.setStatus(statusFale);
 						resLogin.setToken("");
-						resLogin.setRequire_change_pass("");
+						resLogin.setRequire_change_pass(0);
 						response = response.header(Commons.ReceiveTime, getTimeNow());
 					}
 				}else{
@@ -85,14 +87,14 @@ public class UserInfo {
 					FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
 					resLogin.setStatus(statusSuccess);
 					resLogin.setToken(tokenRedis.getToken());
-					resLogin.setRequire_change_pass("");
+					resLogin.setRequire_change_pass(acc.getRequireChangePass());
 					response = response.header(Commons.ReceiveTime, getTimeNow());
 				}
 			}else{
 				FileLogger.log("login Gettoken false username or pass", LogType.USERINFO);
 				resLogin.setStatus(statusFaleToken);
 				resLogin.setToken("");
-				resLogin.setRequire_change_pass("");
+				resLogin.setRequire_change_pass(0);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 			}
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
@@ -101,7 +103,7 @@ public class UserInfo {
 			FileLogger.log("----------------Ket thuc login Exception "+ e.getMessage(), LogType.ERROR);
 			resLogin.setStatus(statusFale);
 			resLogin.setToken("");
-			resLogin.setRequire_change_pass("");
+			resLogin.setRequire_change_pass(0);
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
 		}
@@ -122,7 +124,7 @@ public class UserInfo {
 			}
 			
 			AccountHome accountHome = new AccountHome();
-			Account acc = accountHome.getAccount(reqChangePass.getUsername(), MD5.hash(MD5.hash(reqChangePass.getPwd())));
+			Account acc = accountHome.getAccount(reqChangePass.getUsername(), MD5.hash(reqChangePass.getPwd()));
 			if (acc != null){
 				String key = prefixKey + reqChangePass.getUsername();
 				String tokenResponse = RedisBusiness.getValue_fromCache(key);
@@ -136,7 +138,7 @@ public class UserInfo {
 					boolean checkPush = RedisBusiness.setValue_toCacheTime(key, tokenRedis.toJSON(), MainCfg.timeExp);
 					if(checkPush == true){
 						FileLogger.log("changePass Gettoken setValue_toCacheTime success------", LogType.USERINFO);						
-						acc.setPassword(MD5.hash(MD5.hash(reqChangePass.getNew_pwd())));
+						acc.setPassword(MD5.hash(reqChangePass.getNew_pwd()));
 						boolean checkUPD = accountHome.updateAccount(acc);
 						if(checkUPD){
 							resChangePass.setStatus(statusSuccess);
@@ -153,7 +155,7 @@ public class UserInfo {
 				}else{
 //					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
 					FileLogger.log("changePass Gettoken setValue_toCacheTime success------", LogType.USERINFO);
-					acc.setPassword(MD5.hash(MD5.hash(reqChangePass.getNew_pwd())));
+					acc.setPassword(MD5.hash(reqChangePass.getNew_pwd()));
 					boolean checkUPD = accountHome.updateAccount(acc);
 					if(checkUPD){
 						resChangePass.setStatus(statusSuccess);
@@ -194,6 +196,7 @@ public class UserInfo {
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 			}
 			String newPass = getRandomStr(8);
+			System.out.println("newPass: "+ newPass);
 			AccountHome accountHome = new AccountHome();
 			Account acc = accountHome.getAccountUsename(reqChangePass.getUsername());
 			if (acc != null){
@@ -203,7 +206,6 @@ public class UserInfo {
 				if(checkUPD){
 					resChangePass.setStatus(statusSuccess);
 					resChangePass.setMessage("Thanh cong");
-					response = response.header(Commons.ReceiveTime, getTimeNow());
 					
 					//Sent email
 					String key = prefixKey + "_NOTIFY";
@@ -220,15 +222,14 @@ public class UserInfo {
 					FileLogger.log("changePass sentNoti : " + sentNoti, LogType.USERINFO);
 				}else{
 					resChangePass.setStatus(statusFale);
-					resChangePass.setMessage("That bai");
-					response = response.header(Commons.ReceiveTime, getTimeNow());
+					resChangePass.setMessage("That bai");					
 				}
 			}else{
 				FileLogger.log("changePass username: " + reqChangePass.getUsername() + " false getAccountUsename null:", LogType.USERINFO);
 				resChangePass.setStatus(statusFale);
 				resChangePass.setMessage("That bai");
-				response = response.header(Commons.ReceiveTime, getTimeNow());
 			}
+			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -283,7 +284,7 @@ public class UserInfo {
 			FileLogger.log("sentNotify key : " + key, LogType.USERINFO);
 			FileLogger.log("sentNotify notifyObject : " + notifyObject.toJSON(), LogType.USERINFO);
 			RedisBusiness redisBusiness = new RedisBusiness();
-			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject);
+			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject.toJSON());
 			FileLogger.log("sentNotify checkPush : " + checkPush, LogType.USERINFO);
 			if(checkPush){
 				sent = true;
@@ -298,19 +299,22 @@ public class UserInfo {
 	
 	public static void main(String[] args) {
 		try {
-//			System.out.println(getRandomStr(8));
-//			System.out.println(URLEncoder.encode("yQ/N3ntKC40cDV9Q0ha4J5b3X77Ws0tcE616aZJhy+E\u003d", "UTF-8"));
-//			System.out.println(URLDecoder.decode("yQ%2FN3ntKC40cDV9Q0ha4J5b3X77Ws0tcE616aZJhy%2BE%3D", "UTF-8"));
-//			System.out.println(getTimeEXP());
-//			SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
-//			format.format(new Date());
-//			Date dt = new Date();
-//			Calendar c = Calendar.getInstance(); 
-//			c.setTime(dt); 
-//			c.add(Calendar.DATE, 1);
-//			dt = c.getTime();
-//			
-			System.out.println(MD5.hash(MD5.hash("123456")));
+			UserInfo userInfo = new UserInfo();
+			String newPass = getRandomStr(8);
+			String key = prefixKey + "_NOTIFY";
+			String subject = "Thong bao thay doi mat khau";
+			String content = "Mat khau moi cua ban la: " + newPass;
+			String message = "1";
+			String isHtml  = "true";
+			String receiveEmail = "dinhphuong.v@gmail.com";
+			String receiveSMS = "";
+			String receiveChat = "";
+			String serviceCode = "API";
+			String subService = "APIFintech";
+			boolean sentNoti = userInfo.sentNotify(key, subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
+			System.out.println("sentNoti: " + sentNoti);
+//			System.out.println(MD5.hash("12345678"));
+			// 123456 e10adc3949ba59abbe56e057f20f883e
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

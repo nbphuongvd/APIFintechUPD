@@ -72,11 +72,11 @@ public class RedisBusiness {
 		return result;
 	}
 	
-	public boolean enQueueToRedis(String key, NotifyObject notifyObject) {
+	public boolean enQueueToRedis(String key, String obj) {
 		Jedis conn = null;
 		try {
 			conn = Pool.getConnection();
-			conn.rpush(key.getBytes(), SerializationUtils.serialize(notifyObject));
+			conn.rpush(key.getBytes(), obj.getBytes());
 			return true;
 		} catch (Exception e) {
 			FileLogger.log("enQueue "+e, LogType.ERROR);
