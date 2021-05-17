@@ -209,8 +209,8 @@ public class UserInfo {
 					
 					//Sent email
 					String key = prefixKey + "_NOTIFY";
-					String subject = "Thong bao thay doi mat khau";
-					String content = "Mat khau moi cua ban la: " + newPass;
+					String subject = "Thông báo thay đổi mật khẩu";
+					String content = newPass;
 					String message = "1";
 					String isHtml  = "true";
 					String receiveEmail = acc.getEmail();
@@ -218,7 +218,7 @@ public class UserInfo {
 					String receiveChat = "";
 					String serviceCode = "API";
 					String subService = "APIFintech";
-					boolean sentNoti = sentNotify(key, subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
+					boolean sentNoti = sentNotify(key, reqChangePass.getUsername(), subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
 					FileLogger.log("changePass sentNoti : " + sentNoti, LogType.USERINFO);
 				}else{
 					resChangePass.setStatus(statusFale);
@@ -240,8 +240,6 @@ public class UserInfo {
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 		}
 	}
-	
-	
 	
 	public static String getTimeNow() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
@@ -268,12 +266,19 @@ public class UserInfo {
 		return ran;
 	}
 	
-	public boolean sentNotify(String key, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
+	public boolean sentNotify(String key, String userName, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
 		boolean sent = false;
 		try {
+			
+			String  message =  "Kính gửi: " + userName + " <br><br>";
+			message += "Ngày: " + getTimeNow() + " Mật khẩu của quý khách đã được thay đổi thành: "+ content+"<br>";
+			message += "\r\n Quý khách vui lòng nhập đăng nhập lại với mật khẩu mới.<br><br>";
+			message += "\r\n";
+			message += "\r\n Trân trọng!";
+			
 			NotifyObject notifyObject = new NotifyObject();
 			notifyObject.setSubject(subject);
-			notifyObject.setContent(content);
+			notifyObject.setContent(message);
 			notifyObject.setMessage_type(message_type);
 			notifyObject.setIs_html(is_html);
 			notifyObject.setReceive_email_expect(receive_email_expect);
@@ -311,7 +316,7 @@ public class UserInfo {
 			String receiveChat = "";
 			String serviceCode = "API";
 			String subService = "APIFintech";
-			boolean sentNoti = userInfo.sentNotify(key, subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
+			boolean sentNoti = userInfo.sentNotify(key, "userName" , subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
 			System.out.println("sentNoti: " + sentNoti);
 //			System.out.println(MD5.hash("12345678"));
 			// 123456 e10adc3949ba59abbe56e057f20f883e

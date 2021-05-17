@@ -1,5 +1,6 @@
 package vn.com.payment.redis;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -76,7 +77,7 @@ public class RedisBusiness {
 		Jedis conn = null;
 		try {
 			conn = Pool.getConnection();
-			conn.rpush(key.getBytes(), obj.getBytes());
+			conn.rpush(key.getBytes(), obj.getBytes(StandardCharsets.UTF_8));
 			return true;
 		} catch (Exception e) {
 			FileLogger.log("enQueue "+e, LogType.ERROR);
