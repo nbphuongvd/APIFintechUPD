@@ -1,8 +1,10 @@
 package vn.com.payment.services;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -15,10 +17,17 @@ import com.google.gson.Gson;
 import vn.com.payment.config.LogType;
 import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
+import vn.com.payment.entities.GroupMapPer;
+import vn.com.payment.entities.GroupRoles;
+import vn.com.payment.entities.SubPermission;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.home.AccountHome;
+import vn.com.payment.home.GroupMapPerHome;
+import vn.com.payment.home.GroupRolesHome;
+import vn.com.payment.home.SubPermissionHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.object.NotifyObject;
+import vn.com.payment.object.ObjectSubPer;
 import vn.com.payment.object.ProducResAll;
 import vn.com.payment.object.ProductReq;
 import vn.com.payment.object.ProductRes;
@@ -34,6 +43,10 @@ import vn.com.payment.ultities.MD5;
 import vn.com.payment.ultities.ValidData;
 
 public class UserInfo {
+	GroupMapPerHome groupMapPerHome = new GroupMapPerHome();
+	SubPermissionHome subPermissionHome = new SubPermissionHome();
+	GroupRolesHome groupRolesHome = new GroupRolesHome();
+	AccountHome accountHome = new AccountHome();
 	public static String prefixKey = "APIFintech";
 	Gson gson = new Gson();
 	long statusSuccess = 100l;
@@ -55,10 +68,21 @@ public class UserInfo {
 				resLogin.setRequire_change_pass(0);
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
 			}
-			AccountHome accountHome = new AccountHome();
 			Account acc = accountHome.getAccountLogin(reqLogin.getUsername(), MD5.hash(reqLogin.getPwd()), reqLogin.getType());
 
 			if (acc != null){
+
+				ArrayList<String> roles = new ArrayList<String>();				
+				List<GroupMapPer> results = groupMapPerHome.getGroupMapPer(Integer.parseInt(acc.getRolesId()));
+				for (GroupMapPer groupMapPer : results) {
+					GroupRoles getGroupRoles = groupRolesHome.getGroupRoles(Integer.parseInt(acc.getRolesId()));
+					List<SubPermission> getSubPermission = subPermissionHome.getSubPermission(groupMapPer.getSubPermissionId());
+					ObjectSubPer objectSubPer = new ObjectSubPer();
+					objectSubPer.setName(getGroupRoles.getName());
+					objectSubPer.setSub_permission(getSubPermission);					
+					roles.add(objectSubPer.toJSON());
+				}
+				
 				String key = prefixKey + reqLogin.getUsername();
 				String tokenResponse = RedisBusiness.getValue_fromCache(key);
 				if(tokenResponse == null){				
@@ -74,6 +98,7 @@ public class UserInfo {
 						resLogin.setStatus(statusSuccess);
 						resLogin.setToken(token);
 						resLogin.setRequire_change_pass(acc.getRequireChangePass());
+						resLogin.setPermission(roles.toString());
 						response = response.header(Commons.ReceiveTime, getTimeNow());
 					}else{
 						FileLogger.log("login Gettoken setValue_toCacheTime false ------", LogType.USERINFO);
@@ -88,6 +113,7 @@ public class UserInfo {
 					resLogin.setStatus(statusSuccess);
 					resLogin.setToken(tokenRedis.getToken());
 					resLogin.setRequire_change_pass(acc.getRequireChangePass());
+					resLogin.setPermission(roles.toString());
 					response = response.header(Commons.ReceiveTime, getTimeNow());
 				}
 			}else{
@@ -97,7 +123,7 @@ public class UserInfo {
 				resLogin.setRequire_change_pass(0);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 			}
-			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON().replace("\\", "")).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc login Exception "+ e.getMessage(), LogType.ERROR);

@@ -6,6 +6,7 @@ public class ResLogin {
 	public long status;
 	public String token;
 	public int require_change_pass;
+	public String permission;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -39,5 +40,13 @@ public class ResLogin {
 	public void setRequire_change_pass(int require_change_pass) {
 		this.require_change_pass = require_change_pass;
 	}
-	
+
+	public String getPermission() {
+		return permission;
+	}
+
+	public void setPermission(String permission) {
+		this.permission = permission;
+	}
+
 }

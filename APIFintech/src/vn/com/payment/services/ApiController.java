@@ -78,6 +78,16 @@ public class ApiController {
 	   return bussiness.createrLoan(formParams);
    }
    
+   @POST
+   @Path("/api/test")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response test(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
+	   Test test = new Test();
+   	   System.out.println(formParams);
+	   return test.getAAA();
+   }
+   
    @GET
    @Path("/api/payment") //=> @Path2
    	 public String payment(
