@@ -51,4 +51,23 @@ public class SubPermissionHome extends BaseSqlHomeDao{
 		}
 		return null;
 	}
+	
+	public List<SubPermission> getSubPermissionid(int perID) {
+		List<SubPermission> results = new ArrayList<>();
+		Session session = null;
+		try {
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(SubPermission.class);
+			Criterion permissionId 				= Restrictions.eq("permissionId", perID);
+			crtProduct.add(permissionId);
+			results = crtProduct.list();
+			return results;
+		} catch (Exception e) {
+			FileLogger.log(" getSubPermissionid Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
 }

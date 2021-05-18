@@ -19,11 +19,13 @@ import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
 import vn.com.payment.entities.GroupMapPer;
 import vn.com.payment.entities.GroupRoles;
+import vn.com.payment.entities.Permmission;
 import vn.com.payment.entities.SubPermission;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.home.AccountHome;
 import vn.com.payment.home.GroupMapPerHome;
 import vn.com.payment.home.GroupRolesHome;
+import vn.com.payment.home.PermmissionHome;
 import vn.com.payment.home.SubPermissionHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.object.NotifyObject;
@@ -45,6 +47,7 @@ import vn.com.payment.ultities.ValidData;
 public class UserInfo {
 	GroupMapPerHome groupMapPerHome = new GroupMapPerHome();
 	SubPermissionHome subPermissionHome = new SubPermissionHome();
+	PermmissionHome permmissionHome = new PermmissionHome();
 	GroupRolesHome groupRolesHome = new GroupRolesHome();
 	AccountHome accountHome = new AccountHome();
 	public static String prefixKey = "APIFintech";
@@ -74,14 +77,25 @@ public class UserInfo {
 
 				ArrayList<String> roles = new ArrayList<String>();				
 				List<GroupMapPer> results = groupMapPerHome.getGroupMapPer(Integer.parseInt(acc.getRolesId()));
+				ArrayList<Integer> subPer = new ArrayList<Integer>();
 				for (GroupMapPer groupMapPer : results) {
-					GroupRoles getGroupRoles = groupRolesHome.getGroupRoles(Integer.parseInt(acc.getRolesId()));
 					List<SubPermission> getSubPermission = subPermissionHome.getSubPermission(groupMapPer.getSubPermissionId());
-					ObjectSubPer objectSubPer = new ObjectSubPer();
-					objectSubPer.setName(getGroupRoles.getName());
-					objectSubPer.setSub_permission(getSubPermission);					
-					roles.add(objectSubPer.toJSON());
+					for (SubPermission subPermission : getSubPermission) {
+						if(!subPer.contains(subPermission.getPermissionId())){
+							subPer.add(subPermission.getPermissionId());
+						}
+					}
 				}
+				
+				ObjectSubPer objectSubPer = new ObjectSubPer();
+				 for (int i : subPer) {
+					Permmission permmission = permmissionHome.getPermmission(i);
+					List<SubPermission> getSubPermission = subPermissionHome.getSubPermissionid(i);
+					objectSubPer.setName(permmission.getName());
+					objectSubPer.setIcon(permmission.getIcon());
+					objectSubPer.setSub_permission(getSubPermission);
+					roles.add(objectSubPer.toJSON());
+				  }
 				
 				String key = prefixKey + reqLogin.getUsername();
 				String tokenResponse = RedisBusiness.getValue_fromCache(key);
