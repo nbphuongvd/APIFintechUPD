@@ -12,6 +12,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.json.JSONObject;
+import org.json.simple.JSONArray;
+
 import com.google.gson.Gson;
 
 import vn.com.payment.config.LogType;
@@ -60,6 +63,9 @@ public class UserInfo {
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
 		ResLogin resLogin = new ResLogin();
 		try {
+			
+			JSONObject jsonObject = new JSONObject();
+			FileLogger.log("login dataLogin : " + dataLogin, LogType.USERINFO);
 			ReqLogin reqLogin = gson.fromJson(dataLogin, ReqLogin.class);
 			if (ValidData.checkNull(reqLogin.getUsername()) == false
 				|| ValidData.checkNull(reqLogin.getPwd()) == false
@@ -72,31 +78,47 @@ public class UserInfo {
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
 			}
 			Account acc = accountHome.getAccountLogin(reqLogin.getUsername(), MD5.hash(reqLogin.getPwd()), reqLogin.getType());
-
 			if (acc != null){
-
-				ArrayList<String> roles = new ArrayList<String>();				
+				FileLogger.log("login acc ! null : " + gson.toJson(acc), LogType.USERINFO);
 				List<GroupMapPer> results = groupMapPerHome.getGroupMapPer(Integer.parseInt(acc.getRolesId()));
 				ArrayList<Integer> subPer = new ArrayList<Integer>();
 				for (GroupMapPer groupMapPer : results) {
-					List<SubPermission> getSubPermission = subPermissionHome.getSubPermission(groupMapPer.getSubPermissionId());
-					for (SubPermission subPermission : getSubPermission) {
-						if(!subPer.contains(subPermission.getPermissionId())){
-							subPer.add(subPermission.getPermissionId());
-						}
+					if(!subPer.contains(groupMapPer.getSubPermissionId())){
+						//Gan ArrayList sub_per
+						//[2,3,4,5,6,7,8,9]
+						subPer.add(groupMapPer.getSubPermissionId());
 					}
 				}
+				System.out.println(subPer);
+				System.out.println("fuck");
+				//Gan ArrayList Permission
+				ArrayList<Integer> permiss = new ArrayList<Integer>();
+				for (int i : subPer) {
+					SubPermission getSubPermission = subPermissionHome.getSubPermissionRowID(i);
+					 if(!permiss.contains(getSubPermission.getPermissionId())){
+						//Gan ArrayList permission
+						//[2,3,4,5,6,7,8,9]
+						 permiss.add(getSubPermission.getPermissionId());
+					}
+				 }
+				System.out.println(permiss);
+				System.out.println("fuck2");
 				
-				ObjectSubPer objectSubPer = new ObjectSubPer();
-				 for (int i : subPer) {
-					Permmission permmission = permmissionHome.getPermmission(i);
-					List<SubPermission> getSubPermission = subPermissionHome.getSubPermissionid(i);
+				JSONArray array = new JSONArray();
+				for (int i : permiss) {
+					ObjectSubPer objectSubPer = new ObjectSubPer();
+					Permmission permmission = new Permmission();
+					permmission = permmissionHome.getPermmission(i);
 					objectSubPer.setName(permmission.getName());
 					objectSubPer.setIcon(permmission.getIcon());
-					objectSubPer.setSub_permission(getSubPermission);
-					roles.add(objectSubPer.toJSON());
-				  }
-				
+					List<SubPermission> listSubPermission = new ArrayList<>();
+					listSubPermission = subPermissionHome.getSubPermissionid(i, subPer);
+					objectSubPer.setSub_permission(listSubPermission);				
+					array.add(objectSubPer);
+					
+				}
+				jsonObject.put("permission", array);
+	
 				String key = prefixKey + reqLogin.getUsername();
 				String tokenResponse = RedisBusiness.getValue_fromCache(key);
 				if(tokenResponse == null){				
@@ -109,11 +131,17 @@ public class UserInfo {
 					boolean checkPush = RedisBusiness.setValue_toCacheTime(key, tokenRedis.toJSON(), MainCfg.timeExp);
 					if(checkPush == true){
 						FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
-						resLogin.setStatus(statusSuccess);
-						resLogin.setToken(token);
-						resLogin.setRequire_change_pass(acc.getRequireChangePass());
-						resLogin.setPermission(roles.toString());
+//						resLogin.setStatus(statusSuccess);
+//						resLogin.setToken(token);
+//						resLogin.setRequire_change_pass(acc.getRequireChangePass());
+//						resLogin.setPermission(array.toString());
+						
+						jsonObject.put("status", statusSuccess);
+					    jsonObject.put("token", tokenRedis.getToken());
+					    jsonObject.put("require_change_pass", acc.getRequireChangePass());
+						
 						response = response.header(Commons.ReceiveTime, getTimeNow());
+						return response.header(Commons.ResponseTime, getTimeNow()).entity(jsonObject.toString()).build();
 					}else{
 						FileLogger.log("login Gettoken setValue_toCacheTime false ------", LogType.USERINFO);
 						resLogin.setStatus(statusFale);
@@ -124,11 +152,16 @@ public class UserInfo {
 				}else{
 					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
 					FileLogger.log("login Gettoken setValue_toCacheTime success------", LogType.USERINFO);
-					resLogin.setStatus(statusSuccess);
-					resLogin.setToken(tokenRedis.getToken());
-					resLogin.setRequire_change_pass(acc.getRequireChangePass());
-					resLogin.setPermission(roles.toString());
+//					resLogin.setStatus(statusSuccess);
+//					resLogin.setToken(tokenRedis.getToken());
+//					resLogin.setRequire_change_pass(acc.getRequireChangePass());
+//					resLogin.setPermission(array.toString());
+					
+					jsonObject.put("status", statusSuccess);
+				    jsonObject.put("token", tokenRedis.getToken());
+				    jsonObject.put("require_change_pass", acc.getRequireChangePass());
 					response = response.header(Commons.ReceiveTime, getTimeNow());
+					return response.header(Commons.ResponseTime, getTimeNow()).entity(jsonObject.toString()).build();
 				}
 			}else{
 				FileLogger.log("login Gettoken false username or pass", LogType.USERINFO);
@@ -137,7 +170,7 @@ public class UserInfo {
 				resLogin.setRequire_change_pass(0);
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 			}
-			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON().replace("\\", "")).build();
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(resLogin.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("----------------Ket thuc login Exception "+ e.getMessage(), LogType.ERROR);
@@ -344,22 +377,23 @@ public class UserInfo {
 	
 	public static void main(String[] args) {
 		try {
-			UserInfo userInfo = new UserInfo();
-			String newPass = getRandomStr(8);
-			String key = prefixKey + "_NOTIFY";
-			String subject = "Thong bao thay doi mat khau";
-			String content = "Mat khau moi cua ban la: " + newPass;
-			String message = "1";
-			String isHtml  = "true";
-			String receiveEmail = "dinhphuong.v@gmail.com";
-			String receiveSMS = "";
-			String receiveChat = "";
-			String serviceCode = "API";
-			String subService = "APIFintech";
-			boolean sentNoti = userInfo.sentNotify(key, "userName" , subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
-			System.out.println("sentNoti: " + sentNoti);
-//			System.out.println(MD5.hash("12345678"));
+//			UserInfo userInfo = new UserInfo();
+//			String newPass = getRandomStr(8);
+//			String key = prefixKey + "_NOTIFY";
+//			String subject = "Thong bao thay doi mat khau";
+//			String content = "Mat khau moi cua ban la: " + newPass;
+//			String message = "1";
+//			String isHtml  = "true";
+//			String receiveEmail = "dinhphuong.v@gmail.com";
+//			String receiveSMS = "";
+//			String receiveChat = "";
+//			String serviceCode = "API";
+//			String subService = "APIFintech";
+//			boolean sentNoti = userInfo.sentNotify(key, "userName" , subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
+//			System.out.println("sentNoti: " + sentNoti);
+			System.out.println(MD5.hash("12345678"));
 			// 123456 e10adc3949ba59abbe56e057f20f883e
+			// 12345678 25d55ad283aa400af464c76d713c07ad
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

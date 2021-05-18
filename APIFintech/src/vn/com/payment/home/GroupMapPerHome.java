@@ -38,7 +38,7 @@ public class GroupMapPerHome extends BaseSqlHomeDao{
 		try {
 			session						 	= HibernateUtil.getSessionFactory().openSession();
 			Criteria crtProduct 			= session.createCriteria(GroupMapPer.class);
-			Criterion groupId 				= Restrictions.eq("groupId", new Integer(1));
+			Criterion groupId 				= Restrictions.eq("groupId", roleID);
 			crtProduct.add(groupId);
 			results = crtProduct.list();
 			return results;
@@ -54,7 +54,9 @@ public class GroupMapPerHome extends BaseSqlHomeDao{
 	
 	public static void main(String[] args) {
 		GroupMapPerHome groupMapPerHome = new GroupMapPerHome();
-		List<GroupMapPer> results = groupMapPerHome.getGroupMapPer(9);
-		System.out.println(results);
+		List<GroupMapPer> results = groupMapPerHome.getGroupMapPer(4);
+		for (GroupMapPer groupMapPer : results) {
+			System.out.println(groupMapPer.getSubPermissionId());
+		}
 	}
 }

@@ -17,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.GroupMapPer;
 import vn.com.payment.entities.SubPermission;
+import vn.com.payment.entities.TblProduct;
 import vn.com.payment.ultities.FileLogger;
 
 /**
@@ -52,16 +53,42 @@ public class SubPermissionHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
-	public List<SubPermission> getSubPermissionid(int perID) {
+	public List<SubPermission> getSubPermissionid(int perID, ArrayList<Integer> a) {
 		List<SubPermission> results = new ArrayList<>();
 		Session session = null;
 		try {
 			session						 	= HibernateUtil.getSessionFactory().openSession();
 			Criteria crtProduct 			= session.createCriteria(SubPermission.class);
-			Criterion permissionId 				= Restrictions.eq("permissionId", perID);
+			Criterion permissionId 			= Restrictions.eq("permissionId", perID);
+			Criterion permissionId1 		= Restrictions.in("rowId", a);
+			crtProduct.add(permissionId1);
 			crtProduct.add(permissionId);
 			results = crtProduct.list();
 			return results;
+		} catch (Exception e) {
+			FileLogger.log(" getSubPermissionid Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
+	public SubPermission getSubPermissionRowID (int rowId) {
+		Session session = null;
+		List<SubPermission> listSubPermission = new ArrayList<>();
+		SubPermission subPermission = new SubPermission();
+		try {
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(SubPermission.class);
+			Criterion rowIdDB 				= Restrictions.eq("rowId", rowId);
+			crtProduct.add(rowIdDB);
+			listSubPermission = crtProduct.list();
+			
+			if (listSubPermission.size() > 0) {
+				subPermission = listSubPermission.get(0);
+			}
+			return subPermission;
 		} catch (Exception e) {
 			FileLogger.log(" getSubPermissionid Exception "+ e, LogType.ERROR);
 			e.printStackTrace();
