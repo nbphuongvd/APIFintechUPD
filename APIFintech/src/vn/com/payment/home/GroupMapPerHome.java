@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import vn.com.payment.config.LogType;
@@ -40,6 +41,7 @@ public class GroupMapPerHome extends BaseSqlHomeDao{
 			Criteria crtProduct 			= session.createCriteria(GroupMapPer.class);
 			Criterion groupId 				= Restrictions.eq("groupId", roleID);
 			crtProduct.add(groupId);
+			crtProduct.addOrder(Order.asc("rowId"));
 			results = crtProduct.list();
 			return results;
 		} catch (Exception e) {

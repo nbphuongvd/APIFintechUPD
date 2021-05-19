@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import vn.com.payment.config.LogType;
@@ -63,6 +64,7 @@ public class SubPermissionHome extends BaseSqlHomeDao{
 			Criterion permissionId1 		= Restrictions.in("rowId", a);
 			crtProduct.add(permissionId1);
 			crtProduct.add(permissionId);
+			crtProduct.addOrder(Order.asc("permissionId"));
 			results = crtProduct.list();
 			return results;
 		} catch (Exception e) {
@@ -82,7 +84,8 @@ public class SubPermissionHome extends BaseSqlHomeDao{
 			session						 	= HibernateUtil.getSessionFactory().openSession();
 			Criteria crtProduct 			= session.createCriteria(SubPermission.class);
 			Criterion rowIdDB 				= Restrictions.eq("rowId", rowId);
-			crtProduct.add(rowIdDB);
+			crtProduct.add(rowIdDB);		
+			crtProduct.addOrder(Order.asc("orderMenu"));
 			listSubPermission = crtProduct.list();
 			
 			if (listSubPermission.size() > 0) {

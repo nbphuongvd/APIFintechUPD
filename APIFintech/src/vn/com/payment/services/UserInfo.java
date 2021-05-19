@@ -114,8 +114,7 @@ public class UserInfo {
 					List<SubPermission> listSubPermission = new ArrayList<>();
 					listSubPermission = subPermissionHome.getSubPermissionid(i, subPer);
 					objectSubPer.setSub_permission(listSubPermission);				
-					array.add(objectSubPer);
-					
+					array.add(objectSubPer);					
 				}
 				jsonObject.put("permission", array);
 	
