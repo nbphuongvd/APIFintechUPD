@@ -3,14 +3,18 @@ package vn.com.payment.services;
 import vn.com.payment.config.LogType;
 import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
+import vn.com.payment.entities.TblBanks;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.home.AccountHome;
+import vn.com.payment.home.TblBanksHome;
 import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.home.TblRateConfigHome;
+import vn.com.payment.object.BankReq;
+import vn.com.payment.object.BankRes;
 import vn.com.payment.object.NotifyObject;
 import vn.com.payment.object.ProducResAll;
 import vn.com.payment.object.ProductReq;
@@ -78,6 +82,7 @@ public class Bussiness {
 	AccountHome accountHome = new AccountHome();
 	TblProductHome tblProductHome = new TblProductHome();
 	TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
+	TblBanksHome tblBanksHome = new TblBanksHome();
 	Gson gson = new Gson();
 	long statusSuccess = 100l;
 	long statusFale = 111l;
@@ -263,7 +268,7 @@ public class Bussiness {
 				tblLoanReqDetail.setReqDetailId(31);
 				tblLoanReqDetail.setLoanId(aa.intValue());
 				tblLoanReqDetail.setProductId(aa.intValue());
-				tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
+//				tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
 				tblLoanReqDetail.setImportFrom(aa.intValue());
 				tblLoanReqDetail.setManufactureDate(aa.intValue());
 				tblLoanReqDetail.setExpectAmount(500000);
@@ -302,6 +307,37 @@ public class Bussiness {
 			resCreaterLoan.setRequest_code("");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
+		}
+	}
+	
+	public Response getBank (String dataGetbank) {
+		FileLogger.log("----------------Bat dau getBank--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		BankRes bankRes = new BankRes();
+		try {
+			BankReq reqBankReq = gson.fromJson(dataGetbank, BankReq.class);
+			
+			List<TblBanks> getTblBanks = tblBanksHome.getTblBanks(1, reqBankReq.getBank_support_function());
+			if(getTblBanks != null){
+				FileLogger.log("getBank: " + reqBankReq.getUsername()+ " thanh cong:", LogType.BUSSINESS);
+				bankRes.setStatus(statusSuccess);
+				bankRes.setMessage("Yeu cau thanh cong");
+				bankRes.setBanks(getTblBanks);
+			}else{
+				FileLogger.log("getBank: " + reqBankReq.getUsername()+ " that bai getTblBanks null", LogType.BUSSINESS);
+				bankRes.setStatus(statusFale);
+				bankRes.setMessage("Yeu cau that bai - Da co loi xay ra");
+			}			
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			FileLogger.log("getBank: " + reqBankReq.getUsername()+ " response to client:" + bankRes.toJSON(), LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(bankRes.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc getBank Exception "+ e.getMessage(), LogType.ERROR);
+			bankRes.setStatus(statusFale);
+			bankRes.setMessage("Yeu cau that bai - Da co loi xay ra");
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(bankRes.toJSON()).build();
 		}
 	}
 	

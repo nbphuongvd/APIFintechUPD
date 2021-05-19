@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 16, 2021 2:41:23 PM by Hibernate Tools 3.5.0.Final
+// Generated May 19, 2021 11:20:55 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -21,7 +21,6 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private Integer reqDetailId;
 	private int loanId;
 	private int productId;
-	private String productName;
 	private Integer importFrom;
 	private Integer manufactureDate;
 	private long expectAmount;
@@ -30,6 +29,20 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private Date createdDate;
 	private Date editedDate;
 	private Integer disbursementDate;
+	private Integer productBrand;
+	private String productModal;
+	private Integer totalRun;
+	private Integer productCondition;
+	private Integer productOwnByBorrower;
+	private String productSerialNo;
+	private String productColor;
+	private Integer borrowerType;
+	private String borrowerPhone;
+	private String borrowerEmail;
+	private Integer disburseTo;
+	private String disburseToBankNo;
+	private String disburseToBankName;
+	private String disburseToBankCode;
 
 	public TblLoanReqDetail() {
 	}
@@ -44,12 +57,14 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.editedDate = editedDate;
 	}
 
-	public TblLoanReqDetail(int loanId, int productId, String productName, Integer importFrom, Integer manufactureDate,
-			long expectAmount, int borrowerId, Long approvedAmount, Date createdDate, Date editedDate,
-			Integer disbursementDate) {
+	public TblLoanReqDetail(int loanId, int productId, Integer importFrom, Integer manufactureDate, long expectAmount,
+			int borrowerId, Long approvedAmount, Date createdDate, Date editedDate, Integer disbursementDate,
+			Integer productBrand, String productModal, Integer totalRun, Integer productCondition,
+			Integer productOwnByBorrower, String productSerialNo, String productColor, Integer borrowerType,
+			String borrowerPhone, String borrowerEmail, Integer disburseTo, String disburseToBankNo,
+			String disburseToBankName, String disburseToBankCode) {
 		this.loanId = loanId;
 		this.productId = productId;
-		this.productName = productName;
 		this.importFrom = importFrom;
 		this.manufactureDate = manufactureDate;
 		this.expectAmount = expectAmount;
@@ -58,6 +73,20 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.disbursementDate = disbursementDate;
+		this.productBrand = productBrand;
+		this.productModal = productModal;
+		this.totalRun = totalRun;
+		this.productCondition = productCondition;
+		this.productOwnByBorrower = productOwnByBorrower;
+		this.productSerialNo = productSerialNo;
+		this.productColor = productColor;
+		this.borrowerType = borrowerType;
+		this.borrowerPhone = borrowerPhone;
+		this.borrowerEmail = borrowerEmail;
+		this.disburseTo = disburseTo;
+		this.disburseToBankNo = disburseToBankNo;
+		this.disburseToBankName = disburseToBankName;
+		this.disburseToBankCode = disburseToBankCode;
 	}
 
 	@Id
@@ -88,15 +117,6 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setProductId(int productId) {
 		this.productId = productId;
-	}
-
-	@Column(name = "product_name", length = 100)
-	public String getProductName() {
-		return this.productName;
-	}
-
-	public void setProductName(String productName) {
-		this.productName = productName;
 	}
 
 	@Column(name = "import_from")
@@ -171,6 +191,132 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setDisbursementDate(Integer disbursementDate) {
 		this.disbursementDate = disbursementDate;
+	}
+
+	@Column(name = "product_brand")
+	public Integer getProductBrand() {
+		return this.productBrand;
+	}
+
+	public void setProductBrand(Integer productBrand) {
+		this.productBrand = productBrand;
+	}
+
+	@Column(name = "product_modal")
+	public String getProductModal() {
+		return this.productModal;
+	}
+
+	public void setProductModal(String productModal) {
+		this.productModal = productModal;
+	}
+
+	@Column(name = "total_run")
+	public Integer getTotalRun() {
+		return this.totalRun;
+	}
+
+	public void setTotalRun(Integer totalRun) {
+		this.totalRun = totalRun;
+	}
+
+	@Column(name = "product_condition")
+	public Integer getProductCondition() {
+		return this.productCondition;
+	}
+
+	public void setProductCondition(Integer productCondition) {
+		this.productCondition = productCondition;
+	}
+
+	@Column(name = "product_own_by_borrower")
+	public Integer getProductOwnByBorrower() {
+		return this.productOwnByBorrower;
+	}
+
+	public void setProductOwnByBorrower(Integer productOwnByBorrower) {
+		this.productOwnByBorrower = productOwnByBorrower;
+	}
+
+	@Column(name = "product_serial_no", length = 50)
+	public String getProductSerialNo() {
+		return this.productSerialNo;
+	}
+
+	public void setProductSerialNo(String productSerialNo) {
+		this.productSerialNo = productSerialNo;
+	}
+
+	@Column(name = "product_color")
+	public String getProductColor() {
+		return this.productColor;
+	}
+
+	public void setProductColor(String productColor) {
+		this.productColor = productColor;
+	}
+
+	@Column(name = "borrower_type")
+	public Integer getBorrowerType() {
+		return this.borrowerType;
+	}
+
+	public void setBorrowerType(Integer borrowerType) {
+		this.borrowerType = borrowerType;
+	}
+
+	@Column(name = "borrower_phone", length = 50)
+	public String getBorrowerPhone() {
+		return this.borrowerPhone;
+	}
+
+	public void setBorrowerPhone(String borrowerPhone) {
+		this.borrowerPhone = borrowerPhone;
+	}
+
+	@Column(name = "borrower_email")
+	public String getBorrowerEmail() {
+		return this.borrowerEmail;
+	}
+
+	public void setBorrowerEmail(String borrowerEmail) {
+		this.borrowerEmail = borrowerEmail;
+	}
+
+	@Column(name = "disburse_to")
+	public Integer getDisburseTo() {
+		return this.disburseTo;
+	}
+
+	public void setDisburseTo(Integer disburseTo) {
+		this.disburseTo = disburseTo;
+	}
+
+	@Column(name = "disburse_to_bank_no", length = 50)
+	public String getDisburseToBankNo() {
+		return this.disburseToBankNo;
+	}
+
+	public void setDisburseToBankNo(String disburseToBankNo) {
+		this.disburseToBankNo = disburseToBankNo;
+	}
+
+	@Column(name = "disburse_to_bank_name", length = 50)
+	public String getDisburseToBankName() {
+		return this.disburseToBankName;
+	}
+
+	public void setDisburseToBankName(String disburseToBankName) {
+		this.disburseToBankName = disburseToBankName;
+	}
+
+	@Column(name = "disburse_to_bank_code", length = 50)
+	public String getDisburseToBankCode() {
+		return this.disburseToBankCode;
+	}
+
+	public void setDisburseToBankCode(String disburseToBankCode) {
+		this.disburseToBankCode = disburseToBankCode;
 	}
 
 }

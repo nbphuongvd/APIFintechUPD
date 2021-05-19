@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
 
 <hibernate-reverse-engineering>
-<!-- 	<table-filter match-name="tbl_transactions" /> -->
-	<table-filter match-name="group_roles"/>
-<!-- 	<table-filter match-name="sub_permission"/> -->
+	<table-filter match-name="tbl_loan_req_detail" />
+	<table-filter match-name="tbl_banks"/>
+	<table-filter match-name="tbl_images"/>
 </hibernate-reverse-engineering>

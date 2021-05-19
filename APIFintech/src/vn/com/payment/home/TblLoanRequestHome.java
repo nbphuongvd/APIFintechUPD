@@ -110,7 +110,7 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		tblLoanReqDetail.setReqDetailId(31);
 		tblLoanReqDetail.setLoanId(aa.intValue());
 		tblLoanReqDetail.setProductId(aa.intValue());
-		tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
+//		tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
 		tblLoanReqDetail.setImportFrom(aa.intValue());
 		tblLoanReqDetail.setManufactureDate(aa.intValue());
 		tblLoanReqDetail.setExpectAmount(500000);
