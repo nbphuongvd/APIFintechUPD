@@ -351,35 +351,55 @@ public class Bussiness {
 				List<Fees> listFee = objReqFee.getFees();
 				
 				//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
-				double laixuatNam 			= 0;
-				double phidichvu			= 0;
-				double phituvan 			= 0;
-				double phitratruochan 		= 0;
-				double phitattoantruochan 	= 0;
-				for (Fees fees : listFee) {
-					switch (String.valueOf(fees.getFee_type())) {
-					case "1":			
-						laixuatNam 	= (double) fees.getFix_fee_percent();
-						break;			
-					case "2":			
-						phituvan 	= (double) fees.getFix_fee_percent();
-						break;	
-					case "3":			
-						phidichvu 	= (double) fees.getFix_fee_percent();
-						break;	
-					case "4":			
-						phitratruochan = (double) fees.getFix_fee_percent();
-						break;
-					case "5":			
-						phitattoantruochan = (double) fees.getFix_fee_percent();
-						break;
-					default:
-						break;
-					}
-				}
+//				double laixuatNam 			= 0;
+//				double phidichvu			= 0;
+//				double phituvan 			= 0;
+//				double phitratruochan 		= 0;
+//				double phitattoantruochan 	= 0;
+//				for (Fees fees : listFee) {
+//					switch (String.valueOf(fees.getFee_type())) {
+//					case "1":			
+//						if(fees.getFix_fee_amount() > 0){
+//							laixuatNam 	= (double) fees.getFix_fee_percent();
+//						}else{
+//							laixuatNam 	= (double) fees.getFix_fee_amount();
+//						}						
+//						break;			
+//					case "2":			
+//						if(fees.getFix_fee_amount() == 0){
+//							phituvan 	= (double) fees.getFix_fee_percent();
+//						}else{
+//							phituvan 	= (double) fees.getFix_fee_amount();
+//						}	
+//						break;	
+//					case "3":			
+//						if(fees.getFix_fee_amount() == 0){
+//							phidichvu 	= (double) fees.getFix_fee_percent();
+//						}else{
+//							phidichvu 	= (double) fees.getFix_fee_amount();
+//						}	
+//						break;	
+//					case "4":			
+//						if(fees.getFix_fee_amount() == 0){
+//							phitratruochan 	= (double) fees.getFix_fee_percent();
+//						}else{
+//							phitratruochan 	= (double) fees.getFix_fee_amount();
+//						}	
+//						break;
+//					case "5":									
+//						if(fees.getFix_fee_amount() == 0){
+//							phitattoantruochan = (double) fees.getFix_fee_percent();
+//						}else{
+//							phitattoantruochan 	= (double) fees.getFix_fee_amount();
+//						}	
+//						break;
+//					default:
+//						break;
+//					}
+//				}
 				System.out.println("aaaa");
 				Bussiness bussiness = new Bussiness();
-				ArrayList<Document> illustrationIns = bussiness.illustration(objReqFee.getUsername() , billID, laixuatNam, phidichvu, phitratruochan, phitattoantruochan, sotienvay, sothangvay, loaitrano, phituvan);
+				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, loaitrano, listFee);
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " illustrationIns:" + illustrationIns, LogType.BUSSINESS);
 				boolean checkInsMongo = mongoDB.insertDocument(illustrationIns, "tbl_minhhoa");
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " checkInsMongo: " + checkInsMongo, LogType.BUSSINESS);
@@ -437,128 +457,352 @@ public class Bussiness {
 	}
 	
 	//Tinh minh hoa khoan vay
-	public ArrayList<Document> illustration (String userName, String billID, double laixuatNam, double phidichvu, double phitratruochan, double phitattoantruochan, double sotienvay, double sothangvay, double loaitrano, double phituvan){
-//		JSONArray array = new JSONArray();
-		ArrayList<Document> array = new ArrayList<Document>();
-		try {
-			FileLogger.log("getIllustration: " + userName+ " illustrationIns:" + loaitrano, LogType.BUSSINESS);
-			if(loaitrano == 1){
-				//Lịch trả nợ theo dư nợ giảm dần						
-				double sotienconlai_a = sotienvay;				
-				for (int i = 0; i<= sothangvay ; i++) {
+		public ArrayList<Document> illustrationNew (String userName, String billID, double sotienvay, double sothangvay, double loaitrano, List<Fees> listFee){
+			ArrayList<Document> array = new ArrayList<Document>();
+			
+			try {
+				FileLogger.log("getIllustration: " + userName+ " illustrationIns:" + loaitrano, LogType.BUSSINESS);
+				double sotienconlai_a				= sotienvay;	
+				double gocconlai					= sotienvay;
+				double laixuatNam 					= 0;
+				double phidichvu					= 0;
+				double phituvan 					= 0;
+				double phitratruochan 				= 0;
+				double phitattoantruochan 			= 0;
+				
+				double tinhphitranotruochan_a	  	= 0;
+				double tienlaithang_a 				= 0;
+				double tinhphidichvu_a	  			= 0;
+				double tinhphituvan_a	  			= 0;
+				double tientrahangthang_a			= 0;
+				double tinhphitattoan_a	  			= 0;
+				
+				double tinhphitranotruochan	  		= 0;
+				double tienlaithang 				= 0;
+				double tinhphidichvu	  			= 0;
+				double tinhphituvan	  				= 0;
+				double tientrahangthang				= 0;
+				double tinhphitattoan	  			= 0;
+				
+				
+//				double sumTiemlai	  			= 0;
+//				double sumPhituvan	  			= 0; // phituvan = phi tu van
+//				double sumPhiquanly	  			= 0; //phiquanly = phi dich vu
+				if(loaitrano == 1){
+					//Lịch trả nợ theo dư nợ giảm dần						
 					
-					if(i == 0){
-						 Document doc = new Document("idMinhhoa", billID)
-								 .append("kyTrano",getTimeOut(i))
-							     .append("gocConlai", sotienvay)
-							     .append("gocTramoiky", 0)
-							     .append("laiThang", 0)
-								 .append("traHangthang", 0)
-								 .append("phiTuvan", 0)
-								 .append("phiDichvu", 0)
-								 .append("phiTranotruochan", 0)
-								 .append("tattoanTruochan", 0);
-								 array.add(doc);
-					}else{
+					int kyvay = 0;
+					for (int i = 1; i<= sothangvay ; i++) {
+						
+//						if(i == 0){
+//							 Document doc = new Document("idMinhhoa", billID)
+//									 .append("kyTrano",getTimeOut(i))
+//								     .append("gocConlai", sotienvay)
+//								     .append("gocTramoiky", 0)
+//								     .append("laiThang", 0)
+//									 .append("traHangthang", 0)
+//									 .append("phiTuvan", 0)
+//									 .append("phiDichvu", 0)
+//									 .append("phiTranotruochan", 0)
+//									 .append("tattoanTruochan", 0);
+//									 array.add(doc);
+//									 sumTiemlai = 0;
+//						}else{						
+							
+							double tiengoctramoiky_a 			= sotienvay/sothangvay;;
+							double tiencantt					= tienThanhtoan(userName, billID, sotienvay, sothangvay, loaitrano, listFee);
+							for (Fees fees : listFee) {
+								switch (String.valueOf(fees.getFee_type())) {
+								case "1":			
+									if(fees.getFix_fee_amount() <= 0){
+										laixuatNam 				= (double) fees.getFix_fee_percent();
+										tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * laixuatNam * 30.41666667 / 365;
+									}else{
+										laixuatNam 				= (double) fees.getFix_fee_amount();
+										tienlaithang_a 			= laixuatNam;
+									}						
+									break;			
+								case "2":			
+									if(fees.getFix_fee_amount() <= 0){
+										phituvan 				= (double) fees.getFix_fee_percent();
+										tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phituvan * 30.41666667 / 365;
+									}else{
+										phituvan 				= (double) fees.getFix_fee_amount();
+										tinhphituvan_a	  		= phituvan;
+									}	
+									break;	
+								case "3":			
+									if(fees.getFix_fee_amount() <= 0){
+										phidichvu 				= (double) fees.getFix_fee_percent();
+										tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phidichvu * 30.41666667 / 365;
+									}else{
+										phidichvu 				= (double) fees.getFix_fee_amount();
+										tinhphidichvu_a	  		= phidichvu;
+									}	
+									break;	
+								case "4":			
+									if(fees.getFix_fee_amount() <= 0){
+										phitratruochan 			= (double) fees.getFix_fee_percent();
+										tinhphitranotruochan_a	= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phitratruochan;
+									}else{
+										phitratruochan 			= (double) fees.getFix_fee_amount();
+										tinhphitranotruochan_a	= phitratruochan;
+									}	
+									break;
+								case "5":									
+									if(fees.getFix_fee_amount() <= 0){
+										phitattoantruochan = (double) fees.getFix_fee_percent();
+										tinhphitattoan_a	  	= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+									}else{
+										phitattoantruochan 	= (double) fees.getFix_fee_amount();
+										tinhphitattoan_a	  	= phitattoantruochan;
+									}	
+									break;
+								default:
+									break;
+								}
+							}
 
-						ObjMinhhoa objMinhhoa = new ObjMinhhoa();
-						double tiengoctramoiky_a 			= sotienvay/sothangvay;
-						double tinhphitranotruochan_a	  	= sotienconlai_a * phitratruochan / 100;						
-						double tienlaithang_a 				= sotienconlai_a * laixuatNam / 100 * 30 / 360;
-						double tinhphidichvu_a	  			= sotienconlai_a * phidichvu / 100 * 30 / 360;
-						double tinhphituvan_a	  			= sotienconlai_a * phituvan / 100 * 30 / 360;					
-						double tientrahangthang_a			= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
-						double tinhphitattoan_a	  			= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
-						sotienconlai_a	  					= sotienconlai_a - tiengoctramoiky_a;
-//						objMinhhoa.setKyTrano(getTimeOut(i));
-//						objMinhhoa.setGocConlai(sotienconlai_a);
-//						objMinhhoa.setGocTramoiky(tiengoctramoiky_a);
-//						objMinhhoa.setLaiThang(tienlaithang_a);
-//						objMinhhoa.setTraHangthang(tientrahangthang_a);
-//						objMinhhoa.setPhiTuvan(tinhphituvan_a);
-//						objMinhhoa.setPhiDichvu(tinhphidichvu_a);
-//						objMinhhoa.setPhiTranotruochan(tinhphitranotruochan_a);
-//						objMinhhoa.setTattoanTruochan(tinhphitattoan_a);
-	//					array.add(objMinhhoa);
-						
-						
-						 Document doc = new Document("idMinhhoa", billID)
-								 .append("kyTrano",getTimeOut(i))
-							     .append("gocConlai", sotienconlai_a)
-							     .append("gocTramoiky", tiengoctramoiky_a)
-							     .append("laiThang", tienlaithang_a)
-								 .append("traHangthang", tientrahangthang_a)
-								 .append("phiTuvan", tinhphituvan_a)
-								 .append("phiDichvu", tinhphidichvu_a)
-								 .append("phiTranotruochan", tinhphitranotruochan_a)
-								 .append("tattoanTruochan", tinhphitattoan_a);
-						 array.add(doc);
+//							ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+//							tiengoctramoiky_a 					= sotienvay/sothangvay;
+//							double tinhphitranotruochan_a	  	= sotienconlai_a * phitratruochan;						
+//							double tienlaithang_a 				= sotienconlai_a * laixuatNam * 30 / 365;
+//							double tinhphidichvu_a	  			= sotienconlai_a * phidichvu * 30 / 365;
+//							double tinhphituvan_a	  			= sotienconlai_a * phituvan * 30 / 365;					
+							tientrahangthang_a					= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
+//							double tinhphitattoan_a	  			= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+//							sotienconlai_a	  					= sotienconlai_a - tiengoctramoiky_a;
+//							objMinhhoa.setKyTrano(getTimeOut(i));
+//							objMinhhoa.setGocConlai(sotienconlai_a);
+//							objMinhhoa.setGocTramoiky(tiengoctramoiky_a);
+//							objMinhhoa.setLaiThang(tienlaithang_a);
+//							objMinhhoa.setTraHangthang(tientrahangthang_a);
+//							objMinhhoa.setPhiTuvan(tinhphituvan_a);
+//							objMinhhoa.setPhiDichvu(tinhphidichvu_a);
+//							objMinhhoa.setPhiTranotruochan(tinhphitranotruochan_a);
+//							objMinhhoa.setTattoanTruochan(tinhphitattoan_a);
+		//					array.add(objMinhhoa);
+							
+							//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
+
+//							 Document doc = new Document("idMinhhoa", billID)
+//									 .append("kyVay",getTimeOut(i))
+//									 .append("kyTrano",getTimeOut(i))
+//								     .append("gocConlai",  Math.round(sotienconlai_a))
+//								     .append("gocTramoiky",  Math.round(tiengoctramoiky_a)) 
+//								     .append("laiThang",  Math.round(tienlaithang_a))
+//									 .append("traHangthang",  Math.round(tientrahangthang_a))
+//									 .append("phiTuvan",  Math.round(tinhphituvan_a))
+//									 .append("phiDichvu",  Math.round(tinhphidichvu_a))
+//									 .append("phiTranotruochan",  Math.round(tinhphitranotruochan_a))
+//									 .append("tattoanTruochan",  Math.round(tinhphitattoan_a));
+//							 array.add(doc);
+							double tiengoc = tiencantt - (tienlaithang_a + tinhphituvan_a + tinhphidichvu_a);
+							gocconlai = gocconlai - tiengoc;
+							Document doc = new Document("idMinhhoa", billID)
+									 .append("Kyvay",i)
+									 .append("Ngaythanhtoan",getTimeOut(i))
+								     .append("Sotiencanthanhtoan",  Math.round(tiencantt))
+								     .append("Tiengoc",  Math.round(tiengoc) )
+								     .append("Tienlai",  Math.round(tienlaithang_a))
+									 .append("Phituvandichvu",  Math.round(tinhphituvan_a))
+									 .append("Phiquanly",  Math.round(tinhphidichvu_a))
+									 .append("Gocconlaisauthanhtoanky",  Math.round(gocconlai))
+									 .append("Phitattoan",  Math.round(tinhphitranotruochan_a))
+									 .append("Sotientattoantaikynay",  Math.round(gocconlai + tinhphitranotruochan_a));
+							 array.add(doc);
+							 kyvay = kyvay + 1;
+//						}
 					}
-				}			
-			}else{
-				//Lịch trả nợ gốc cuối kỳ	
-				for (int i = 0; i<= sothangvay ; i++) {
-					double sotienconlai = sotienvay;
-					if(i == 0){
-						 Document doc = new Document("idMinhhoa", billID)
-								 .append("kyTrano",getTimeOut(i))
-							     .append("gocConlai", sotienconlai)
-							     .append("gocTrakycuoi", 0)
-							     .append("laiThang", 0)
-								 .append("traHangthang", 0)
-								 .append("phiTuvan", 0)
-								 .append("phiDichvu", 0)
-								 .append("phiTranotruochan", 0)
-								 .append("tattoanTruochan", 0);
-								 array.add(doc);
-					}else{
-						
-						ObjMinhhoa objMinhhoa = new ObjMinhhoa();
-						double tiengoctrakycuoi 			= sotienconlai;
-						double tienlaithang 				= sotienconlai * laixuatNam / 100 * 30 / 360;
-						double tinhphidichvu	  			= sotienconlai * phidichvu / 100 * 30 / 360;
-						double tinhphituvan	  			= sotienconlai * phituvan / 100 * 30 / 360;
-						double tinhphitranotruochan	  	= sotienconlai / 100 * phitratruochan;
-						double tientrahangthang			= tienlaithang + tinhphituvan + tinhphidichvu;
-						double tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
-//						objMinhhoa.setKyTrano(getTimeOut(1));
-//						objMinhhoa.setGocConlai(sotienconlai);
-//						objMinhhoa.setGocTrakycuoi(tiengoctrakycuoi);
-//						objMinhhoa.setLaiThang(tienlaithang);
-//						objMinhhoa.setTraHangthang(tientrahangthang);
-//						objMinhhoa.setPhiTuvan(tinhphituvan);
-//						objMinhhoa.setPhiDichvu(tinhphidichvu);
-//						objMinhhoa.setPhiTranotruochan(tinhphitranotruochan);
-//						objMinhhoa.setTattoanTruochan(tinhphitattoan);
-		//				array.add(objMinhhoa);
-						
-						 Document doc = new Document("idMinhhoa", billID)
-								 .append("kyTrano",getTimeOut(i))
-							     .append("gocConlai", sotienconlai)
-							     .append("gocTrakycuoi", tiengoctrakycuoi)
-							     .append("laiThang", tienlaithang)
-								 .append("traHangthang", tientrahangthang)
-								 .append("phiTuvan", tinhphituvan)
-								 .append("phiDichvu", tinhphidichvu)
-								 .append("phiTranotruochan", tinhphitranotruochan)
-								 .append("tattoanTruochan", tinhphitattoan);
-								 array.add(doc);
+				}else{
+					//Lịch trả nợ gốc cuối kỳ	
+					for (int i = 0; i<= sothangvay ; i++) {
+						double sotienconlai = sotienvay;
+						if(i == 0){
+							 Document doc = new Document("idMinhhoa", billID)
+									 .append("kyTrano",getTimeOut(i))
+								     .append("gocConlai", sotienconlai)
+								     .append("gocTrakycuoi", 0)
+								     .append("laiThang", 0)
+									 .append("traHangthang", 0)
+									 .append("phiTuvan", 0)
+									 .append("phiDichvu", 0)
+									 .append("phiTranotruochan", 0)
+									 .append("tattoanTruochan", 0);
+									 array.add(doc);
+						}else{
+							
+							ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+							for (Fees fees : listFee) {
+								switch (String.valueOf(fees.getFee_type())) {
+								case "1":			
+									if(fees.getFix_fee_amount() <= 0){
+										laixuatNam 				= (double) fees.getFix_fee_percent();
+										tienlaithang 			= sotienconlai * laixuatNam * 30 / 365;
+									}else{
+										laixuatNam 				= (double) fees.getFix_fee_amount();
+										tienlaithang 				= laixuatNam;
+									}						
+									break;			
+								case "2":			
+									if(fees.getFix_fee_amount() <= 0){
+										phituvan 				= (double) fees.getFix_fee_percent();
+										tinhphituvan	  		= sotienconlai * phituvan * 30 / 365;
+									}else{
+										phituvan 				= (double) fees.getFix_fee_amount();
+										tinhphituvan	  		= phituvan;
+									}	
+									break;	
+								case "3":			
+									if(fees.getFix_fee_amount() <= 0){
+										phidichvu 				= (double) fees.getFix_fee_percent();
+										tinhphidichvu	  		= sotienconlai * phidichvu * 30 / 365;
+									}else{
+										phidichvu 				= (double) fees.getFix_fee_amount();
+										tinhphidichvu	  		= phidichvu;
+									}	
+									break;	
+								case "4":			
+									if(fees.getFix_fee_amount() <= 0){
+										phitratruochan 			= (double) fees.getFix_fee_percent();
+										tinhphitranotruochan	= sotienconlai * phitratruochan;
+									}else{
+										phitratruochan 			= (double) fees.getFix_fee_amount();
+										tinhphitranotruochan	= phitratruochan;
+									}	
+									break;
+								case "5":									
+									if(fees.getFix_fee_amount() <= 0){
+										phitattoantruochan = (double) fees.getFix_fee_percent();
+										tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
+									}else{
+										phitattoantruochan 		= (double) fees.getFix_fee_amount();
+										tinhphitranotruochan_a	= phitattoantruochan;
+									}	
+									break;
+								default:
+									break;
+								}
+							}
+							tientrahangthang					= tienlaithang + tinhphituvan + tinhphidichvu;
+							double tiengoctrakycuoi 			= sotienconlai;
+//							objMinhhoa.setKyTrano(getTimeOut(1));
+//							objMinhhoa.setGocConlai(sotienconlai);
+//							objMinhhoa.setGocTrakycuoi(tiengoctrakycuoi);
+//							objMinhhoa.setLaiThang(tienlaithang);
+//							objMinhhoa.setTraHangthang(tientrahangthang);
+//							objMinhhoa.setPhiTuvan(tinhphituvan);
+//							objMinhhoa.setPhiDichvu(tinhphidichvu);
+//							objMinhhoa.setPhiTranotruochan(tinhphitranotruochan);
+//							objMinhhoa.setTattoanTruochan(tinhphitattoan);
+			//				array.add(objMinhhoa);
+							
+							 Document doc = new Document("idMinhhoa", billID)
+									 .append("kyTrano",getTimeOut(i))
+								     .append("gocConlai", 		Math.round(sotienconlai))
+								     .append("gocTrakycuoi",  	Math.round(tiengoctrakycuoi))
+								     .append("laiThang",  		Math.round(tienlaithang))
+									 .append("traHangthang",  	Math.round(tientrahangthang))
+									 .append("phiTuvan",  		Math.round(tinhphituvan))
+									 .append("phiDichvu",  		Math.round(tinhphidichvu))
+									 .append("phiTranotruochan", Math.round(tinhphitranotruochan))
+									 .append("tattoanTruochan",  Math.round(tinhphitattoan));
+									 array.add(doc);
+						}
 					}
 				}
+
+				//Thì tiền tra gốc hàng tháng = số tiền vay / số tháng vay
+				//Tiền lãi hàng tháng = số tiền gốc còn lại * lãi năm * số ngày trong tháng / số ngày trong năm (mặc định là 365)
+				//Phí dịch vụ sẽ tính bằng = số tiền còn lại * phi dich vu / ngày trong năm * ngày trong tháng
+				//phí tất toán trước hạn chỉ bằng = tiền gốc còn lại + lãi trong tháng + phí dịch vụ trong tháng + phi tư vấn trong tháng + phí trả nợ trước hạn (tính theo tháng)
+				FileLogger.log("illustration: " + userName+ " illustrationIns array insert DB:" + array, LogType.BUSSINESS);
+
+				return array;
+			} catch (Exception e) {
+				FileLogger.log("illustration: " + userName+ " illustrationIns exception" + e, LogType.ERROR);
+				e.printStackTrace();
 			}
+			return null;
+		}
+		
+	public double tienThanhtoan(String userName, String billID, double sotienvay, double sothangvay, double loaitrano, List<Fees> listFee){
+		double laixuatNam 					= 0;
+		double phidichvu					= 0;
+		double phituvan 					= 0;
+		double sotienconlai_a 				= sotienvay;
+		double tienlaithang_a 				= 0;
+		double tinhphidichvu_a	  			= 0;
+		double tinhphituvan_a	  			= 0;
+		
+		double sumTiemlai	  				= 0;
+		double sumPhituvan	  				= 0; // phituvan = phi tu van
+		double sumPhiquanly	  				= 0; //phiquanly = phi dich vu
+		double tienTT 						= 0;
+		try {
+			int kyvay = 0;
+			for (int i = 0; i<= sothangvay ; i++) {
+				
+					double tiengoctramoiky_a 			= sotienvay/sothangvay;;
+					
+					for (Fees fees : listFee) {
+						switch (String.valueOf(fees.getFee_type())) {
+						case "1":			
+							if(fees.getFix_fee_amount() <= 0){
+								laixuatNam 				= (double) fees.getFix_fee_percent();
+								tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * laixuatNam * 30.41666667 / 365;
+							}else{
+								laixuatNam 				= (double) fees.getFix_fee_amount();
+								tienlaithang_a 			= laixuatNam;
+							}						
+							break;			
+						case "2":			
+							if(fees.getFix_fee_amount() <= 0){
+								phituvan 				= (double) fees.getFix_fee_percent();
+								tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phituvan * 30.41666667 / 365;
+							}else{
+								phituvan 				= (double) fees.getFix_fee_amount();
+								tinhphituvan_a	  		= phituvan;
+							}	
+							break;	
+						case "3":			
+							if(fees.getFix_fee_amount() <= 0){
+								phidichvu 				= (double) fees.getFix_fee_percent();
+								tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phidichvu * 30.41666667 / 365;
+							}else{
+								phidichvu 				= (double) fees.getFix_fee_amount();
+								tinhphidichvu_a	  		= phidichvu;
+							}	
+							break;		
+						default:
+							break;
+						}
+					}				
+					
+					//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
 
-			//Thì tiền tra gốc hàng tháng = số tiền vay / số tháng vay
-			//Tiền lãi hàng tháng = số tiền gốc còn lại * lãi năm * số ngày trong tháng / số ngày trong năm (mặc định là 365)
-			//Phí dịch vụ sẽ tính bằng = số tiền còn lại * phi dich vu / ngày trong năm * ngày trong tháng
-			//phí tất toán trước hạn chỉ bằng = tiền gốc còn lại + lãi trong tháng + phí dịch vụ trong tháng + phi tư vấn trong tháng + phí trả nợ trước hạn (tính theo tháng)
-			FileLogger.log("illustration: " + userName+ " illustrationIns array insert DB:" + array, LogType.BUSSINESS);
-
-			return array;
+					 System.out.println("sumTiemlai0: " + sumTiemlai);
+					 sumTiemlai = sumTiemlai + tienlaithang_a;
+					 sumPhituvan = sumPhituvan + tinhphituvan_a;// phituvan = phi tu van
+					 sumPhiquanly = sumPhiquanly + tinhphidichvu_a;//phiquanly = phi dich vu
+					 kyvay = kyvay + 1;
+					 System.out.println("----------------");
+					 System.out.println("kyvay: " + kyvay);
+					 System.out.println("tienlaithang_a: " + tienlaithang_a);
+					 System.out.println("sumTiemlai1: " + sumTiemlai);
+				
+			}
+			System.out.println("sumTiemlai:"+ sumTiemlai);
+			System.out.println("sumPhituvan:"+ sumPhituvan);
+			System.out.println("sumPhiquanly:"+ sumPhiquanly);
+			System.out.println("sothangvay:"+ sothangvay);
+			tienTT = (sumTiemlai + sumPhituvan + sumPhiquanly + sotienvay) / sothangvay;
+			System.out.println("tienTT:"+ tienTT);
+			return tienTT;
 		} catch (Exception e) {
-			FileLogger.log("illustration: " + userName+ " illustrationIns exception" + e, LogType.ERROR);
 			e.printStackTrace();
 		}
-		return null;
+		return tienTT;
 	}
 	
 	public static String getTimeNow() {
@@ -627,12 +871,19 @@ public class Bussiness {
 //				System.out.println(a);
 //			}
 //			System.out.println(MD5.hash(MD5.hash("123456")));
-			Bussiness bussiness = new Bussiness();			
-			BaseMongoDB mongoDB = new BaseMongoDB();
-			String billID = getTimeNowDate() + "_" + getBillid();
-			ArrayList<Document> illustration = bussiness.illustration("Phuongvd", billID, 18d, 25.2d, 8d, 8d, 30000000d, 24d, 2d, 54d);
-			System.out.println(illustration);
-			mongoDB.insertDocument(illustration, "tbl_loan_bill");
+//			Bussiness bussiness = new Bussiness();			
+//			BaseMongoDB mongoDB = new BaseMongoDB();
+//			String billID = getTimeNowDate() + "_" + getBillid();
+//			ArrayList<Document> illustration = bussiness.illustration("Phuongvd", billID, 18d, 25.2d, 8d, 8d, 30000000d, 24d, 2d, 54d);
+//			System.out.println(illustration);
+//			mongoDB.insertDocument(illustration, "tbl_loan_bill");
+			
+			
+			double rate = 10.2566645;
+			 
+	        System.out.println("Su dung phuong thuc Math.round()");
+	        // lam tron xuong gom 1 so thap phan, nhan va chia cho 10
+	        System.out.println((double) Math.round(rate));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
