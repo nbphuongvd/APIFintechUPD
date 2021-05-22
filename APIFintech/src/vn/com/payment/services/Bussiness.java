@@ -9,13 +9,18 @@ import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.home.AccountHome;
+import vn.com.payment.home.BaseMongoDB;
 import vn.com.payment.home.TblBanksHome;
 import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.home.TblRateConfigHome;
 import vn.com.payment.object.BankReq;
 import vn.com.payment.object.BankRes;
+import vn.com.payment.object.Fees;
 import vn.com.payment.object.NotifyObject;
+import vn.com.payment.object.ObjBillRes;
+import vn.com.payment.object.ObjMinhhoa;
+import vn.com.payment.object.ObjReqFee;
 import vn.com.payment.object.ProducResAll;
 import vn.com.payment.object.ProductReq;
 import vn.com.payment.object.ProductRes;
@@ -72,6 +77,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.bson.Document;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.util.Base64Utils;
@@ -83,6 +90,7 @@ public class Bussiness {
 	TblProductHome tblProductHome = new TblProductHome();
 	TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
 	TblBanksHome tblBanksHome = new TblBanksHome();
+	BaseMongoDB mongoDB = new BaseMongoDB();
 	Gson gson = new Gson();
 	long statusSuccess = 100l;
 	long statusFale = 111l;
@@ -202,33 +210,6 @@ public class Bussiness {
 		}
 	}
 	
-	public boolean checkLogin(String userName, String token){
-		boolean result = false;
-		try {
-			Account acc = accountHome.getAccountUsename(userName);
-			if (acc != null){
-				String key = UserInfo.prefixKey + userName;
-				String tokenResponse = RedisBusiness.getValue_fromCache(key);
-				if(tokenResponse != null){
-					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
-					if(token.equals(tokenRedis.getToken())){
-						result = true;
-					}else{
-						FileLogger.log("checkLogin token_fromCache:" + tokenResponse + " # request_token: " + token, LogType.BUSSINESS);
-					}
-				}else{
-					FileLogger.log("checkLogin token_fromCache null ", LogType.BUSSINESS);
-				}
-			}else{
-				FileLogger.log("checkLogin getAccountUsename null ", LogType.BUSSINESS);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			FileLogger.log("checkLogin Exception "+ e, LogType.ERROR);
-		}
-		return result;
-	}
-	
 	public Response createrLoan (String datacreaterLoan) {
 		FileLogger.log("----------------Bat dau createrLoan--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -341,9 +322,262 @@ public class Bussiness {
 		}
 	}
 	
+	public Response getIllustration (String dataIllustration) {
+		FileLogger.log("----------------Bat dau getIllustration--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		ObjBillRes objBillRes = new ObjBillRes();
+		String billID = getTimeNowDate() + "_" + getBillid();
+		try {
+			FileLogger.log(" dataIllustration: " + dataIllustration, LogType.BUSSINESS);
+			ObjReqFee objReqFee = gson.fromJson(dataIllustration, ObjReqFee.class);
+			if (ValidData.checkNull(objReqFee.getUsername()) == false 
+				|| ValidData.checkNull(objReqFee.getToken()) == false){
+				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " invalid : ", LogType.BUSSINESS);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				objBillRes.setStatus(statusFale);
+				objBillRes.setMessage("Yeu cau that bai - Invalid message request");
+				objBillRes.setBilling_tmp_code("");
+				objBillRes.setCollection("");
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				return response.header(Commons.ResponseTime, getTimeNow()).entity(objBillRes.toJSON()).build();
+			}
+			boolean checkLG = checkLogin(objReqFee.getUsername(), objReqFee.getToken());
+			if(checkLG){
+				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " checkLG:" +checkLG, LogType.BUSSINESS);
+//				String billID = getTimeNowDate() + "_" + getBillid();
+				double sotienvay = (double) objReqFee.getLoan_amount();
+				double sothangvay = (double) objReqFee.getLoan_for_month();
+				double loaitrano = (double) objReqFee.getCalculate_profit_type();
+				List<Fees> listFee = objReqFee.getFees();
+				
+				//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
+				double laixuatNam 			= 0;
+				double phidichvu			= 0;
+				double phituvan 			= 0;
+				double phitratruochan 		= 0;
+				double phitattoantruochan 	= 0;
+				for (Fees fees : listFee) {
+					switch (String.valueOf(fees.getFee_type())) {
+					case "1":			
+						laixuatNam 	= (double) fees.getFix_fee_percent();
+						break;			
+					case "2":			
+						phituvan 	= (double) fees.getFix_fee_percent();
+						break;	
+					case "3":			
+						phidichvu 	= (double) fees.getFix_fee_percent();
+						break;	
+					case "4":			
+						phitratruochan = (double) fees.getFix_fee_percent();
+						break;
+					case "5":			
+						phitattoantruochan = (double) fees.getFix_fee_percent();
+						break;
+					default:
+						break;
+					}
+				}
+				System.out.println("aaaa");
+				Bussiness bussiness = new Bussiness();
+				ArrayList<Document> illustrationIns = bussiness.illustration(objReqFee.getUsername() , billID, laixuatNam, phidichvu, phitratruochan, phitattoantruochan, sotienvay, sothangvay, loaitrano, phituvan);
+				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " illustrationIns:" + illustrationIns, LogType.BUSSINESS);
+				boolean checkInsMongo = mongoDB.insertDocument(illustrationIns, "tbl_minhhoa");
+				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " checkInsMongo: " + checkInsMongo, LogType.BUSSINESS);
+				objBillRes.setStatus(statusSuccess);
+				objBillRes.setMessage("Yeu cau thanh cong");
+				objBillRes.setBilling_tmp_code(billID);
+				objBillRes.setCollection("tbl_minhhoa");
+			}else{
+				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " check login false:", LogType.BUSSINESS);
+				objBillRes.setStatus(statusFale);
+				objBillRes.setMessage("Yeu cau that bai - Invalid message request");
+				objBillRes.setBilling_tmp_code("");
+				objBillRes.setCollection("");
+			}
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " response to client:" + objBillRes.toJSON(), LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(objBillRes.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc getIllustration Exception "+ e.getMessage(), LogType.ERROR);
+			objBillRes.setStatus(statusFale);
+			objBillRes.setMessage("Yeu cau that bai - Invalid message request");
+			objBillRes.setBilling_tmp_code("");
+			objBillRes.setCollection("");
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(objBillRes.toJSON()).build();
+		}
+	}
+	
+	public boolean checkLogin(String userName, String token){
+		boolean result = false;
+		try {
+			Account acc = accountHome.getAccountUsename(userName);
+			if (acc != null){
+				String key = UserInfo.prefixKey + userName;
+				String tokenResponse = RedisBusiness.getValue_fromCache(key);
+				if(tokenResponse != null){
+					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
+					if(token.equals(tokenRedis.getToken())){
+						result = true;
+					}else{
+						FileLogger.log("checkLogin token_fromCache:" + tokenResponse + " # request_token: " + token, LogType.BUSSINESS);
+					}
+				}else{
+					FileLogger.log("checkLogin token_fromCache null ", LogType.BUSSINESS);
+				}
+			}else{
+				FileLogger.log("checkLogin getAccountUsename null ", LogType.BUSSINESS);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("checkLogin Exception "+ e, LogType.ERROR);
+		}
+		return result;
+	}
+	
+	//Tinh minh hoa khoan vay
+	public ArrayList<Document> illustration (String userName, String billID, double laixuatNam, double phidichvu, double phitratruochan, double phitattoantruochan, double sotienvay, double sothangvay, double loaitrano, double phituvan){
+//		JSONArray array = new JSONArray();
+		ArrayList<Document> array = new ArrayList<Document>();
+		try {
+			FileLogger.log("getIllustration: " + userName+ " illustrationIns:" + loaitrano, LogType.BUSSINESS);
+			if(loaitrano == 1){
+				//Lịch trả nợ theo dư nợ giảm dần						
+				double sotienconlai_a = sotienvay;				
+				for (int i = 0; i<= sothangvay ; i++) {
+					
+					if(i == 0){
+						 Document doc = new Document("idMinhhoa", billID)
+								 .append("kyTrano",getTimeOut(i))
+							     .append("gocConlai", sotienvay)
+							     .append("gocTramoiky", 0)
+							     .append("laiThang", 0)
+								 .append("traHangthang", 0)
+								 .append("phiTuvan", 0)
+								 .append("phiDichvu", 0)
+								 .append("phiTranotruochan", 0)
+								 .append("tattoanTruochan", 0);
+								 array.add(doc);
+					}else{
+
+						ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+						double tiengoctramoiky_a 			= sotienvay/sothangvay;
+						double tinhphitranotruochan_a	  	= sotienconlai_a * phitratruochan / 100;						
+						double tienlaithang_a 				= sotienconlai_a * laixuatNam / 100 * 30 / 360;
+						double tinhphidichvu_a	  			= sotienconlai_a * phidichvu / 100 * 30 / 360;
+						double tinhphituvan_a	  			= sotienconlai_a * phituvan / 100 * 30 / 360;					
+						double tientrahangthang_a			= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
+						double tinhphitattoan_a	  			= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+						sotienconlai_a	  					= sotienconlai_a - tiengoctramoiky_a;
+//						objMinhhoa.setKyTrano(getTimeOut(i));
+//						objMinhhoa.setGocConlai(sotienconlai_a);
+//						objMinhhoa.setGocTramoiky(tiengoctramoiky_a);
+//						objMinhhoa.setLaiThang(tienlaithang_a);
+//						objMinhhoa.setTraHangthang(tientrahangthang_a);
+//						objMinhhoa.setPhiTuvan(tinhphituvan_a);
+//						objMinhhoa.setPhiDichvu(tinhphidichvu_a);
+//						objMinhhoa.setPhiTranotruochan(tinhphitranotruochan_a);
+//						objMinhhoa.setTattoanTruochan(tinhphitattoan_a);
+	//					array.add(objMinhhoa);
+						
+						
+						 Document doc = new Document("idMinhhoa", billID)
+								 .append("kyTrano",getTimeOut(i))
+							     .append("gocConlai", sotienconlai_a)
+							     .append("gocTramoiky", tiengoctramoiky_a)
+							     .append("laiThang", tienlaithang_a)
+								 .append("traHangthang", tientrahangthang_a)
+								 .append("phiTuvan", tinhphituvan_a)
+								 .append("phiDichvu", tinhphidichvu_a)
+								 .append("phiTranotruochan", tinhphitranotruochan_a)
+								 .append("tattoanTruochan", tinhphitattoan_a);
+						 array.add(doc);
+					}
+				}			
+			}else{
+				//Lịch trả nợ gốc cuối kỳ	
+				for (int i = 0; i<= sothangvay ; i++) {
+					double sotienconlai = sotienvay;
+					if(i == 0){
+						 Document doc = new Document("idMinhhoa", billID)
+								 .append("kyTrano",getTimeOut(i))
+							     .append("gocConlai", sotienconlai)
+							     .append("gocTrakycuoi", 0)
+							     .append("laiThang", 0)
+								 .append("traHangthang", 0)
+								 .append("phiTuvan", 0)
+								 .append("phiDichvu", 0)
+								 .append("phiTranotruochan", 0)
+								 .append("tattoanTruochan", 0);
+								 array.add(doc);
+					}else{
+						
+						ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+						double tiengoctrakycuoi 			= sotienconlai;
+						double tienlaithang 				= sotienconlai * laixuatNam / 100 * 30 / 360;
+						double tinhphidichvu	  			= sotienconlai * phidichvu / 100 * 30 / 360;
+						double tinhphituvan	  			= sotienconlai * phituvan / 100 * 30 / 360;
+						double tinhphitranotruochan	  	= sotienconlai / 100 * phitratruochan;
+						double tientrahangthang			= tienlaithang + tinhphituvan + tinhphidichvu;
+						double tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
+//						objMinhhoa.setKyTrano(getTimeOut(1));
+//						objMinhhoa.setGocConlai(sotienconlai);
+//						objMinhhoa.setGocTrakycuoi(tiengoctrakycuoi);
+//						objMinhhoa.setLaiThang(tienlaithang);
+//						objMinhhoa.setTraHangthang(tientrahangthang);
+//						objMinhhoa.setPhiTuvan(tinhphituvan);
+//						objMinhhoa.setPhiDichvu(tinhphidichvu);
+//						objMinhhoa.setPhiTranotruochan(tinhphitranotruochan);
+//						objMinhhoa.setTattoanTruochan(tinhphitattoan);
+		//				array.add(objMinhhoa);
+						
+						 Document doc = new Document("idMinhhoa", billID)
+								 .append("kyTrano",getTimeOut(i))
+							     .append("gocConlai", sotienconlai)
+							     .append("gocTrakycuoi", tiengoctrakycuoi)
+							     .append("laiThang", tienlaithang)
+								 .append("traHangthang", tientrahangthang)
+								 .append("phiTuvan", tinhphituvan)
+								 .append("phiDichvu", tinhphidichvu)
+								 .append("phiTranotruochan", tinhphitranotruochan)
+								 .append("tattoanTruochan", tinhphitattoan);
+								 array.add(doc);
+					}
+				}
+			}
+
+			//Thì tiền tra gốc hàng tháng = số tiền vay / số tháng vay
+			//Tiền lãi hàng tháng = số tiền gốc còn lại * lãi năm * số ngày trong tháng / số ngày trong năm (mặc định là 365)
+			//Phí dịch vụ sẽ tính bằng = số tiền còn lại * phi dich vu / ngày trong năm * ngày trong tháng
+			//phí tất toán trước hạn chỉ bằng = tiền gốc còn lại + lãi trong tháng + phí dịch vụ trong tháng + phi tư vấn trong tháng + phí trả nợ trước hạn (tính theo tháng)
+			FileLogger.log("illustration: " + userName+ " illustrationIns array insert DB:" + array, LogType.BUSSINESS);
+
+			return array;
+		} catch (Exception e) {
+			FileLogger.log("illustration: " + userName+ " illustrationIns exception" + e, LogType.ERROR);
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public static String getTimeNow() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
 		return format.format(new Date());
+	}
+	public static String getTimeNowDate() {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
+		return format.format(new Date());
+	}
+	public static String getTimeOut(int dateBefore) {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
+		Date dt = new Date();
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(dt); 
+		c.add(Calendar.MONTH, dateBefore);
+		dt = c.getTime();
+//		System.out.println(format.format(dt));
+		return format.format(dt);
 	}
 	
 	public static String getTimeEXP() {
@@ -353,7 +587,7 @@ public class Bussiness {
 		c.setTime(dt); 
 		c.add(Calendar.DATE, 1);
 		dt = c.getTime();
-		System.out.println(format.format(dt));
+//		System.out.println(format.format(dt));
 		return format.format(dt);
 	}
 	
@@ -366,7 +600,12 @@ public class Bussiness {
 		return ran;
 	}
 	
+	public static int getBillid() {
+		int random = (int)(Math.random()*(99999-00001+1)+00001);  
+		return random;
+	}
 	
+
 	public static void main(String[] args) {
 		try {
 //			System.out.println(getRandomStr(8));
@@ -381,10 +620,23 @@ public class Bussiness {
 //			c.add(Calendar.DATE, 1);
 //			dt = c.getTime();
 //			
-			System.out.println(MD5.hash(MD5.hash("123456")));
+//			long a = 10;
+//			long b = 2;
+//			System.out.println(a/b);
+//			if(a == 10){
+//				System.out.println(a);
+//			}
+//			System.out.println(MD5.hash(MD5.hash("123456")));
+			Bussiness bussiness = new Bussiness();			
+			BaseMongoDB mongoDB = new BaseMongoDB();
+			String billID = getTimeNowDate() + "_" + getBillid();
+			ArrayList<Document> illustration = bussiness.illustration("Phuongvd", billID, 18d, 25.2d, 8d, 8d, 30000000d, 24d, 2d, 54d);
+			System.out.println(illustration);
+			mongoDB.insertDocument(illustration, "tbl_loan_bill");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 }

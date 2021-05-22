@@ -79,6 +79,16 @@ public class ApiController {
    }
    
    @POST
+   @Path("/api/getIllustration")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getIllustration(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getIllustration(formParams);
+   }
+   
+   @POST
    @Path("/api/test")
    @Produces({MediaType.APPLICATION_JSON})
    public Response test(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {

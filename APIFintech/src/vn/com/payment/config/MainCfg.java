@@ -21,6 +21,7 @@ public class MainCfg extends BaseConfig {
 	public static String GATEWAY_ID			 	 = "";
 	public static String FORMATTER_DATETIME		=	"yyyy-MM-dd HH:mm:ss";
 	public static String FORMATTER_DATE			=	"yyyyMdd";
+	public static String FORMATTER_DATE_OUT		=	"MM/dd/yyyy";
 	
 //	public static String gameCode 				= "";
 //	public static String nccCode 				= "";
@@ -48,10 +49,17 @@ public class MainCfg extends BaseConfig {
 	public static boolean testOnBorrow 			= false;
 	public static int redispool_connecttimeout 	= 2000;
 	public static int timeExp 					= 300;
+	public static String host_name_mongo		= "";
+	public static String db_name				= "";
+	public static int port_mongo;
+	
 	
 
 	@Override
 	protected void getAllParas() {
+		port_mongo					= getInt("port_mongo", 								port_mongo);	
+		db_name						= properties.getProperty("db_name", 				db_name).trim();	
+		host_name_mongo				= properties.getProperty("host_name_mongo", 		host_name_mongo).trim();	
 		KeyTripleDes				= properties.getProperty("KeyTripleDes", 			KeyTripleDes).trim();	
 		API_KEY						= properties.getProperty("API_KEY", 				API_KEY).trim();	
 		URL_CALLBACK				= properties.getProperty("URL_CALLBACK", 			URL_CALLBACK).trim();			
