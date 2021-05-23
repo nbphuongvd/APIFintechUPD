@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -399,7 +400,7 @@ public class Bussiness {
 //				}
 				System.out.println("aaaa");
 				Bussiness bussiness = new Bussiness();
-				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, loaitrano, listFee);
+				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, objReqFee.getLoan_expect_date(), loaitrano, listFee);
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " illustrationIns:" + illustrationIns, LogType.BUSSINESS);
 				boolean checkInsMongo = mongoDB.insertDocument(illustrationIns, "tbl_minhhoa");
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " checkInsMongo: " + checkInsMongo, LogType.BUSSINESS);
@@ -457,7 +458,7 @@ public class Bussiness {
 	}
 	
 	//Tinh minh hoa khoan vay
-		public ArrayList<Document> illustrationNew (String userName, String billID, double sotienvay, double sothangvay, double loaitrano, List<Fees> listFee){
+		public ArrayList<Document> illustrationNew (String userName, String billID, double sotienvay, double sothangvay, String ngayvay, double loaitrano, List<Fees> listFee){
 			ArrayList<Document> array = new ArrayList<Document>();
 			
 			try {
@@ -516,7 +517,7 @@ public class Bussiness {
 								case "1":			
 									if(fees.getFix_fee_amount() <= 0){
 										laixuatNam 				= (double) fees.getFix_fee_percent();
-										tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * laixuatNam * 30.41666667 / 365;
+										tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * laixuatNam * 30.41666667 / 365;
 									}else{
 										laixuatNam 				= (double) fees.getFix_fee_amount();
 										tienlaithang_a 			= laixuatNam;
@@ -525,7 +526,7 @@ public class Bussiness {
 								case "2":			
 									if(fees.getFix_fee_amount() <= 0){
 										phituvan 				= (double) fees.getFix_fee_percent();
-										tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phituvan * 30.41666667 / 365;
+										tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phituvan * 30.41666667 / 365;
 									}else{
 										phituvan 				= (double) fees.getFix_fee_amount();
 										tinhphituvan_a	  		= phituvan;
@@ -534,7 +535,7 @@ public class Bussiness {
 								case "3":			
 									if(fees.getFix_fee_amount() <= 0){
 										phidichvu 				= (double) fees.getFix_fee_percent();
-										tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phidichvu * 30.41666667 / 365;
+										tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phidichvu * 30.41666667 / 365;
 									}else{
 										phidichvu 				= (double) fees.getFix_fee_amount();
 										tinhphidichvu_a	  		= phidichvu;
@@ -543,7 +544,7 @@ public class Bussiness {
 								case "4":			
 									if(fees.getFix_fee_amount() <= 0){
 										phitratruochan 			= (double) fees.getFix_fee_percent();
-										tinhphitranotruochan_a	= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phitratruochan;
+										tinhphitranotruochan_a	= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phitratruochan;
 									}else{
 										phitratruochan 			= (double) fees.getFix_fee_amount();
 										tinhphitranotruochan_a	= phitratruochan;
@@ -551,10 +552,11 @@ public class Bussiness {
 									break;
 								case "5":									
 									if(fees.getFix_fee_amount() <= 0){
-										phitattoantruochan = (double) fees.getFix_fee_percent();
-										tinhphitattoan_a	  	= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+										phitattoantruochan 		= (double) fees.getFix_fee_percent();
+										tinhphitattoan_a		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phitattoantruochan;
+//										tinhphitattoan_a	  	= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
 									}else{
-										phitattoantruochan 	= (double) fees.getFix_fee_amount();
+										phitattoantruochan 		= (double) fees.getFix_fee_amount();
 										tinhphitattoan_a	  	= phitattoantruochan;
 									}	
 									break;
@@ -562,7 +564,7 @@ public class Bussiness {
 									break;
 								}
 							}
-
+							//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phi tra no qua han,5:phi tat toan qua han',
 //							ObjMinhhoa objMinhhoa = new ObjMinhhoa();
 //							tiengoctramoiky_a 					= sotienvay/sothangvay;
 //							double tinhphitranotruochan_a	  	= sotienconlai_a * phitratruochan;						
@@ -601,17 +603,19 @@ public class Bussiness {
 							gocconlai = gocconlai - tiengoc;
 							Document doc = new Document("idMinhhoa", billID)
 									 .append("Kyvay",i)
-									 .append("Ngaythanhtoan",getTimeOut(i))
-								     .append("Sotiencanthanhtoan",  Math.round(tiencantt))
-								     .append("Tiengoc",  Math.round(tiengoc) )
-								     .append("Tienlai",  Math.round(tienlaithang_a))
-									 .append("Phituvandichvu",  Math.round(tinhphituvan_a))
-									 .append("Phiquanly",  Math.round(tinhphidichvu_a))
-									 .append("Gocconlaisauthanhtoanky",  Math.round(gocconlai))
-									 .append("Phitattoan",  Math.round(tinhphitranotruochan_a))
-									 .append("Sotientattoantaikynay",  Math.round(gocconlai + tinhphitranotruochan_a));
+									 .append("Ngaythanhtoan",				getNgayvay(ngayvay))
+								     .append("Sotiencanthanhtoan",  		Math.round(tiencantt))
+								     .append("Tiengoc",  					Math.round(tiengoc) )
+								     .append("Tienlai",  					Math.round(tienlaithang_a))
+									 .append("Phituvandichvu",  			Math.round(tinhphituvan_a))
+									 .append("Phiquanly",  					Math.round(tinhphidichvu_a))
+									 .append("Gocconlaisauthanhtoanky",  	Math.round(gocconlai))
+									 .append("Phitattoan",  				Math.round(tinhphitattoan_a))
+//									 .append("Phitranoquahan",  Math.round(tinhphitranotruochan_a))
+									 .append("Sotientattoantaikynay",  		Math.round(gocconlai + tinhphitattoan_a));
 							 array.add(doc);
 							 kyvay = kyvay + 1;
+							 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
 //						}
 					}
 				}else{
@@ -627,8 +631,8 @@ public class Bussiness {
 									 .append("traHangthang", 0)
 									 .append("phiTuvan", 0)
 									 .append("phiDichvu", 0)
-									 .append("phiTranotruochan", 0)
-									 .append("tattoanTruochan", 0);
+//									 .append("phiTranotruochan", 0)
+									 .append("tattoanquahan", 0);
 									 array.add(doc);
 						}else{
 							
@@ -697,17 +701,18 @@ public class Bussiness {
 //							objMinhhoa.setTattoanTruochan(tinhphitattoan);
 			//				array.add(objMinhhoa);
 							
-							 Document doc = new Document("idMinhhoa", billID)
-									 .append("kyTrano",getTimeOut(i))
-								     .append("gocConlai", 		Math.round(sotienconlai))
-								     .append("gocTrakycuoi",  	Math.round(tiengoctrakycuoi))
-								     .append("laiThang",  		Math.round(tienlaithang))
-									 .append("traHangthang",  	Math.round(tientrahangthang))
-									 .append("phiTuvan",  		Math.round(tinhphituvan))
-									 .append("phiDichvu",  		Math.round(tinhphidichvu))
-									 .append("phiTranotruochan", Math.round(tinhphitranotruochan))
-									 .append("tattoanTruochan",  Math.round(tinhphitattoan));
+							Document doc = new Document("idMinhhoa", billID)
+									 .append("kyTrano",				getNgayvay(ngayvay))
+								     .append("gocConlai", 			Math.round(sotienconlai))
+								     .append("gocTrakycuoi",  		Math.round(tiengoctrakycuoi))
+								     .append("laiThang",  			Math.round(tienlaithang))
+									 .append("traHangthang",  		Math.round(tientrahangthang))
+									 .append("phiTuvan",  			Math.round(tinhphituvan))
+									 .append("phiDichvu",  			Math.round(tinhphidichvu))
+//									 .append("phiTranoquahan", 	Math.round(tinhphitranotruochan))
+									 .append("tattoanquahan",  	Math.round(tinhphitattoan));
 									 array.add(doc);
+							ngayvay = getNgayvayNew(getNgayvay(ngayvay));
 						}
 					}
 				}
@@ -750,7 +755,7 @@ public class Bussiness {
 						case "1":			
 							if(fees.getFix_fee_amount() <= 0){
 								laixuatNam 				= (double) fees.getFix_fee_percent();
-								tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * laixuatNam * 30.41666667 / 365;
+								tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * laixuatNam * 30.41666667 / 365;
 							}else{
 								laixuatNam 				= (double) fees.getFix_fee_amount();
 								tienlaithang_a 			= laixuatNam;
@@ -759,7 +764,7 @@ public class Bussiness {
 						case "2":			
 							if(fees.getFix_fee_amount() <= 0){
 								phituvan 				= (double) fees.getFix_fee_percent();
-								tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phituvan * 30.41666667 / 365;
+								tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phituvan * 30.41666667 / 365;
 							}else{
 								phituvan 				= (double) fees.getFix_fee_amount();
 								tinhphituvan_a	  		= phituvan;
@@ -768,7 +773,7 @@ public class Bussiness {
 						case "3":			
 							if(fees.getFix_fee_amount() <= 0){
 								phidichvu 				= (double) fees.getFix_fee_percent();
-								tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / 12 ) * phidichvu * 30.41666667 / 365;
+								tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phidichvu * 30.41666667 / 365;
 							}else{
 								phidichvu 				= (double) fees.getFix_fee_amount();
 								tinhphidichvu_a	  		= phidichvu;
@@ -835,6 +840,39 @@ public class Bussiness {
 		return format.format(dt);
 	}
 	
+	public static String getNgayvay(String date){
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("yyyyMMdd").parse(date);
+			SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
+			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			calendar.setTime(date1);
+			calendar.add(Calendar.DATE, 30);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public static String getNgayvayNew(String date){
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("MM/dd/yyyy").parse(date);
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			calendar.setTime(date1);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
 	public static String getRandomStr(int length) {
 		String stock = "0123456789abcdefghijklmnopqrstuvwxyz";
 		String ran = "";
@@ -879,11 +917,13 @@ public class Bussiness {
 //			mongoDB.insertDocument(illustration, "tbl_loan_bill");
 			
 			
-			double rate = 10.2566645;
+//			double rate = 10.2566645;
 			 
-	        System.out.println("Su dung phuong thuc Math.round()");
+//	        System.out.println("Su dung phuong thuc Math.round()");
 	        // lam tron xuong gom 1 so thap phan, nhan va chia cho 10
-	        System.out.println((double) Math.round(rate));
+//	        System.out.println((double) Math.round(rate));
+			Bussiness bussiness = new Bussiness();
+			System.out.println(bussiness.getNgayvay("20210522"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
