@@ -97,12 +97,79 @@ public class Bussiness {
 	long statusFale = 111l;
 	long statusFaleToken = 104l;
 	int statusPending = 99;
+	
+//	public Response getContractNumber (String dataContract) {
+//		FileLogger.log("----------------Bat dau getContractNumber--------------------------", LogType.BUSSINESS);
+//		ResponseBuilder response = Response.status(Status.OK).entity("x");
+//		ProducResAll producResAll = new ProducResAll();
+//		ProductRes productRes = new ProductRes();
+//		try {
+//			FileLogger.log("getContractNumber dataContract: " + dataContract, LogType.BUSSINESS);
+//			ProductReq productReq = gson.fromJson(dataProducReq, ProductReq.class);
+//			if (ValidData.checkNull(productReq.getUsername()) == false 
+//				|| ValidData.checkNull(productReq.getToken()) == false 
+//				|| ValidData.checkNullLong(productReq.getProduct_type()) == false 
+//				|| ValidData.checkNull(productReq.getProduct_brand()) == false
+//				|| ValidData.checkNull(productReq.getProduct_modal()) == false){
+//				FileLogger.log("getProduct: " + productReq.getUsername()+ " invalid : ", LogType.BUSSINESS);
+//				response = response.header(Commons.ReceiveTime, getTimeNow());
+//				producResAll.setStatus(statusFale);
+//				producResAll.setSuggest_info(productRes);
+//				response = response.header(Commons.ReceiveTime, getTimeNow());
+//				return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+//			}
+//			boolean checkLG = checkLogin(productReq.getUsername(), productReq.getToken());
+//			if(checkLG){
+//				TblProduct tblProduct = tblProductHome.getProduct(String.valueOf(productReq.getProduct_type()), productReq.getProduct_brand(), productReq.getProduct_modal());
+//				
+//				if (tblProduct != null){
+//					producResAll.setStatus(statusSuccess);
+//					
+//					productRes.setProduct_type(tblProduct.getProductType());
+//					productRes.setProduct_brand(tblProduct.getProductName());
+//					productRes.setProduct_modal(tblProduct.getProductCode());
+//					productRes.setTotal_run(productReq.getTotal_run());
+//					productRes.setProduct_condition(productReq.getProduct_condition());
+//					productRes.setProduct_own_by_borrower(productReq.getProduct_own_by_borrower());
+//					productRes.setBuy_a_new_price(tblProduct.getBrandnewPrice());
+//					productRes.setLoan_price(tblProduct.getLoanPrice());
+//					//Định giá = [ Giá vay ]x [ tỷ lệ tình trạng sản phẩm ] x [ tỷ lệ KM đã đi ] x [ tỷ lệ chính chủ ]
+//					//accept_loan_price:	loan_price * product_condition * total_run * product_own_by_borrower
+//					long accept_loan_price = productRes.getLoan_price() * productRes.getProduct_condition() * productRes.getTotal_run() * productRes.getProduct_own_by_borrower();
+//					productRes.setAccept_loan_price(accept_loan_price);
+//					
+//					producResAll.setSuggest_info(productRes);
+//				}else{
+//					FileLogger.log("getProduct: " + productReq.getUsername()+ " tblProduct null:", LogType.BUSSINESS);
+//					producResAll.setStatus(statusFale);
+//					producResAll.setSuggest_info(productRes);					
+//				}
+//			}else{
+//				FileLogger.log("getProduct: " + productReq.getUsername()+ " check login false:", LogType.BUSSINESS);
+//				producResAll.setStatus(statusFale);
+//				producResAll.setSuggest_info(productRes);
+//			}
+//			FileLogger.log("getProduct: " + productReq.getUsername()+ " response to client:" + producResAll.toJSON(), LogType.BUSSINESS);
+//			FileLogger.log("----------------Ket thuc getProduct ", LogType.BUSSINESS);
+//			response = response.header(Commons.ReceiveTime, getTimeNow());
+//			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			FileLogger.log("----------------Ket thuc getProduct Exception "+ e.getMessage(), LogType.ERROR);
+//			producResAll.setStatus(statusFale);
+//			producResAll.setSuggest_info(productRes);
+//			response = response.header(Commons.ReceiveTime, getTimeNow());
+//			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
+//		}
+//	}
+	
 	public Response getProduct(String dataProducReq) {
 		FileLogger.log("----------------Bat dau getProduct--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
 		ProducResAll producResAll = new ProducResAll();
 		ProductRes productRes = new ProductRes();
 		try {
+			FileLogger.log("getProduct dataProducReq: " + dataProducReq, LogType.BUSSINESS);
 			ProductReq productReq = gson.fromJson(dataProducReq, ProductReq.class);
 			if (ValidData.checkNull(productReq.getUsername()) == false 
 				|| ValidData.checkNull(productReq.getToken()) == false 
@@ -148,6 +215,7 @@ public class Bussiness {
 				producResAll.setSuggest_info(productRes);
 			}
 			FileLogger.log("getProduct: " + productReq.getUsername()+ " response to client:" + producResAll.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getProduct ", LogType.BUSSINESS);
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
 		} catch (Exception e) {
@@ -166,6 +234,7 @@ public class Bussiness {
 		RateConfigRes rateConfigRes = new RateConfigRes();
 		List<TblRateConfig> arrRateCfg = new ArrayList<>();
 		try {
+			FileLogger.log("getRateConfig dataRateConfig: " + dataRateConfig, LogType.BUSSINESS);
 			RateConfigReq rateConfigReq = gson.fromJson(dataRateConfig, RateConfigReq.class);
 			if (ValidData.checkNull(rateConfigReq.getUsername()) == false 
 				|| ValidData.checkNull(rateConfigReq.getToken()) == false
@@ -199,6 +268,7 @@ public class Bussiness {
 			}
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			FileLogger.log("getRateConfig: " + rateConfigReq.getUsername()+ " response to client:" + rateConfigRes.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getRateConfig: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(rateConfigRes.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -216,6 +286,7 @@ public class Bussiness {
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
 		ResCreaterLoan resCreaterLoan = new ResCreaterLoan();
 		try {
+			FileLogger.log("createrLoan datacreaterLoan: " + datacreaterLoan, LogType.BUSSINESS);
 			ReqCreaterLoan reqCreaterLoan = gson.fromJson(datacreaterLoan, ReqCreaterLoan.class);
 			if (ValidData.checkNull(reqCreaterLoan.getUsername()) == false 
 				|| ValidData.checkNull(reqCreaterLoan.getToken()) == false){
@@ -280,6 +351,7 @@ public class Bussiness {
 			}
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " response to client:" + resCreaterLoan.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc createrLoan: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -312,6 +384,7 @@ public class Bussiness {
 			}			
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			FileLogger.log("getBank: " + reqBankReq.getUsername()+ " response to client:" + bankRes.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getBank: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(bankRes.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -352,52 +425,6 @@ public class Bussiness {
 				List<Fees> listFee = objReqFee.getFees();
 				
 				//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
-//				double laixuatNam 			= 0;
-//				double phidichvu			= 0;
-//				double phituvan 			= 0;
-//				double phitratruochan 		= 0;
-//				double phitattoantruochan 	= 0;
-//				for (Fees fees : listFee) {
-//					switch (String.valueOf(fees.getFee_type())) {
-//					case "1":			
-//						if(fees.getFix_fee_amount() > 0){
-//							laixuatNam 	= (double) fees.getFix_fee_percent();
-//						}else{
-//							laixuatNam 	= (double) fees.getFix_fee_amount();
-//						}						
-//						break;			
-//					case "2":			
-//						if(fees.getFix_fee_amount() == 0){
-//							phituvan 	= (double) fees.getFix_fee_percent();
-//						}else{
-//							phituvan 	= (double) fees.getFix_fee_amount();
-//						}	
-//						break;	
-//					case "3":			
-//						if(fees.getFix_fee_amount() == 0){
-//							phidichvu 	= (double) fees.getFix_fee_percent();
-//						}else{
-//							phidichvu 	= (double) fees.getFix_fee_amount();
-//						}	
-//						break;	
-//					case "4":			
-//						if(fees.getFix_fee_amount() == 0){
-//							phitratruochan 	= (double) fees.getFix_fee_percent();
-//						}else{
-//							phitratruochan 	= (double) fees.getFix_fee_amount();
-//						}	
-//						break;
-//					case "5":									
-//						if(fees.getFix_fee_amount() == 0){
-//							phitattoantruochan = (double) fees.getFix_fee_percent();
-//						}else{
-//							phitattoantruochan 	= (double) fees.getFix_fee_amount();
-//						}	
-//						break;
-//					default:
-//						break;
-//					}
-//				}
 				System.out.println("aaaa");
 				Bussiness bussiness = new Bussiness();
 				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, objReqFee.getLoan_expect_date(), loaitrano, listFee);
@@ -417,6 +444,7 @@ public class Bussiness {
 			}
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " response to client:" + objBillRes.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getIllustration: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(objBillRes.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -809,6 +837,8 @@ public class Bussiness {
 		}
 		return tienTT;
 	}
+	
+	
 	
 	public static String getTimeNow() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
