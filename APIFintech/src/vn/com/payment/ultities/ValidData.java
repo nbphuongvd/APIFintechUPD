@@ -33,6 +33,13 @@ public class ValidData {
 		return false;
 	}
 	
+	public static boolean checkNullBranch(String str) {
+		if (str != null && str != "" && str.length() != 0 && !str.equals("0")) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static void main(String[] args) {
 		long a = 0;
 		

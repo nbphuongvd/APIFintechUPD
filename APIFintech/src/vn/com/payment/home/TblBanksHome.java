@@ -84,7 +84,7 @@ public class TblBanksHome extends BaseSqlHomeDao{
 		Session session = null;
 		try {
 			session						 	= HibernateUtil.getSessionFactory().openSession();
-			Criteria crtProduct 			= session.createCriteria(SubPermission.class);
+			Criteria crtProduct 			= session.createCriteria(TblBanks.class);
 			Criterion statusActive 			= Restrictions.eq("status", status);
 			Criterion bankSupportFunction 	= Restrictions.in("bankSupportFunction", bankSupport);
 			crtProduct.add(statusActive);
@@ -93,7 +93,7 @@ public class TblBanksHome extends BaseSqlHomeDao{
 			results = crtProduct.list();
 			return results;
 		} catch (Exception e) {
-			FileLogger.log(" getSubPermissionid Exception "+ e, LogType.ERROR);
+			FileLogger.log(" getTblBanks Exception "+ e, LogType.ERROR);
 			e.printStackTrace();
 		} finally {
 			releaseSession(session);

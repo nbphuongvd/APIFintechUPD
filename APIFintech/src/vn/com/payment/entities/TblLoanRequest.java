@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 16, 2021 2:41:23 PM by Hibernate Tools 3.5.0.Final
+// Generated May 23, 2021 6:52:19 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -29,20 +29,29 @@ public class TblLoanRequest implements java.io.Serializable {
 	private Integer previousStatus;
 	private Integer sponsorId;
 	private Date latestUpdate;
+	private String approveRejectedReason;
+	private Integer calculateProfitType;
+	private Integer loanForMonth;
+	private String loanCode;
+	private String loanName;
 
 	public TblLoanRequest() {
 	}
 
-	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy) {
+	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy,
+			String loanCode) {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.expireDate = expireDate;
 		this.approvedDate = approvedDate;
 		this.createdBy = createdBy;
+		this.loanCode = loanCode;
 	}
 
 	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy,
-			String approvedBy, Integer finalStatus, Integer previousStatus, Integer sponsorId, Date latestUpdate) {
+			String approvedBy, Integer finalStatus, Integer previousStatus, Integer sponsorId, Date latestUpdate,
+			String approveRejectedReason, Integer calculateProfitType, Integer loanForMonth, String loanCode,
+			String loanName) {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.expireDate = expireDate;
@@ -53,6 +62,11 @@ public class TblLoanRequest implements java.io.Serializable {
 		this.previousStatus = previousStatus;
 		this.sponsorId = sponsorId;
 		this.latestUpdate = latestUpdate;
+		this.approveRejectedReason = approveRejectedReason;
+		this.calculateProfitType = calculateProfitType;
+		this.loanForMonth = loanForMonth;
+		this.loanCode = loanCode;
+		this.loanName = loanName;
 	}
 
 	@Id
@@ -160,6 +174,51 @@ public class TblLoanRequest implements java.io.Serializable {
 
 	public void setLatestUpdate(Date latestUpdate) {
 		this.latestUpdate = latestUpdate;
+	}
+
+	@Column(name = "approve_rejected_reason")
+	public String getApproveRejectedReason() {
+		return this.approveRejectedReason;
+	}
+
+	public void setApproveRejectedReason(String approveRejectedReason) {
+		this.approveRejectedReason = approveRejectedReason;
+	}
+
+	@Column(name = "calculate_profit_type")
+	public Integer getCalculateProfitType() {
+		return this.calculateProfitType;
+	}
+
+	public void setCalculateProfitType(Integer calculateProfitType) {
+		this.calculateProfitType = calculateProfitType;
+	}
+
+	@Column(name = "loan_for_month")
+	public Integer getLoanForMonth() {
+		return this.loanForMonth;
+	}
+
+	public void setLoanForMonth(Integer loanForMonth) {
+		this.loanForMonth = loanForMonth;
+	}
+
+	@Column(name = "loan_code", nullable = false)
+	public String getLoanCode() {
+		return this.loanCode;
+	}
+
+	public void setLoanCode(String loanCode) {
+		this.loanCode = loanCode;
+	}
+
+	@Column(name = "loan_name")
+	public String getLoanName() {
+		return this.loanName;
+	}
+
+	public void setLoanName(String loanName) {
+		this.loanName = loanName;
 	}
 
 }

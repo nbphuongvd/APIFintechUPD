@@ -52,11 +52,12 @@ public class MainCfg extends BaseConfig {
 	public static String host_name_mongo		= "";
 	public static String db_name				= "";
 	public static int port_mongo;
-	
+	public static String prefixContract			= "";
 	
 
 	@Override
 	protected void getAllParas() {
+		prefixContract				= properties.getProperty("prefixContract", 			prefixContract).trim();	
 		port_mongo					= getInt("port_mongo", 								port_mongo);	
 		db_name						= properties.getProperty("db_name", 				db_name).trim();	
 		host_name_mongo				= properties.getProperty("host_name_mongo", 		host_name_mongo).trim();	

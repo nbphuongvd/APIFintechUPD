@@ -1,10 +1,16 @@
 package vn.com.payment.object;
 
+import java.util.List;
+
 import com.google.gson.Gson;
+
+import vn.com.payment.entities.TblRateConfig;
 
 public class ReqCreaterLoan {
 	public String username;
 	public String token;
+	public String loan_code;
+	public String loan_name;
 	public long product_type;
 	public String product_brand;
 	public String product_modal;
@@ -17,15 +23,11 @@ public class ReqCreaterLoan {
 	public String borrower_phone;
 	public String borrower_email;
 	public String borrower_id_number;
-	public String id_img_back;
-	public String id_img_front;
-	public String img_product1;
-	public String img_product2;
-	public String img_product3;
 	public long disburse_to;
 	public String disburse_to_bank_no;
 	public String disburse_to_bank_name;
 	public String disburse_to_bank_code;
+	public List<ObjImage> images;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -47,6 +49,19 @@ public class ReqCreaterLoan {
 	}
 	public void setToken(String token) {
 		this.token = token;
+	}
+	
+	public String getLoan_code() {
+		return loan_code;
+	}
+	public void setLoan_code(String loan_code) {
+		this.loan_code = loan_code;
+	}
+	public String getLoan_name() {
+		return loan_name;
+	}
+	public void setLoan_name(String loan_name) {
+		this.loan_name = loan_name;
 	}
 	public long getProduct_type() {
 		return product_type;
@@ -120,36 +135,6 @@ public class ReqCreaterLoan {
 	public void setBorrower_id_number(String borrower_id_number) {
 		this.borrower_id_number = borrower_id_number;
 	}
-	public String getId_img_back() {
-		return id_img_back;
-	}
-	public void setId_img_back(String id_img_back) {
-		this.id_img_back = id_img_back;
-	}
-	public String getId_img_front() {
-		return id_img_front;
-	}
-	public void setId_img_front(String id_img_front) {
-		this.id_img_front = id_img_front;
-	}
-	public String getImg_product1() {
-		return img_product1;
-	}
-	public void setImg_product1(String img_product1) {
-		this.img_product1 = img_product1;
-	}
-	public String getImg_product2() {
-		return img_product2;
-	}
-	public void setImg_product2(String img_product2) {
-		this.img_product2 = img_product2;
-	}
-	public String getImg_product3() {
-		return img_product3;
-	}
-	public void setImg_product3(String img_product3) {
-		this.img_product3 = img_product3;
-	}
 	public long getDisburse_to() {
 		return disburse_to;
 	}
@@ -173,6 +158,12 @@ public class ReqCreaterLoan {
 	}
 	public void setDisburse_to_bank_code(String disburse_to_bank_code) {
 		this.disburse_to_bank_code = disburse_to_bank_code;
+	}
+	public List<ObjImage> getImages() {
+		return images;
+	}
+	public void setImages(List<ObjImage> images) {
+		this.images = images;
 	}
 	
 }

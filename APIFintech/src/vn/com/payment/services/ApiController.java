@@ -69,10 +69,20 @@ public class ApiController {
    }
    
    @POST
+   @Path("/api/getBank")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getBank(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getProduct");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getBank(formParams);
+   }
+   
+   @POST
    @Path("/api/createrLoan")
    @Produces({MediaType.APPLICATION_JSON})
    public Response createrLoan(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
-	   System.out.println("Vao xooong getProduct");
+	   System.out.println("Vao xooong createrLoan");
 	   Bussiness bussiness = new Bussiness();
    	   System.out.println(formParams);
 	   return bussiness.createrLoan(formParams);
@@ -82,10 +92,20 @@ public class ApiController {
    @Path("/api/getIllustration")
    @Produces({MediaType.APPLICATION_JSON})
    public Response getIllustration(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
-	   System.out.println("Vao xooong getProduct");
+	   System.out.println("Vao xooong getIllustration");
 	   Bussiness bussiness = new Bussiness();
    	   System.out.println(formParams);
 	   return bussiness.getIllustration(formParams);
+   }
+   
+   @POST
+   @Path("/api/getContractNumber")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getContractNumber(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getContractNumber");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getContractNumber(formParams);
    }
    
    @POST

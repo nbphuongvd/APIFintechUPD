@@ -4,18 +4,28 @@ package vn.com.payment.home;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 
 import vn.com.payment.config.LogType;
+import vn.com.payment.entities.SeqContract;
+import vn.com.payment.entities.TblImages;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
+import vn.com.payment.entities.TblProduct;
+import vn.com.payment.object.ObjImage;
 import vn.com.payment.ultities.FileLogger;
 
 /**
@@ -43,9 +53,9 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		return false;
 	}
 	
-	public boolean createLoanTrans(TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail) {
+	public boolean createLoanTrans(TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList) {
 		try {
-			boolean checkSaveTrans = saveTransaction(tblLoanRequest, tblLoanReqDetail);
+			boolean checkSaveTrans = saveTransaction(tblLoanRequest, tblLoanReqDetail, imagesList);
 			System.out.println("id: " + tblLoanRequest.getLoanId());
 			return checkSaveTrans;
 		} catch (Exception e) {
@@ -86,42 +96,96 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
+	public boolean checktblLoanRequest(String loanCode) {
+		TblLoanRequest tblLoanRequest = null;
+		Session session = null;
+		boolean result = true;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 	= session.createCriteria(TblLoanRequest.class);
+			Criterion loancode 		= Restrictions.eq("loanCode", loanCode);
+			crtProduct.add(loancode);
+			@SuppressWarnings("unchecked")
+			List<TblLoanRequest> listLoan = crtProduct.list();
+			if (listLoan.size() > 0) {
+				tblLoanRequest = listLoan.get(0);
+				result = false;
+			}			
+		} catch (Exception e) {
+			FileLogger.log(" getProduct Exception "+ e, LogType.ERROR);
+			throw e;
+		} finally {
+			releaseSession(session);
+		}
+		return result;
+	}
+	
+	public BigDecimal getSeqContract() {
+		Session session = null;
+		BigDecimal sumAmount = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sqlUpd = "update SeqContract SET rowId = LAST_INSERT_ID(rowId+1)";
+			String sqlSel = "select sum(row_id) from seq_contract";
+			System.out.println("sql: "+ sqlUpd);
+			Query updateQ = session.createQuery(sqlUpd);
+			SQLQuery<BigDecimal> selectQ = session.createSQLQuery(sqlSel);
+			Transaction transaction = session.beginTransaction();
+			try {
+				int result = updateQ.executeUpdate();
+				if(result == 1){
+					transaction.commit();
+					sumAmount = selectQ.uniqueResult();
+				}				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return sumAmount;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.fatal("getListVaMap = " +e);
+		}finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
 	public static void main(String[] args) {
 		
 		TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
-		BigInteger aa = tblLoanReqDetailHome.getIDAutoIncrement();
-		System.out.println(aa);
+//		BigInteger aa = tblLoanReqDetailHome.getIDAutoIncrement();
+//		System.out.println(aa);
+//		
+//		TblLoanRequest tblLoanRequest = new TblLoanRequest();
+//		tblLoanRequest.setLoanId(10);
+//		tblLoanRequest.setCreatedDate(new Date());
+//		tblLoanRequest.setEditedDate(new Date());
+//		tblLoanRequest.setExpireDate(new Date());
+//		tblLoanRequest.setApprovedDate(new Date());
+//		tblLoanRequest.setCreatedBy("Phuongvd");
+//		tblLoanRequest.setApprovedBy("Phuongvd");
+//		tblLoanRequest.setFinalStatus(99);
+//		tblLoanRequest.setPreviousStatus(99);
+//		tblLoanRequest.setSponsorId(1);
+//		tblLoanRequest.setLatestUpdate(new Date());
+//		
+//		
+//		TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
+//		tblLoanReqDetail.setReqDetailId(31);
+//		tblLoanReqDetail.setLoanId(aa.intValue());
+//		tblLoanReqDetail.setProductId(aa.intValue());
+////		tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
+//		tblLoanReqDetail.setImportFrom(aa.intValue());
+//		tblLoanReqDetail.setManufactureDate(aa.intValue());
+//		tblLoanReqDetail.setExpectAmount(500000);
+//		tblLoanReqDetail.setBorrowerId(0);
+//		tblLoanReqDetail.setApprovedAmount(500000l);
+//		tblLoanReqDetail.setCreatedDate(new Date());
+//		tblLoanReqDetail.setEditedDate(new Date());
+//		tblLoanReqDetail.setDisbursementDate(aa.intValue());
 		
-		TblLoanRequest tblLoanRequest = new TblLoanRequest();
-		tblLoanRequest.setLoanId(10);
-		tblLoanRequest.setCreatedDate(new Date());
-		tblLoanRequest.setEditedDate(new Date());
-		tblLoanRequest.setExpireDate(new Date());
-		tblLoanRequest.setApprovedDate(new Date());
-		tblLoanRequest.setCreatedBy("Phuongvd");
-		tblLoanRequest.setApprovedBy("Phuongvd");
-		tblLoanRequest.setFinalStatus(99);
-		tblLoanRequest.setPreviousStatus(99);
-		tblLoanRequest.setSponsorId(1);
-		tblLoanRequest.setLatestUpdate(new Date());
 		
-		
-		TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
-		tblLoanReqDetail.setReqDetailId(31);
-		tblLoanReqDetail.setLoanId(aa.intValue());
-		tblLoanReqDetail.setProductId(aa.intValue());
-//		tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
-		tblLoanReqDetail.setImportFrom(aa.intValue());
-		tblLoanReqDetail.setManufactureDate(aa.intValue());
-		tblLoanReqDetail.setExpectAmount(500000);
-		tblLoanReqDetail.setBorrowerId(0);
-		tblLoanReqDetail.setApprovedAmount(500000l);
-		tblLoanReqDetail.setCreatedDate(new Date());
-		tblLoanReqDetail.setEditedDate(new Date());
-		tblLoanReqDetail.setDisbursementDate(aa.intValue());
-		
-		
-		boolean a =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail);
+		BigDecimal a =  tblLoanReqDetailHome.getSeqContract();
 
 		System.out.println(a);
 	}

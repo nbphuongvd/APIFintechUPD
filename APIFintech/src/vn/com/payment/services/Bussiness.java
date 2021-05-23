@@ -4,6 +4,7 @@ import vn.com.payment.config.LogType;
 import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
 import vn.com.payment.entities.TblBanks;
+import vn.com.payment.entities.TblImages;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblProduct;
@@ -16,9 +17,12 @@ import vn.com.payment.home.TblProductHome;
 import vn.com.payment.home.TblRateConfigHome;
 import vn.com.payment.object.BankReq;
 import vn.com.payment.object.BankRes;
+import vn.com.payment.object.ContractObj;
+import vn.com.payment.object.ContractObjRes;
 import vn.com.payment.object.Fees;
 import vn.com.payment.object.NotifyObject;
 import vn.com.payment.object.ObjBillRes;
+import vn.com.payment.object.ObjImage;
 import vn.com.payment.object.ObjMinhhoa;
 import vn.com.payment.object.ObjReqFee;
 import vn.com.payment.object.ProducResAll;
@@ -57,6 +61,7 @@ import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -79,89 +84,104 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.bson.Document;
+import org.json.JSONObject;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.util.Base64Utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 public class Bussiness {
 	AccountHome accountHome = new AccountHome();
 	TblProductHome tblProductHome = new TblProductHome();
 	TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
+	TblLoanRequestHome tbLoanRequestHome = new TblLoanRequestHome();
 	TblBanksHome tblBanksHome = new TblBanksHome();
 	BaseMongoDB mongoDB = new BaseMongoDB();
 	Gson gson = new Gson();
 	long statusSuccess = 100l;
 	long statusFale = 111l;
 	long statusFaleToken = 104l;
-	int statusPending = 99;
+	int statusPending = 999;
 	
-//	public Response getContractNumber (String dataContract) {
-//		FileLogger.log("----------------Bat dau getContractNumber--------------------------", LogType.BUSSINESS);
-//		ResponseBuilder response = Response.status(Status.OK).entity("x");
-//		ProducResAll producResAll = new ProducResAll();
-//		ProductRes productRes = new ProductRes();
-//		try {
-//			FileLogger.log("getContractNumber dataContract: " + dataContract, LogType.BUSSINESS);
-//			ProductReq productReq = gson.fromJson(dataProducReq, ProductReq.class);
-//			if (ValidData.checkNull(productReq.getUsername()) == false 
-//				|| ValidData.checkNull(productReq.getToken()) == false 
-//				|| ValidData.checkNullLong(productReq.getProduct_type()) == false 
-//				|| ValidData.checkNull(productReq.getProduct_brand()) == false
-//				|| ValidData.checkNull(productReq.getProduct_modal()) == false){
-//				FileLogger.log("getProduct: " + productReq.getUsername()+ " invalid : ", LogType.BUSSINESS);
-//				response = response.header(Commons.ReceiveTime, getTimeNow());
-//				producResAll.setStatus(statusFale);
-//				producResAll.setSuggest_info(productRes);
-//				response = response.header(Commons.ReceiveTime, getTimeNow());
-//				return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
-//			}
-//			boolean checkLG = checkLogin(productReq.getUsername(), productReq.getToken());
-//			if(checkLG){
-//				TblProduct tblProduct = tblProductHome.getProduct(String.valueOf(productReq.getProduct_type()), productReq.getProduct_brand(), productReq.getProduct_modal());
-//				
-//				if (tblProduct != null){
-//					producResAll.setStatus(statusSuccess);
-//					
-//					productRes.setProduct_type(tblProduct.getProductType());
-//					productRes.setProduct_brand(tblProduct.getProductName());
-//					productRes.setProduct_modal(tblProduct.getProductCode());
-//					productRes.setTotal_run(productReq.getTotal_run());
-//					productRes.setProduct_condition(productReq.getProduct_condition());
-//					productRes.setProduct_own_by_borrower(productReq.getProduct_own_by_borrower());
-//					productRes.setBuy_a_new_price(tblProduct.getBrandnewPrice());
-//					productRes.setLoan_price(tblProduct.getLoanPrice());
-//					//Định giá = [ Giá vay ]x [ tỷ lệ tình trạng sản phẩm ] x [ tỷ lệ KM đã đi ] x [ tỷ lệ chính chủ ]
-//					//accept_loan_price:	loan_price * product_condition * total_run * product_own_by_borrower
-//					long accept_loan_price = productRes.getLoan_price() * productRes.getProduct_condition() * productRes.getTotal_run() * productRes.getProduct_own_by_borrower();
-//					productRes.setAccept_loan_price(accept_loan_price);
-//					
-//					producResAll.setSuggest_info(productRes);
-//				}else{
-//					FileLogger.log("getProduct: " + productReq.getUsername()+ " tblProduct null:", LogType.BUSSINESS);
-//					producResAll.setStatus(statusFale);
-//					producResAll.setSuggest_info(productRes);					
-//				}
-//			}else{
-//				FileLogger.log("getProduct: " + productReq.getUsername()+ " check login false:", LogType.BUSSINESS);
-//				producResAll.setStatus(statusFale);
-//				producResAll.setSuggest_info(productRes);
-//			}
-//			FileLogger.log("getProduct: " + productReq.getUsername()+ " response to client:" + producResAll.toJSON(), LogType.BUSSINESS);
-//			FileLogger.log("----------------Ket thuc getProduct ", LogType.BUSSINESS);
-//			response = response.header(Commons.ReceiveTime, getTimeNow());
-//			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			FileLogger.log("----------------Ket thuc getProduct Exception "+ e.getMessage(), LogType.ERROR);
-//			producResAll.setStatus(statusFale);
-//			producResAll.setSuggest_info(productRes);
-//			response = response.header(Commons.ReceiveTime, getTimeNow());
-//			return response.header(Commons.ResponseTime, getTimeNow()).entity(producResAll.toJSON()).build();
-//		}
-//	}
+	public Response getContractNumber (String dataContract) {
+		FileLogger.log("----------------Bat dau getContractNumber--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		ContractObjRes contractObjRes = new ContractObjRes();
+		try {
+			FileLogger.log("getContractNumber dataContract: " + dataContract, LogType.BUSSINESS);
+			ContractObj contractObj = gson.fromJson(dataContract, ContractObj.class);
+			if (ValidData.checkNull(contractObj.getUsername()) == false 
+				|| ValidData.checkNull(contractObj.getToken()) == false){
+				FileLogger.log("getContractNumber: " + contractObj.getUsername()+ " invalid : ", LogType.BUSSINESS);
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				contractObjRes.setStatus(statusFale);
+				contractObjRes.setMessage("Lay thong tin that bai - Invalid message request");
+				contractObjRes.setContract_number("");
+				response = response.header(Commons.ReceiveTime, getTimeNow());
+				return response.header(Commons.ResponseTime, getTimeNow()).entity(contractObjRes.toJSON()).build();
+			}
+			boolean checkLG = checkLogin(contractObj.getUsername(), contractObj.getToken());
+			if(checkLG){
+				//Check thong tin hop dong co trong DB chua
+				BigDecimal getSeq =  tbLoanRequestHome.getSeqContract();
+				FileLogger.log("getContractNumber: " + contractObj.getUsername()+ " getSeq : " + getSeq, LogType.BUSSINESS);
+				if(getSeq != null){
+					Account acc = accountHome.getAccountUsename(contractObj.getUsername());
+					if(ValidData.checkNullBranch(acc.getBranchId()) == true){
+						JSONObject isJsonObject = (JSONObject)new JSONObject(acc.getBranchId());
+						Iterator<String> keys = isJsonObject.keys();
+						String branchID = "";
+						while(keys.hasNext()) {
+							branchID = keys.next();
+						}
+						String genContract = MainCfg.prefixContract + "." + branchID + "." + getSeq;
+						FileLogger.log("getContractNumber: " + contractObj.getUsername()+ " genContract : " + genContract, LogType.BUSSINESS);
+						boolean checkContract =  tbLoanRequestHome.checktblLoanRequest(genContract);
+						if(checkContract){
+							FileLogger.log("getContractNumber: " + contractObj.getUsername()+ " genContract : " + genContract, LogType.BUSSINESS);
+							contractObjRes.setStatus(statusSuccess);
+							contractObjRes.setMessage("Lay thong tin thanh cong");
+							contractObjRes.setContract_number(genContract);
+						}else{
+							FileLogger.log("contractObj: " + contractObj.getUsername()+ " check login false:", LogType.BUSSINESS);
+							contractObjRes.setStatus(statusFale);
+							contractObjRes.setMessage("Lay thong tin that bai - Co the trung ma hop dong");
+							contractObjRes.setContract_number("");
+						}
+					}else{
+						FileLogger.log("contractObj: " + contractObj.getUsername()+ " check login false:", LogType.BUSSINESS);
+						contractObjRes.setStatus(statusFale);
+						contractObjRes.setMessage("Lay thong tin that bai - User chua thuoc chi nhanh nao");
+						contractObjRes.setContract_number("");				
+					}		
+				}else{
+					FileLogger.log("contractObj: " + contractObj.getUsername()+ " getSeq false:", LogType.BUSSINESS);
+					contractObjRes.setStatus(statusFale);
+					contractObjRes.setMessage("Lay thong tin that bai - Co loi xay ra");
+					contractObjRes.setContract_number("");
+				}				
+			}else{
+				FileLogger.log("contractObj: " + contractObj.getUsername()+ " check login false:", LogType.BUSSINESS);
+				contractObjRes.setStatus(statusFale);
+				contractObjRes.setMessage("Lay thong tin that bai - Login false");
+				contractObjRes.setContract_number("");
+			}
+			FileLogger.log("contractObj: " + contractObj.getUsername()+ " response to client:" + contractObjRes.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc contractObj ", LogType.BUSSINESS);
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(contractObjRes.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc contractObj Exception "+ e.getMessage(), LogType.ERROR);
+			contractObjRes.setStatus(statusFale);
+			contractObjRes.setMessage("Lay thong tin that bai - Co loi xay ra");
+			contractObjRes.setContract_number("");
+			response = response.header(Commons.ReceiveTime, getTimeNow());
+			return response.header(Commons.ResponseTime, getTimeNow()).entity(contractObjRes.toJSON()).build();
+		}
+	}
 	
 	public Response getProduct(String dataProducReq) {
 		FileLogger.log("----------------Bat dau getProduct--------------------------", LogType.BUSSINESS);
@@ -294,18 +314,18 @@ public class Bussiness {
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 				resCreaterLoan.setStatus(statusFale);
 				resCreaterLoan.setMessage("Yeu cau that bai - Invalid message request");
-				resCreaterLoan.setRequest_code("");
+//				resCreaterLoan.setRequest_code();
 				response = response.header(Commons.ReceiveTime, getTimeNow());
 				return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
 			}
 			boolean checkLG = checkLogin(reqCreaterLoan.getUsername(), reqCreaterLoan.getToken());
 			if(checkLG){			
 				TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
-				BigInteger aa = tblLoanReqDetailHome.getIDAutoIncrement();
-				System.out.println(aa);
+				BigInteger loanID = tblLoanReqDetailHome.getIDAutoIncrement();
+				System.out.println(loanID);
 				
 				TblLoanRequest tblLoanRequest = new TblLoanRequest();
-				tblLoanRequest.setLoanId(aa.intValue());
+				tblLoanRequest.setLoanId(loanID.intValue());
 				tblLoanRequest.setCreatedDate(new Date());
 				tblLoanRequest.setEditedDate(new Date());
 				tblLoanRequest.setExpireDate(new Date());
@@ -315,39 +335,67 @@ public class Bussiness {
 				tblLoanRequest.setFinalStatus(statusPending);
 				tblLoanRequest.setPreviousStatus(statusPending);
 				tblLoanRequest.setSponsorId(1);
-				tblLoanRequest.setLatestUpdate(new Date());				
+				tblLoanRequest.setLatestUpdate(new Date());
+				tblLoanRequest.setLoanCode(reqCreaterLoan.getLoan_code());
+				tblLoanRequest.setLoanName(reqCreaterLoan.getLoan_name());
 				
 				TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
-				tblLoanReqDetail.setReqDetailId(31);
-				tblLoanReqDetail.setLoanId(aa.intValue());
-				tblLoanReqDetail.setProductId(aa.intValue());
+//				tblLoanReqDetail.setProductBrand(reqCreaterLoan.getProduct_brand());
+				tblLoanReqDetail.setProductModal(reqCreaterLoan.getProduct_modal());
+				tblLoanReqDetail.setTotalRun((int) reqCreaterLoan.getTotal_run());
+				tblLoanReqDetail.setProductCondition((int)reqCreaterLoan.getProduct_condition());
+				tblLoanReqDetail.setProductOwnByBorrower((int)reqCreaterLoan.getProduct_own_by_borrower());
+				tblLoanReqDetail.setProductSerialNo(reqCreaterLoan.getProduct_serial_no());
+				tblLoanReqDetail.setProductColor(reqCreaterLoan.getProduct_color());
+				tblLoanReqDetail.setBorrowerType((int)reqCreaterLoan.getBorrower_type());
+				tblLoanReqDetail.setBorrowerPhone(reqCreaterLoan.getBorrower_phone());
+				tblLoanReqDetail.setBorrowerEmail(reqCreaterLoan.getBorrower_email());
+				tblLoanReqDetail.setBorrowerId(Integer.parseInt(reqCreaterLoan.getBorrower_id_number()));
+				tblLoanReqDetail.setDisburseToBankNo(reqCreaterLoan.getDisburse_to_bank_no());
+				tblLoanReqDetail.setDisburseToBankName(reqCreaterLoan.getDisburse_to_bank_name());
+				tblLoanReqDetail.setDisburseToBankCode(reqCreaterLoan.getDisburse_to_bank_code());
+//				tblLoanReqDetail.setReqDetailId(31);
+				tblLoanReqDetail.setLoanId(loanID.intValue());
+//				tblLoanReqDetail.setProductId(aa.intValue());
 //				tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date" + aa.intValue());
-				tblLoanReqDetail.setImportFrom(aa.intValue());
-				tblLoanReqDetail.setManufactureDate(aa.intValue());
-				tblLoanReqDetail.setExpectAmount(500000);
-				tblLoanReqDetail.setBorrowerId(0);
-				tblLoanReqDetail.setApprovedAmount(500000l);
+//				tblLoanReqDetail.setImportFrom(aa.intValue());
+//				tblLoanReqDetail.setManufactureDate(aa.intValue());
+//				tblLoanReqDetail.setExpectAmount(500000);
+//				tblLoanReqDetail.setBorrowerId(0);
+//				tblLoanReqDetail.setApprovedAmount(500000l);
 				tblLoanReqDetail.setCreatedDate(new Date());
 				tblLoanReqDetail.setEditedDate(new Date());
-				tblLoanReqDetail.setDisbursementDate(aa.intValue());
-				
-				boolean checkINS =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail);
+//				tblLoanReqDetail.setDisbursementDate(aa.intValue());
+				List<ObjImage> imagesList = reqCreaterLoan.getImages();
+				List<TblImages> imagesListSet = new ArrayList<>();
+				for (ObjImage objImage : imagesList) {
+					TblImages tblImages = new TblImages();
+					tblImages.setLoanRequestDetailId(loanID.intValue());
+					tblImages.setImageName(objImage.getImage_name());
+					tblImages.setPartnerImageId((int) objImage.getPartner_image_id());
+					tblImages.setImageType((int)objImage.getImage_type());
+					tblImages.setImageByte(objImage.getImage_byte());
+					tblImages.setImageUrl(objImage.getImage_url());
+					tblImages.setImageIsFront((int)objImage.getImage_is_front());
+					imagesListSet.add(tblImages);
+				}
+				boolean checkINS =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail, imagesListSet);
 				if(checkINS){
 					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " thanh cong:", LogType.BUSSINESS);
 					resCreaterLoan.setStatus(999l);
 					resCreaterLoan.setMessage("Yeu cau dang duoc xu ly");
-					resCreaterLoan.setRequest_code("");
+					resCreaterLoan.setRequest_code(loanID.longValue());
 				}else{
 					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " that bai:", LogType.BUSSINESS);
 					resCreaterLoan.setStatus(statusFale);
 					resCreaterLoan.setMessage("Yeu cau that bai");
-					resCreaterLoan.setRequest_code("");
+//					resCreaterLoan.setRequest_code();
 				}
 			}else{
 				FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " check login false:", LogType.BUSSINESS);
 				resCreaterLoan.setStatus(statusFale);
 				resCreaterLoan.setMessage("Yeu cau that bai - Thong tin login sai");
-				resCreaterLoan.setRequest_code("");
+//				resCreaterLoan.setRequest_code();
 			}
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " response to client:" + resCreaterLoan.toJSON(), LogType.BUSSINESS);
@@ -358,7 +406,7 @@ public class Bussiness {
 			FileLogger.log("----------------Ket thuc createrLoan Exception "+ e.getMessage(), LogType.ERROR);
 			resCreaterLoan.setStatus(statusFale);
 			resCreaterLoan.setMessage("Yeu cau that bai - Da co loi xay ra");
-			resCreaterLoan.setRequest_code("");
+//			resCreaterLoan.setRequest_code("");
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resCreaterLoan.toJSON()).build();
 		}
@@ -369,6 +417,7 @@ public class Bussiness {
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
 		BankRes bankRes = new BankRes();
 		try {
+			FileLogger.log("getBank dataGetbank: " + dataGetbank, LogType.BUSSINESS);
 			BankReq reqBankReq = gson.fromJson(dataGetbank, BankReq.class);
 			
 			List<TblBanks> getTblBanks = tblBanksHome.getTblBanks(1, reqBankReq.getBank_support_function());
@@ -599,7 +648,7 @@ public class Bussiness {
 //							double tienlaithang_a 				= sotienconlai_a * laixuatNam * 30 / 365;
 //							double tinhphidichvu_a	  			= sotienconlai_a * phidichvu * 30 / 365;
 //							double tinhphituvan_a	  			= sotienconlai_a * phituvan * 30 / 365;					
-							tientrahangthang_a					= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
+//							tientrahangthang_a					= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
 //							double tinhphitattoan_a	  			= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
 //							sotienconlai_a	  					= sotienconlai_a - tiengoctramoiky_a;
 //							objMinhhoa.setKyTrano(getTimeOut(i));
@@ -648,22 +697,23 @@ public class Bussiness {
 					}
 				}else{
 					//Lịch trả nợ gốc cuối kỳ	
-					for (int i = 0; i<= sothangvay ; i++) {
+//					double sotientattoantaikynay = 0;
+					for (int i = 1; i<= sothangvay ; i++) {
 						double sotienconlai = sotienvay;
-						if(i == 0){
-							 Document doc = new Document("idMinhhoa", billID)
-									 .append("kyTrano",getTimeOut(i))
-								     .append("gocConlai", sotienconlai)
-								     .append("gocTrakycuoi", 0)
-								     .append("laiThang", 0)
-									 .append("traHangthang", 0)
-									 .append("phiTuvan", 0)
-									 .append("phiDichvu", 0)
-//									 .append("phiTranotruochan", 0)
-									 .append("tattoanquahan", 0);
-									 array.add(doc);
-						}else{
-							
+//						if(i == 0){
+//							 Document doc = new Document("idMinhhoa", billID)
+//									 .append("kyTrano",getTimeOut(i))
+//								     .append("gocConlai", sotienconlai)
+//								     .append("gocTrakycuoi", 0)
+//								     .append("laiThang", 0)
+//									 .append("traHangthang", 0)
+//									 .append("phiTuvan", 0)
+//									 .append("phiDichvu", 0)
+////								 .append("phiTranotruochan", 0)
+//									 .append("tattoanquahan", 0);
+//									 array.add(doc);
+//						}else{
+							int check = 0;
 							ObjMinhhoa objMinhhoa = new ObjMinhhoa();
 							for (Fees fees : listFee) {
 								switch (String.valueOf(fees.getFee_type())) {
@@ -673,7 +723,7 @@ public class Bussiness {
 										tienlaithang 			= sotienconlai * laixuatNam * 30 / 365;
 									}else{
 										laixuatNam 				= (double) fees.getFix_fee_amount();
-										tienlaithang 				= laixuatNam;
+										tienlaithang 			= laixuatNam;
 									}						
 									break;			
 								case "2":			
@@ -705,19 +755,22 @@ public class Bussiness {
 									break;
 								case "5":									
 									if(fees.getFix_fee_amount() <= 0){
-										phitattoantruochan = (double) fees.getFix_fee_percent();
-										tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
-									}else{
+										check = 1;
+										phitattoantruochan = (double) fees.getFix_fee_percent();									
+									}else{										
 										phitattoantruochan 		= (double) fees.getFix_fee_amount();
-										tinhphitranotruochan_a	= phitattoantruochan;
+										tinhphitattoan			= phitattoantruochan;
 									}	
 									break;
 								default:
 									break;
 								}
 							}
+							if(check == 1){
+								tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
+							}
 							tientrahangthang					= tienlaithang + tinhphituvan + tinhphidichvu;
-							double tiengoctrakycuoi 			= sotienconlai;
+//							double tiengoctrakycuoi 			= sotienconlai;
 //							objMinhhoa.setKyTrano(getTimeOut(1));
 //							objMinhhoa.setGocConlai(sotienconlai);
 //							objMinhhoa.setGocTrakycuoi(tiengoctrakycuoi);
@@ -730,18 +783,40 @@ public class Bussiness {
 			//				array.add(objMinhhoa);
 							
 							Document doc = new Document("idMinhhoa", billID)
-									 .append("kyTrano",				getNgayvay(ngayvay))
-								     .append("gocConlai", 			Math.round(sotienconlai))
-								     .append("gocTrakycuoi",  		Math.round(tiengoctrakycuoi))
-								     .append("laiThang",  			Math.round(tienlaithang))
-									 .append("traHangthang",  		Math.round(tientrahangthang))
-									 .append("phiTuvan",  			Math.round(tinhphituvan))
-									 .append("phiDichvu",  			Math.round(tinhphidichvu))
-//									 .append("phiTranoquahan", 	Math.round(tinhphitranotruochan))
-									 .append("tattoanquahan",  	Math.round(tinhphitattoan));
+//									 .append("kyTrano",				getNgayvay(ngayvay))
+//								     .append("gocConlai", 			Math.round(sotienconlai))
+//								     .append("gocTrakycuoi",  		Math.round(tiengoctrakycuoi))
+//								     .append("laiThang",  			Math.round(tienlaithang))
+//									 .append("traHangthang",  		Math.round(tientrahangthang))
+//									 .append("phiTuvan",  			Math.round(tinhphituvan))
+//									 .append("phiDichvu",  			Math.round(tinhphidichvu))
+////								 .append("phiTranoquahan", 		Math.round(tinhphitranotruochan))
+//									 .append("tattoanquahan",  		Math.round(tinhphitattoan));
+							
+									 .append("Kyvay",						i)
+									 .append("Ngaythanhtoan",				getNgayvay(ngayvay))
+								     .append("Sotiencanthanhtoan",  		Math.round(tientrahangthang))
+								     .append("Tiengoc",  					Math.round(sotienconlai) )
+								     .append("Tienlai",  					Math.round(tienlaithang))
+									 .append("Phituvandichvu",  			Math.round(tinhphituvan))
+									 .append("Phiquanly",  					Math.round(tinhphidichvu))
+									 .append("Gocconlaisauthanhtoanky",  	Math.round(sotienconlai))
+									 .append("Phitattoan",  				Math.round(tinhphitranotruochan))
+		//							 .append("Phitranoquahan",  			Math.round(tinhphitranotruochan_a))
+									 .append("Sotientattoantaikynay",  		Math.round(tinhphitattoan));
+									 
+//									 		 Gốc còn lại khi trả trước hạn  => Gocconlaisauthanhtoanky
+//											 Gốc trả cuối kỳ => Tiengoc
+//											 Trả hàng tháng => Sotiencanthanhtoan
+//											 Phí tư vấn => Phituvandichvu
+//											 Phí dịch vụ => Phiquanly
+//											 Phí trả nợ trước hạn (Nếu có) => Phitattoan
+//											 Tất toán trước hạn (Nếu có) => Sotientattoantaikynay
+//									 
+									 
 									 array.add(doc);
-							ngayvay = getNgayvayNew(getNgayvay(ngayvay));
-						}
+									 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
+//						}
 					}
 				}
 
@@ -953,7 +1028,29 @@ public class Bussiness {
 	        // lam tron xuong gom 1 so thap phan, nhan va chia cho 10
 //	        System.out.println((double) Math.round(rate));
 			Bussiness bussiness = new Bussiness();
-			System.out.println(bussiness.getNgayvay("20210522"));
+			AccountHome accountHome = new AccountHome();
+			Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
+			if(ValidData.checkNull(acc.getBranchId()) == true){
+//				JSONParser parser = new JSONParser();
+////				JSONArray jsonArray = (JSONArray) acc.getBranchId();
+//		    	JSONObject jsonParse = (JSONObject) acc.getBranchId();
+//		    	for (String key: jsonParse()) {
+//		    	    jo.get(key);
+//		    	}
+				JsonParser jsonParser = new JsonParser();
+				JSONObject isJsonObject = (JSONObject)new JSONObject(acc.getBranchId());
+				Iterator<String> keys = isJsonObject.keys();
+
+				while(keys.hasNext()) {
+				    String key = keys.next();
+				    System.out.println(key);
+//				    if (jsonObject.get(key) instanceof JSONObject) {
+//				          // do something with jsonObject here      
+//				    }
+				}
+			}else{
+				System.out.println("null");
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

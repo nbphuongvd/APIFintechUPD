@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 19, 2021 11:20:55 PM by Hibernate Tools 3.5.0.Final
+// Generated May 23, 2021 6:52:19 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;

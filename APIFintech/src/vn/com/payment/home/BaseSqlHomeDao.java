@@ -19,6 +19,8 @@ import org.springframework.orm.hibernate5.SessionFactoryUtils;
 
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.CompareObj;
+import vn.com.payment.entities.TblImages;
+import vn.com.payment.object.ObjImage;
 import vn.com.payment.ultities.ClassUlt;
 import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.GsonUltilities;
@@ -289,7 +291,7 @@ public class BaseSqlHomeDao {
 		}
 	}
 
-	public boolean saveTransaction(Object obj1, Object obj2) throws Exception {
+	public boolean saveTransaction(Object obj1, Object obj2, List<TblImages> obj3) throws Exception {
 		Session session = null;
 		boolean result = false;
 		try {
@@ -299,6 +301,9 @@ public class BaseSqlHomeDao {
 			try {
 				session.save(obj1);
 				session.save(obj2);
+				for (Object object : obj3) {
+					session.save(object);
+				}
 				transaction.commit();
 				result = true;
 			} catch (Exception e) {
