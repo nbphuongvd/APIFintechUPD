@@ -301,8 +301,10 @@ public class BaseSqlHomeDao {
 			try {
 				session.save(obj1);
 				session.save(obj2);
-				for (Object object : obj3) {
-					session.save(object);
+				if(obj3 != null){
+					for (Object object : obj3) {
+						session.save(object);
+					}
 				}
 				transaction.commit();
 				result = true;

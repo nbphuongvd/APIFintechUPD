@@ -11,6 +11,11 @@ public class ReqCreaterLoan {
 	public String token;
 	public String loan_code;
 	public String loan_name;
+	public long loan_amount;
+	public long calculate_profit_type;
+	public long loan_for_month;
+	public String borrower_name;
+	public String loan_expect_date;
 	public long product_type;
 	public String product_brand;
 	public String product_modal;
@@ -28,6 +33,8 @@ public class ReqCreaterLoan {
 	public String disburse_to_bank_name;
 	public String disburse_to_bank_code;
 	public List<ObjImage> images;
+	public List<Fees> fees;
+	public List<ObjQuestions> question_and_answears;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -62,6 +69,37 @@ public class ReqCreaterLoan {
 	}
 	public void setLoan_name(String loan_name) {
 		this.loan_name = loan_name;
+	}
+	
+	public long getLoan_amount() {
+		return loan_amount;
+	}
+	public void setLoan_amount(long loan_amount) {
+		this.loan_amount = loan_amount;
+	}
+	public long getCalculate_profit_type() {
+		return calculate_profit_type;
+	}
+	public void setCalculate_profit_type(long calculate_profit_type) {
+		this.calculate_profit_type = calculate_profit_type;
+	}
+	public long getLoan_for_month() {
+		return loan_for_month;
+	}
+	public void setLoan_for_month(long loan_for_month) {
+		this.loan_for_month = loan_for_month;
+	}
+	public String getBorrower_name() {
+		return borrower_name;
+	}
+	public void setBorrower_name(String borrower_name) {
+		this.borrower_name = borrower_name;
+	}
+	public String getLoan_expect_date() {
+		return loan_expect_date;
+	}
+	public void setLoan_expect_date(String loan_expect_date) {
+		this.loan_expect_date = loan_expect_date;
 	}
 	public long getProduct_type() {
 		return product_type;
@@ -165,5 +203,16 @@ public class ReqCreaterLoan {
 	public void setImages(List<ObjImage> images) {
 		this.images = images;
 	}
-	
+	public List<Fees> getFees() {
+		return fees;
+	}
+	public void setFees(List<Fees> fees) {
+		this.fees = fees;
+	}
+	public List<ObjQuestions> getQuestion_and_answears() {
+		return question_and_answears;
+	}
+	public void setQuestion_and_answears(List<ObjQuestions> question_and_answears) {
+		this.question_and_answears = question_and_answears;
+	}
 }

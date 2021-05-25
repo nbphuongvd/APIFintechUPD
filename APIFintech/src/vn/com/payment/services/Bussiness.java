@@ -5,6 +5,7 @@ import vn.com.payment.config.MainCfg;
 import vn.com.payment.entities.Account;
 import vn.com.payment.entities.TblBanks;
 import vn.com.payment.entities.TblImages;
+import vn.com.payment.entities.TblLoanBill;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblProduct;
@@ -24,6 +25,7 @@ import vn.com.payment.object.NotifyObject;
 import vn.com.payment.object.ObjBillRes;
 import vn.com.payment.object.ObjImage;
 import vn.com.payment.object.ObjMinhhoa;
+import vn.com.payment.object.ObjQuestions;
 import vn.com.payment.object.ObjReqFee;
 import vn.com.payment.object.ProducResAll;
 import vn.com.payment.object.ProductReq;
@@ -366,19 +368,50 @@ public class Bussiness {
 				tblLoanReqDetail.setCreatedDate(new Date());
 				tblLoanReqDetail.setEditedDate(new Date());
 //				tblLoanReqDetail.setDisbursementDate(aa.intValue());
-				List<ObjImage> imagesList = reqCreaterLoan.getImages();
 				List<TblImages> imagesListSet = new ArrayList<>();
-				for (ObjImage objImage : imagesList) {
-					TblImages tblImages = new TblImages();
-					tblImages.setLoanRequestDetailId(loanID.intValue());
-					tblImages.setImageName(objImage.getImage_name());
-					tblImages.setPartnerImageId((int) objImage.getPartner_image_id());
-					tblImages.setImageType((int)objImage.getImage_type());
-					tblImages.setImageByte(objImage.getImage_byte());
-					tblImages.setImageUrl(objImage.getImage_url());
-					tblImages.setImageIsFront((int)objImage.getImage_is_front());
-					imagesListSet.add(tblImages);
+				if(reqCreaterLoan.getImages() != null){
+					List<ObjImage> imagesList = reqCreaterLoan.getImages();					
+					for (ObjImage objImage : imagesList) {
+						TblImages tblImages = new TblImages();
+						tblImages.setLoanRequestDetailId(loanID.intValue());
+						tblImages.setImageName(objImage.getImage_name());
+						tblImages.setPartnerImageId((int) objImage.getPartner_image_id());
+						tblImages.setImageType((int)objImage.getImage_type());
+						tblImages.setImageByte(objImage.getImage_byte());
+						tblImages.setImageUrl(objImage.getImage_url());
+						tblImages.setImageIsFront((int)objImage.getImage_is_front());
+						imagesListSet.add(tblImages);
+					}
 				}
+
+				List<Fees> feesListSet = reqCreaterLoan.getFees();
+//				if(reqCreaterLoan.getImages() != null){
+//					List<Fees> feesList = reqCreaterLoan.getFees();
+//					for (Fees objFees : feesList) {
+//						TblLoanBill tblLoanBill = new TblLoanBill();
+//						tblLoanBill.setLoanId(loanID.intValue());
+//						tblLoanBill.setLoanRemainAmount(loanRemainAmount);
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//						tblLoanBill.
+//					}
+//				}			
+				
+				Bussiness bussiness = new Bussiness();
+				String billID = getTimeNowDate() + "_" + getBillid();
+				double sotienvay = (double) reqCreaterLoan.getLoan_amount();
+				double sothangvay = (double) reqCreaterLoan.getLoan_for_month();
+				double loaitrano = (double) reqCreaterLoan.getCalculate_profit_type();
+				List<TblLoanBill> illustrationNewLoanBill = bussiness.illustrationNewLoanBill(reqCreaterLoan.getUsername() , billID, sotienvay, sothangvay, reqCreaterLoan.getLoan_expect_date(), loaitrano, feesListSet, loanID.toString());
+
+				
+				List<ObjQuestions> questionsList = reqCreaterLoan.getQuestion_and_answears();
+				
 				boolean checkINS =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail, imagesListSet);
 				if(checkINS){
 					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " thanh cong:", LogType.BUSSINESS);
@@ -476,7 +509,8 @@ public class Bussiness {
 				//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
 				System.out.println("aaaa");
 				Bussiness bussiness = new Bussiness();
-				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, objReqFee.getLoan_expect_date(), loaitrano, listFee);
+				String loanID = "";
+				ArrayList<Document> illustrationIns = bussiness.illustrationNew(objReqFee.getUsername() , billID, sotienvay, sothangvay, objReqFee.getLoan_expect_date(), loaitrano, listFee, loanID);
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " illustrationIns:" + illustrationIns, LogType.BUSSINESS);
 				boolean checkInsMongo = mongoDB.insertDocument(illustrationIns, "tbl_minhhoa");
 				FileLogger.log("getIllustration: " + objReqFee.getUsername()+ " checkInsMongo: " + checkInsMongo, LogType.BUSSINESS);
@@ -535,9 +569,9 @@ public class Bussiness {
 	}
 	
 	//Tinh minh hoa khoan vay
-		public ArrayList<Document> illustrationNew (String userName, String billID, double sotienvay, double sothangvay, String ngayvay, double loaitrano, List<Fees> listFee){
+		public ArrayList<Document> illustrationNew (String userName, String billID, double sotienvay, double sothangvay, String ngayvay, double loaitrano, List<Fees> listFee, String loanID){
 			ArrayList<Document> array = new ArrayList<Document>();
-			
+			List<TblLoanBill> feesListSet = new ArrayList<>();
 			try {
 				FileLogger.log("getIllustration: " + userName+ " illustrationIns:" + loaitrano, LogType.BUSSINESS);
 				double sotienconlai_a				= sotienvay;	
@@ -691,6 +725,53 @@ public class Bussiness {
 //									 .append("Phitranoquahan",  Math.round(tinhphitranotruochan_a))
 									 .append("Sotientattoantaikynay",  		Math.round(gocconlai + tinhphitattoan_a));
 							 array.add(doc);
+							 
+							 TblLoanBill tblLoanBill = new TblLoanBill();
+							 tblLoanBill.setLoanId(123);
+							 tblLoanBill.setLoanRemainAmount((new Double(gocconlai)).longValue());
+							 tblLoanBill.setCreatedDate(new Date());
+							 tblLoanBill.setAmtToDecrYourLoan(new BigDecimal(tiengoc));
+							 tblLoanBill.setMonthlyInterest(new BigDecimal(tienlaithang_a));
+							 tblLoanBill.setTotalOnAMonth(new BigDecimal(tiencantt));
+							 tblLoanBill.setAdvisoryFee(new BigDecimal(tinhphituvan_a));
+							 tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu_a));
+							 tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
+							 tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
+							 feesListSet.add(tblLoanBill);
+//							  `loan_id` int(11) NOT NULL COMMENT 'id khoan vay',
+//							  `loan_remain_amount` decimal(10,0) NOT NULL COMMENT 'So tien con phai tra/goc',						
+//							  `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'ngay tao',
+//							  `amt_to_decr_your_loan` decimal(20,0) DEFAULT NULL,
+//							  `monthly_interest` decimal(20,0) DEFAULT NULL COMMENT 'Tien lai tra hang thang',
+//							  `total_on_a_month` decimal(20,0) DEFAULT NULL COMMENT 'Tien lai thang thang',
+//							  `advisory_fee` decimal(20,0) DEFAULT NULL COMMENT 'Phi tu van',
+//							  `service_fee` decimal(20,0) DEFAULT NULL COMMENT 'Phi dich vu',
+//							  `ext_fee_if_ind_pay_before` decimal(20,0) DEFAULT NULL COMMENT 'Phi tra no truoc han',
+//							  `total_pay_if_settle_request` decimal(20,0) DEFAULT NULL COMMENT 'Tong tien phai thanh toan neu tat'' toan truoc han.',
+//							  `day_must_pay` int(8) DEFAULT NULL COMMENT 'Ngay phai thanh toan: yyyyMMdd',
+//							   Document doc = new Document("idMinhhoa", billID)
+//									 .append("kyTrano",getTimeOut(i))  					// day_must_pay
+//								     .append("gocConlai", sotienconlai)					// loan_remain_amount
+//								     .append("gocTrakycuoi", tiengoctrakycuoi)
+//								     .append("laiThang", tienlaithang)					// total_on_a_month
+//									 .append("traHangthang", tientrahangthang)			// monthly_interest
+//									 .append("phiTuvan", tinhphituvan)					// advisory_fee
+//									 .append("phiDichvu", tinhphidichvu) 				// service_fee
+//									 .append("phiTranotruochan", tinhphitranotruochan) 	// ext_fee_if_ind_pay_before
+//									 .append("tattoanTruochan", tinhphitattoan);  		//total_pay_if_settle_request
+//									 array.add(doc); 
+//						}
+							 
+							 
+							 
+							 
+							 
+							 
+							 
+							 
+							 
+							 
+							 
 							 kyvay = kyvay + 1;
 							 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
 //						}
@@ -815,6 +896,20 @@ public class Bussiness {
 //									 
 									 
 									 array.add(doc);
+									 
+									 TblLoanBill tblLoanBill = new TblLoanBill();
+									 tblLoanBill.setLoanId(123);
+									 tblLoanBill.setLoanRemainAmount((new Double(gocconlai)).longValue());
+									 tblLoanBill.setCreatedDate(new Date());
+									 tblLoanBill.setAmtToDecrYourLoan(new BigDecimal(sotienconlai));
+									 tblLoanBill.setMonthlyInterest(new BigDecimal(tienlaithang));
+									 tblLoanBill.setTotalOnAMonth(new BigDecimal(tientrahangthang));
+									 tblLoanBill.setAdvisoryFee(new BigDecimal(tinhphituvan));
+									 tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu));
+									 tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
+									 tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
+									 feesListSet.add(tblLoanBill);
+									 
 									 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
 //						}
 					}
@@ -833,6 +928,369 @@ public class Bussiness {
 			}
 			return null;
 		}
+		
+		
+		
+		//Tinh minh hoa khoan vay
+				public List<TblLoanBill> illustrationNewLoanBill (String userName, String billID, double sotienvay, double sothangvay, String ngayvay, double loaitrano, List<Fees> listFee, String loanID){
+					ArrayList<Document> array = new ArrayList<Document>();
+					List<TblLoanBill> feesListSet = new ArrayList<>();
+					try {
+						FileLogger.log("getIllustration: " + userName+ " illustrationIns:" + loaitrano, LogType.BUSSINESS);
+						double sotienconlai_a				= sotienvay;	
+						double gocconlai					= sotienvay;
+						double laixuatNam 					= 0;
+						double phidichvu					= 0;
+						double phituvan 					= 0;
+						double phitratruochan 				= 0;
+						double phitattoantruochan 			= 0;
+						
+						double tinhphitranotruochan_a	  	= 0;
+						double tienlaithang_a 				= 0;
+						double tinhphidichvu_a	  			= 0;
+						double tinhphituvan_a	  			= 0;
+						double tientrahangthang_a			= 0;
+						double tinhphitattoan_a	  			= 0;
+						
+						double tinhphitranotruochan	  		= 0;
+						double tienlaithang 				= 0;
+						double tinhphidichvu	  			= 0;
+						double tinhphituvan	  				= 0;
+						double tientrahangthang				= 0;
+						double tinhphitattoan	  			= 0;
+						
+						
+//						double sumTiemlai	  			= 0;
+//						double sumPhituvan	  			= 0; // phituvan = phi tu van
+//						double sumPhiquanly	  			= 0; //phiquanly = phi dich vu
+						if(loaitrano == 1){
+							//Lịch trả nợ theo dư nợ giảm dần						
+							
+							int kyvay = 0;
+							for (int i = 1; i<= sothangvay ; i++) {
+								
+//								if(i == 0){
+//									 Document doc = new Document("idMinhhoa", billID)
+//											 .append("kyTrano",getTimeOut(i))
+//										     .append("gocConlai", sotienvay)
+//										     .append("gocTramoiky", 0)
+//										     .append("laiThang", 0)
+//											 .append("traHangthang", 0)
+//											 .append("phiTuvan", 0)
+//											 .append("phiDichvu", 0)
+//											 .append("phiTranotruochan", 0)
+//											 .append("tattoanTruochan", 0);
+//											 array.add(doc);
+//											 sumTiemlai = 0;
+//								}else{						
+									
+									double tiengoctramoiky_a 			= sotienvay/sothangvay;;
+									double tiencantt					= tienThanhtoan(userName, billID, sotienvay, sothangvay, loaitrano, listFee);
+									for (Fees fees : listFee) {
+										switch (String.valueOf(fees.getFee_type())) {
+										case "1":			
+											if(fees.getFix_fee_amount() <= 0){
+												laixuatNam 				= (double) fees.getFix_fee_percent();
+												tienlaithang_a 			= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * laixuatNam * 30.41666667 / 365;
+											}else{
+												laixuatNam 				= (double) fees.getFix_fee_amount();
+												tienlaithang_a 			= laixuatNam;
+											}						
+											break;			
+										case "2":			
+											if(fees.getFix_fee_amount() <= 0){
+												phituvan 				= (double) fees.getFix_fee_percent();
+												tinhphituvan_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phituvan * 30.41666667 / 365;
+											}else{
+												phituvan 				= (double) fees.getFix_fee_amount();
+												tinhphituvan_a	  		= phituvan;
+											}	
+											break;	
+										case "3":			
+											if(fees.getFix_fee_amount() <= 0){
+												phidichvu 				= (double) fees.getFix_fee_percent();
+												tinhphidichvu_a	  		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phidichvu * 30.41666667 / 365;
+											}else{
+												phidichvu 				= (double) fees.getFix_fee_amount();
+												tinhphidichvu_a	  		= phidichvu;
+											}	
+											break;	
+										case "4":			
+											if(fees.getFix_fee_amount() <= 0){
+												phitratruochan 			= (double) fees.getFix_fee_percent();
+												tinhphitranotruochan_a	= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phitratruochan;
+											}else{
+												phitratruochan 			= (double) fees.getFix_fee_amount();
+												tinhphitranotruochan_a	= phitratruochan;
+											}	
+											break;
+										case "5":									
+											if(fees.getFix_fee_amount() <= 0){
+												phitattoantruochan 		= (double) fees.getFix_fee_percent();
+												tinhphitattoan_a		= (sotienconlai_a - kyvay * sotienconlai_a / sothangvay ) * phitattoantruochan;
+//												tinhphitattoan_a	  	= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+											}else{
+												phitattoantruochan 		= (double) fees.getFix_fee_amount();
+												tinhphitattoan_a	  	= phitattoantruochan;
+											}	
+											break;
+										default:
+											break;
+										}
+									}
+									//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phi tra no qua han,5:phi tat toan qua han',
+//									ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+//									tiengoctramoiky_a 					= sotienvay/sothangvay;
+//									double tinhphitranotruochan_a	  	= sotienconlai_a * phitratruochan;						
+//									double tienlaithang_a 				= sotienconlai_a * laixuatNam * 30 / 365;
+//									double tinhphidichvu_a	  			= sotienconlai_a * phidichvu * 30 / 365;
+//									double tinhphituvan_a	  			= sotienconlai_a * phituvan * 30 / 365;					
+//									tientrahangthang_a					= tiengoctramoiky_a + tienlaithang_a + tinhphituvan_a + tinhphidichvu_a;
+//									double tinhphitattoan_a	  			= sotienconlai_a + tienlaithang_a + tinhphidichvu_a + tinhphituvan_a + tinhphitranotruochan_a;
+//									sotienconlai_a	  					= sotienconlai_a - tiengoctramoiky_a;
+//									objMinhhoa.setKyTrano(getTimeOut(i));
+//									objMinhhoa.setGocConlai(sotienconlai_a);
+//									objMinhhoa.setGocTramoiky(tiengoctramoiky_a);
+//									objMinhhoa.setLaiThang(tienlaithang_a);
+//									objMinhhoa.setTraHangthang(tientrahangthang_a);
+//									objMinhhoa.setPhiTuvan(tinhphituvan_a);
+//									objMinhhoa.setPhiDichvu(tinhphidichvu_a);
+//									objMinhhoa.setPhiTranotruochan(tinhphitranotruochan_a);
+//									objMinhhoa.setTattoanTruochan(tinhphitattoan_a);
+				//					array.add(objMinhhoa);
+									
+									//'1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no trươc han,5:phi tat toan truoc han',
+
+//									 Document doc = new Document("idMinhhoa", billID)
+//											 .append("kyVay",getTimeOut(i))
+//											 .append("kyTrano",getTimeOut(i))
+//										     .append("gocConlai",  Math.round(sotienconlai_a))
+//										     .append("gocTramoiky",  Math.round(tiengoctramoiky_a)) 
+//										     .append("laiThang",  Math.round(tienlaithang_a))
+//											 .append("traHangthang",  Math.round(tientrahangthang_a))
+//											 .append("phiTuvan",  Math.round(tinhphituvan_a))
+//											 .append("phiDichvu",  Math.round(tinhphidichvu_a))
+//											 .append("phiTranotruochan",  Math.round(tinhphitranotruochan_a))
+//											 .append("tattoanTruochan",  Math.round(tinhphitattoan_a));
+//									 array.add(doc);
+									double tiengoc = tiencantt - (tienlaithang_a + tinhphituvan_a + tinhphidichvu_a);
+									gocconlai = gocconlai - tiengoc;
+									Document doc = new Document("idMinhhoa", billID)
+											 .append("Kyvay",i)
+											 .append("Ngaythanhtoan",				getNgayvay(ngayvay))
+										     .append("Sotiencanthanhtoan",  		Math.round(tiencantt))
+										     .append("Tiengoc",  					Math.round(tiengoc) )
+										     .append("Tienlai",  					Math.round(tienlaithang_a))
+											 .append("Phituvandichvu",  			Math.round(tinhphituvan_a))
+											 .append("Phiquanly",  					Math.round(tinhphidichvu_a))
+											 .append("Gocconlaisauthanhtoanky",  	Math.round(gocconlai))
+											 .append("Phitattoan",  				Math.round(tinhphitattoan_a))
+//											 .append("Phitranoquahan",  Math.round(tinhphitranotruochan_a))
+											 .append("Sotientattoantaikynay",  		Math.round(gocconlai + tinhphitattoan_a));
+									 array.add(doc);
+									 
+									 TblLoanBill tblLoanBill = new TblLoanBill();
+									 tblLoanBill.setLoanId(123);
+									 tblLoanBill.setLoanRemainAmount((new Double(gocconlai)).longValue());
+									 tblLoanBill.setCreatedDate(new Date());
+									 tblLoanBill.setAmtToDecrYourLoan(new BigDecimal(tiengoc));
+									 tblLoanBill.setMonthlyInterest(new BigDecimal(tienlaithang_a));
+									 tblLoanBill.setTotalOnAMonth(new BigDecimal(tiencantt));
+									 tblLoanBill.setAdvisoryFee(new BigDecimal(tinhphituvan_a));
+									 tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu_a));
+									 tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
+									 tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
+									 feesListSet.add(tblLoanBill);
+//									  `loan_id` int(11) NOT NULL COMMENT 'id khoan vay',
+//									  `loan_remain_amount` decimal(10,0) NOT NULL COMMENT 'So tien con phai tra/goc',						
+//									  `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'ngay tao',
+//									  `amt_to_decr_your_loan` decimal(20,0) DEFAULT NULL,
+//									  `monthly_interest` decimal(20,0) DEFAULT NULL COMMENT 'Tien lai tra hang thang',
+//									  `total_on_a_month` decimal(20,0) DEFAULT NULL COMMENT 'Tien lai thang thang',
+//									  `advisory_fee` decimal(20,0) DEFAULT NULL COMMENT 'Phi tu van',
+//									  `service_fee` decimal(20,0) DEFAULT NULL COMMENT 'Phi dich vu',
+//									  `ext_fee_if_ind_pay_before` decimal(20,0) DEFAULT NULL COMMENT 'Phi tra no truoc han',
+//									  `total_pay_if_settle_request` decimal(20,0) DEFAULT NULL COMMENT 'Tong tien phai thanh toan neu tat'' toan truoc han.',
+//									  `day_must_pay` int(8) DEFAULT NULL COMMENT 'Ngay phai thanh toan: yyyyMMdd',
+//									   Document doc = new Document("idMinhhoa", billID)
+//											 .append("kyTrano",getTimeOut(i))  					// day_must_pay
+//										     .append("gocConlai", sotienconlai)					// loan_remain_amount
+//										     .append("gocTrakycuoi", tiengoctrakycuoi)
+//										     .append("laiThang", tienlaithang)					// total_on_a_month
+//											 .append("traHangthang", tientrahangthang)			// monthly_interest
+//											 .append("phiTuvan", tinhphituvan)					// advisory_fee
+//											 .append("phiDichvu", tinhphidichvu) 				// service_fee
+//											 .append("phiTranotruochan", tinhphitranotruochan) 	// ext_fee_if_ind_pay_before
+//											 .append("tattoanTruochan", tinhphitattoan);  		//total_pay_if_settle_request
+//											 array.add(doc); 
+//								}
+									 
+									 
+									 
+									 
+									 
+									 
+									 
+									 
+									 
+									 
+									 
+									 kyvay = kyvay + 1;
+									 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
+//								}
+							}
+						}else{
+							//Lịch trả nợ gốc cuối kỳ	
+//							double sotientattoantaikynay = 0;
+							for (int i = 1; i<= sothangvay ; i++) {
+								double sotienconlai = sotienvay;
+//								if(i == 0){
+//									 Document doc = new Document("idMinhhoa", billID)
+//											 .append("kyTrano",getTimeOut(i))
+//										     .append("gocConlai", sotienconlai)
+//										     .append("gocTrakycuoi", 0)
+//										     .append("laiThang", 0)
+//											 .append("traHangthang", 0)
+//											 .append("phiTuvan", 0)
+//											 .append("phiDichvu", 0)
+////										 .append("phiTranotruochan", 0)
+//											 .append("tattoanquahan", 0);
+//											 array.add(doc);
+//								}else{
+									int check = 0;
+									ObjMinhhoa objMinhhoa = new ObjMinhhoa();
+									for (Fees fees : listFee) {
+										switch (String.valueOf(fees.getFee_type())) {
+										case "1":			
+											if(fees.getFix_fee_amount() <= 0){
+												laixuatNam 				= (double) fees.getFix_fee_percent();
+												tienlaithang 			= sotienconlai * laixuatNam * 30 / 365;
+											}else{
+												laixuatNam 				= (double) fees.getFix_fee_amount();
+												tienlaithang 			= laixuatNam;
+											}						
+											break;			
+										case "2":			
+											if(fees.getFix_fee_amount() <= 0){
+												phituvan 				= (double) fees.getFix_fee_percent();
+												tinhphituvan	  		= sotienconlai * phituvan * 30 / 365;
+											}else{
+												phituvan 				= (double) fees.getFix_fee_amount();
+												tinhphituvan	  		= phituvan;
+											}	
+											break;	
+										case "3":			
+											if(fees.getFix_fee_amount() <= 0){
+												phidichvu 				= (double) fees.getFix_fee_percent();
+												tinhphidichvu	  		= sotienconlai * phidichvu * 30 / 365;
+											}else{
+												phidichvu 				= (double) fees.getFix_fee_amount();
+												tinhphidichvu	  		= phidichvu;
+											}	
+											break;	
+										case "4":			
+											if(fees.getFix_fee_amount() <= 0){
+												phitratruochan 			= (double) fees.getFix_fee_percent();
+												tinhphitranotruochan	= sotienconlai * phitratruochan;
+											}else{
+												phitratruochan 			= (double) fees.getFix_fee_amount();
+												tinhphitranotruochan	= phitratruochan;
+											}	
+											break;
+										case "5":									
+											if(fees.getFix_fee_amount() <= 0){
+												check = 1;
+												phitattoantruochan = (double) fees.getFix_fee_percent();									
+											}else{										
+												phitattoantruochan 		= (double) fees.getFix_fee_amount();
+												tinhphitattoan			= phitattoantruochan;
+											}	
+											break;
+										default:
+											break;
+										}
+									}
+									if(check == 1){
+										tinhphitattoan	  		= sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan + tinhphitranotruochan;
+									}
+									tientrahangthang					= tienlaithang + tinhphituvan + tinhphidichvu;
+//									double tiengoctrakycuoi 			= sotienconlai;
+//									objMinhhoa.setKyTrano(getTimeOut(1));
+//									objMinhhoa.setGocConlai(sotienconlai);
+//									objMinhhoa.setGocTrakycuoi(tiengoctrakycuoi);
+//									objMinhhoa.setLaiThang(tienlaithang);
+//									objMinhhoa.setTraHangthang(tientrahangthang);
+//									objMinhhoa.setPhiTuvan(tinhphituvan);
+//									objMinhhoa.setPhiDichvu(tinhphidichvu);
+//									objMinhhoa.setPhiTranotruochan(tinhphitranotruochan);
+//									objMinhhoa.setTattoanTruochan(tinhphitattoan);
+					//				array.add(objMinhhoa);
+									
+									Document doc = new Document("idMinhhoa", billID)
+//											 .append("kyTrano",				getNgayvay(ngayvay))
+//										     .append("gocConlai", 			Math.round(sotienconlai))
+//										     .append("gocTrakycuoi",  		Math.round(tiengoctrakycuoi))
+//										     .append("laiThang",  			Math.round(tienlaithang))
+//											 .append("traHangthang",  		Math.round(tientrahangthang))
+//											 .append("phiTuvan",  			Math.round(tinhphituvan))
+//											 .append("phiDichvu",  			Math.round(tinhphidichvu))
+////										 .append("phiTranoquahan", 		Math.round(tinhphitranotruochan))
+//											 .append("tattoanquahan",  		Math.round(tinhphitattoan));
+									
+											 .append("Kyvay",						i)
+											 .append("Ngaythanhtoan",				getNgayvay(ngayvay))
+										     .append("Sotiencanthanhtoan",  		Math.round(tientrahangthang))
+										     .append("Tiengoc",  					Math.round(sotienconlai) )
+										     .append("Tienlai",  					Math.round(tienlaithang))
+											 .append("Phituvandichvu",  			Math.round(tinhphituvan))
+											 .append("Phiquanly",  					Math.round(tinhphidichvu))
+											 .append("Gocconlaisauthanhtoanky",  	Math.round(sotienconlai))
+											 .append("Phitattoan",  				Math.round(tinhphitranotruochan))
+				//							 .append("Phitranoquahan",  			Math.round(tinhphitranotruochan_a))
+											 .append("Sotientattoantaikynay",  		Math.round(tinhphitattoan));
+											 
+//											 		 Gốc còn lại khi trả trước hạn  => Gocconlaisauthanhtoanky
+//													 Gốc trả cuối kỳ => Tiengoc
+//													 Trả hàng tháng => Sotiencanthanhtoan
+//													 Phí tư vấn => Phituvandichvu
+//													 Phí dịch vụ => Phiquanly
+//													 Phí trả nợ trước hạn (Nếu có) => Phitattoan
+//													 Tất toán trước hạn (Nếu có) => Sotientattoantaikynay
+//											 
+											 
+											 array.add(doc);
+											 
+											 TblLoanBill tblLoanBill = new TblLoanBill();
+											 tblLoanBill.setLoanId(123);
+											 tblLoanBill.setLoanRemainAmount((new Double(gocconlai)).longValue());
+											 tblLoanBill.setCreatedDate(new Date());
+											 tblLoanBill.setAmtToDecrYourLoan(new BigDecimal(sotienconlai));
+											 tblLoanBill.setMonthlyInterest(new BigDecimal(tienlaithang));
+											 tblLoanBill.setTotalOnAMonth(new BigDecimal(tientrahangthang));
+											 tblLoanBill.setAdvisoryFee(new BigDecimal(tinhphituvan));
+											 tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu));
+											 tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
+											 tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
+											 feesListSet.add(tblLoanBill);
+											 
+											 ngayvay = getNgayvayNew(getNgayvay(ngayvay));
+//								}
+							}
+						}
+
+						//Thì tiền tra gốc hàng tháng = số tiền vay / số tháng vay
+						//Tiền lãi hàng tháng = số tiền gốc còn lại * lãi năm * số ngày trong tháng / số ngày trong năm (mặc định là 365)
+						//Phí dịch vụ sẽ tính bằng = số tiền còn lại * phi dich vu / ngày trong năm * ngày trong tháng
+						//phí tất toán trước hạn chỉ bằng = tiền gốc còn lại + lãi trong tháng + phí dịch vụ trong tháng + phi tư vấn trong tháng + phí trả nợ trước hạn (tính theo tháng)
+						FileLogger.log("illustration: " + userName+ " illustrationIns array insert DB:" + array, LogType.BUSSINESS);
+
+						return feesListSet;
+					} catch (Exception e) {
+						FileLogger.log("illustration: " + userName+ " illustrationIns exception" + e, LogType.ERROR);
+						e.printStackTrace();
+					}
+					return null;
+				}
 		
 	public double tienThanhtoan(String userName, String billID, double sotienvay, double sothangvay, double loaitrano, List<Fees> listFee){
 		double laixuatNam 					= 0;
@@ -1055,6 +1513,5 @@ public class Bussiness {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 }
