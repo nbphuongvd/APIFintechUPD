@@ -5,8 +5,7 @@ import org.json.simple.JSONArray;
 import com.google.gson.Gson;
 
 public class ObjQuestions {
-	public double fix_fee_amount;
-	public double fix_fee_percent;
+	public long question_id;
 	public JSONArray result;
 	public String toJSON(){
 		String json	=	"";
@@ -18,18 +17,15 @@ public class ObjQuestions {
 		}
 		return json;
 	}
-	public double getFix_fee_amount() {
-		return fix_fee_amount;
+	
+	public long getQuestion_id() {
+		return question_id;
 	}
-	public void setFix_fee_amount(double fix_fee_amount) {
-		this.fix_fee_amount = fix_fee_amount;
+
+	public void setQuestion_id(long question_id) {
+		this.question_id = question_id;
 	}
-	public double getFix_fee_percent() {
-		return fix_fee_percent;
-	}
-	public void setFix_fee_percent(double fix_fee_percent) {
-		this.fix_fee_percent = fix_fee_percent;
-	}
+
 	public JSONArray getResult() {
 		return result;
 	}

@@ -20,6 +20,8 @@ import org.springframework.orm.hibernate5.SessionFactoryUtils;
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.CompareObj;
 import vn.com.payment.entities.TblImages;
+import vn.com.payment.entities.TblLoanBill;
+import vn.com.payment.entities.TblLoanRequestAskAns;
 import vn.com.payment.object.ObjImage;
 import vn.com.payment.ultities.ClassUlt;
 import vn.com.payment.ultities.FileLogger;
@@ -291,7 +293,7 @@ public class BaseSqlHomeDao {
 		}
 	}
 
-	public boolean saveTransaction(Object obj1, Object obj2, List<TblImages> obj3) throws Exception {
+	public boolean saveTransaction(Object obj1, Object obj2, List<TblImages> obj3, List<TblLoanBill> obj4, TblLoanRequestAskAns obj5) throws Exception {
 		Session session = null;
 		boolean result = false;
 		try {
@@ -305,6 +307,14 @@ public class BaseSqlHomeDao {
 					for (Object object : obj3) {
 						session.save(object);
 					}
+				}
+				if(obj4 != null){
+					for (Object object4 : obj4) {
+						session.save(object4);
+					}
+				}
+				if(obj5 != null){
+					session.save(obj5);
 				}
 				transaction.commit();
 				result = true;

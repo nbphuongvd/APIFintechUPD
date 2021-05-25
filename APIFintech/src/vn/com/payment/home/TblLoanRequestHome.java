@@ -22,8 +22,10 @@ import org.hibernate.query.Query;
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.SeqContract;
 import vn.com.payment.entities.TblImages;
+import vn.com.payment.entities.TblLoanBill;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
+import vn.com.payment.entities.TblLoanRequestAskAns;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.object.ObjImage;
 import vn.com.payment.ultities.FileLogger;
@@ -53,9 +55,9 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		return false;
 	}
 	
-	public boolean createLoanTrans(TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList) {
+	public boolean createLoanTrans(TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList, List<TblLoanBill> loanBillList, TblLoanRequestAskAns tblLoanRequestAskAns) {
 		try {
-			boolean checkSaveTrans = saveTransaction(tblLoanRequest, tblLoanReqDetail, imagesList);
+			boolean checkSaveTrans = saveTransaction(tblLoanRequest, tblLoanReqDetail, imagesList, loanBillList, tblLoanRequestAskAns);
 			System.out.println("id: " + tblLoanRequest.getLoanId());
 			return checkSaveTrans;
 		} catch (Exception e) {
