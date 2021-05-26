@@ -6,6 +6,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +15,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import vn.com.payment.config.LogType;
+import vn.com.payment.config.MainCfg;
+import vn.com.payment.object.NotifyObject;
+import vn.com.payment.redis.RedisBusiness;
 
 public class Utils {
 
@@ -160,6 +167,119 @@ public class Utils {
 		} else {
 			return false;
 		}
+	}
+	
+	public static String getTimeNow() {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
+		return format.format(new Date());
+	}
+	public static String getTimeNowDate() {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
+		return format.format(new Date());
+	}
+	public static String getTimeOut(int dateBefore) {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
+		Date dt = new Date();
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(dt); 
+		c.add(Calendar.MONTH, dateBefore);
+		dt = c.getTime();
+//		System.out.println(format.format(dt));
+		return format.format(dt);
+	}
+	
+	public static String getTimeEXP() {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
+		Date dt = new Date();
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(dt); 
+		c.add(Calendar.DATE, 1);
+		dt = c.getTime();
+//		System.out.println(format.format(dt));
+		return format.format(dt);
+	}
+	
+	public static String getNgayvay(String date){
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("yyyyMMdd").parse(date);
+			SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
+			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			calendar.setTime(date1);
+			calendar.add(Calendar.DATE, 30);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public static String getNgayvayNew(String date){
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("MM/dd/yyyy").parse(date);
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			calendar.setTime(date1);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public static String getRandomStr(int length) {
+		String stock = "0123456789abcdefghijklmnopqrstuvwxyz";
+		String ran = "";
+		for (int i = 0; i < length; i++) {
+			ran += stock.charAt(new Random().nextInt(stock.length() - 1));
+		}
+		return ran;
+	}
+	
+	public static int getBillid() {
+		int random = (int)(Math.random()*(99999-00001+1)+00001);  
+		return random;
+	}
+	
+	public boolean sentNotify(String key, String userName, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
+		boolean sent = false;
+		try {
+			
+			String  message =  "Kính gửi: " + userName + " <br><br>";
+			message += "Ngày: " + getTimeNow() + " Mật khẩu của quý khách đã được thay đổi thành: "+ content+"<br>";
+			message += "\r\n Quý khách vui lòng nhập đăng nhập lại với mật khẩu mới.<br><br>";
+			message += "\r\n";
+			message += "\r\n Trân trọng!";
+			
+			NotifyObject notifyObject = new NotifyObject();
+			notifyObject.setSubject(subject);
+			notifyObject.setContent(message);
+			notifyObject.setMessage_type(message_type);
+			notifyObject.setIs_html(is_html);
+			notifyObject.setReceive_email_expect(receive_email_expect);
+			notifyObject.setReceive_sms_expect(receive_sms_expect);
+			notifyObject.setReceive_chat_id_expect(receive_chat_id_expect);
+			notifyObject.setService_code(service_code);
+			notifyObject.setSub_service_code(sub_service_code);
+			FileLogger.log("sentNotify key : " + key, LogType.USERINFO);
+			FileLogger.log("sentNotify notifyObject : " + notifyObject.toJSON(), LogType.USERINFO);
+			RedisBusiness redisBusiness = new RedisBusiness();
+			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject.toJSON());
+			FileLogger.log("sentNotify checkPush : " + checkPush, LogType.USERINFO);
+			if(checkPush){
+				sent = true;
+			}else{
+				sent = false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sent;
 	}
 
 	 

@@ -32,6 +32,17 @@ public class ReqCreaterLoan {
 	public String disburse_to_bank_no;
 	public String disburse_to_bank_name;
 	public String disburse_to_bank_code;
+	public long product_valuation; // Giá trị sản phẩm
+	public long borrower_income;   // Thu nhập người vay
+	public String borrower_fullname; // Tên người vay
+	public String borrower_address; // Địa chỉ người vay
+	public String id_issue_at;		// Nơi cấp cmt]
+	public long id_issue_date; //Ngày cap formmat: yyyyMMdd 
+	public String product_desc;
+	public long borrower_birthday; //Ngày sinh borrower format: yyyyMMdd
+	public String product_machine_number; // So may thiet bi
+	public String contract_serial_num; // So hop dong
+	
 	public List<ObjImage> images;
 	public List<Fees> fees;
 	public List<ObjQuestions> question_and_answears;
@@ -215,4 +226,67 @@ public class ReqCreaterLoan {
 	public void setQuestion_and_answears(List<ObjQuestions> question_and_answears) {
 		this.question_and_answears = question_and_answears;
 	}
+	public long getProduct_valuation() {
+		return product_valuation;
+	}
+	public void setProduct_valuation(long product_valuation) {
+		this.product_valuation = product_valuation;
+	}
+	public long getBorrower_income() {
+		return borrower_income;
+	}
+	public void setBorrower_income(long borrower_income) {
+		this.borrower_income = borrower_income;
+	}
+	public String getBorrower_fullname() {
+		return borrower_fullname;
+	}
+	public void setBorrower_fullname(String borrower_fullname) {
+		this.borrower_fullname = borrower_fullname;
+	}
+	public String getBorrower_address() {
+		return borrower_address;
+	}
+	public void setBorrower_address(String borrower_address) {
+		this.borrower_address = borrower_address;
+	}
+	public String getId_issue_at() {
+		return id_issue_at;
+	}
+	public void setId_issue_at(String id_issue_at) {
+		this.id_issue_at = id_issue_at;
+	}
+
+	public String getProduct_desc() {
+		return product_desc;
+	}
+	public void setProduct_desc(String product_desc) {
+		this.product_desc = product_desc;
+	}
+	
+	public long getId_issue_date() {
+		return id_issue_date;
+	}
+	public void setId_issue_date(long id_issue_date) {
+		this.id_issue_date = id_issue_date;
+	}
+	public long getBorrower_birthday() {
+		return borrower_birthday;
+	}
+	public void setBorrower_birthday(long borrower_birthday) {
+		this.borrower_birthday = borrower_birthday;
+	}
+	public String getProduct_machine_number() {
+		return product_machine_number;
+	}
+	public void setProduct_machine_number(String product_machine_number) {
+		this.product_machine_number = product_machine_number;
+	}
+	public String getContract_serial_num() {
+		return contract_serial_num;
+	}
+	public void setContract_serial_num(String contract_serial_num) {
+		this.contract_serial_num = contract_serial_num;
+	}
+	
 }

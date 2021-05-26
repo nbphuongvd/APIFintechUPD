@@ -62,7 +62,7 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 			return checkSaveTrans;
 		} catch (Exception e) {
 			e.printStackTrace();
-			FileLogger.log("createLoanRequest Exception "+ e, LogType.ERROR);
+			FileLogger.log("TblLoanRequestHome createLoanRequest Exception "+ e, LogType.ERROR);
 		}
 		return false;
 	}

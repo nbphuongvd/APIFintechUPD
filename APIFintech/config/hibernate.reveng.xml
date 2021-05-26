@@ -4,5 +4,5 @@
 <hibernate-reverse-engineering>
 <!-- 	<table-filter match-name="tbl_loan_req_detail" /> -->
 <!-- 	<table-filter match-name="tbl_loan_request"/> -->
-	<table-filter match-name="seq_contract"/>
+	<table-filter match-name="tbl_questions"/>
 </hibernate-reverse-engineering>

@@ -326,7 +326,7 @@ public class BaseSqlHomeDao {
 			return result;
 		} catch (Exception re) {
 			re.printStackTrace();
-			FileLogger.log("saveTransaction Exception " + re, LogType.ERROR);
+			FileLogger.log("BaseSqlHomeDao saveTransaction Exception " + re, LogType.ERROR);
 		} finally {
 			releaseSession(session);
 		}

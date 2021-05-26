@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 23, 2021 6:52:19 PM by Hibernate Tools 3.5.0.Final
+// Generated May 26, 2021 10:30:00 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -43,18 +43,26 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private String disburseToBankNo;
 	private String disburseToBankName;
 	private String disburseToBankCode;
+	private Long productValuation;
+	private Long borrowerIncome;
+	private String borrowerFullname;
+	private String borrowerAddress;
+	private String idIssueAt;
+	private Integer idIssueDate;
+	private String productDesc;
+	private Integer borrowerBirthday;
+	private String productMachineNumber;
+	private String contractSerialNum;
 
 	public TblLoanReqDetail() {
 	}
 
-	public TblLoanReqDetail(int loanId, int productId, long expectAmount, int borrowerId, Date createdDate,
-			Date editedDate) {
+	public TblLoanReqDetail(int loanId, int productId, long expectAmount, int borrowerId, Date createdDate) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.expectAmount = expectAmount;
 		this.borrowerId = borrowerId;
 		this.createdDate = createdDate;
-		this.editedDate = editedDate;
 	}
 
 	public TblLoanReqDetail(int loanId, int productId, Integer importFrom, Integer manufactureDate, long expectAmount,
@@ -62,7 +70,9 @@ public class TblLoanReqDetail implements java.io.Serializable {
 			Integer productBrand, String productModal, Integer totalRun, Integer productCondition,
 			Integer productOwnByBorrower, String productSerialNo, String productColor, Integer borrowerType,
 			String borrowerPhone, String borrowerEmail, Integer disburseTo, String disburseToBankNo,
-			String disburseToBankName, String disburseToBankCode) {
+			String disburseToBankName, String disburseToBankCode, Long productValuation, Long borrowerIncome,
+			String borrowerFullname, String borrowerAddress, String idIssueAt, Integer idIssueDate, String productDesc,
+			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.importFrom = importFrom;
@@ -87,6 +97,16 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.disburseToBankNo = disburseToBankNo;
 		this.disburseToBankName = disburseToBankName;
 		this.disburseToBankCode = disburseToBankCode;
+		this.productValuation = productValuation;
+		this.borrowerIncome = borrowerIncome;
+		this.borrowerFullname = borrowerFullname;
+		this.borrowerAddress = borrowerAddress;
+		this.idIssueAt = idIssueAt;
+		this.idIssueDate = idIssueDate;
+		this.productDesc = productDesc;
+		this.borrowerBirthday = borrowerBirthday;
+		this.productMachineNumber = productMachineNumber;
+		this.contractSerialNum = contractSerialNum;
 	}
 
 	@Id
@@ -175,7 +195,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	}
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "edited_date", nullable = false, length = 19)
+	@Column(name = "edited_date", length = 19)
 	public Date getEditedDate() {
 		return this.editedDate;
 	}
@@ -317,6 +337,96 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setDisburseToBankCode(String disburseToBankCode) {
 		this.disburseToBankCode = disburseToBankCode;
+	}
+
+	@Column(name = "product_valuation", precision = 10, scale = 0)
+	public Long getProductValuation() {
+		return this.productValuation;
+	}
+
+	public void setProductValuation(Long productValuation) {
+		this.productValuation = productValuation;
+	}
+
+	@Column(name = "borrower_income", precision = 10, scale = 0)
+	public Long getBorrowerIncome() {
+		return this.borrowerIncome;
+	}
+
+	public void setBorrowerIncome(Long borrowerIncome) {
+		this.borrowerIncome = borrowerIncome;
+	}
+
+	@Column(name = "borrower_fullname")
+	public String getBorrowerFullname() {
+		return this.borrowerFullname;
+	}
+
+	public void setBorrowerFullname(String borrowerFullname) {
+		this.borrowerFullname = borrowerFullname;
+	}
+
+	@Column(name = "borrower_address")
+	public String getBorrowerAddress() {
+		return this.borrowerAddress;
+	}
+
+	public void setBorrowerAddress(String borrowerAddress) {
+		this.borrowerAddress = borrowerAddress;
+	}
+
+	@Column(name = "id_issue_at")
+	public String getIdIssueAt() {
+		return this.idIssueAt;
+	}
+
+	public void setIdIssueAt(String idIssueAt) {
+		this.idIssueAt = idIssueAt;
+	}
+
+	@Column(name = "id_issue_date")
+	public Integer getIdIssueDate() {
+		return this.idIssueDate;
+	}
+
+	public void setIdIssueDate(Integer idIssueDate) {
+		this.idIssueDate = idIssueDate;
+	}
+
+	@Column(name = "product_desc")
+	public String getProductDesc() {
+		return this.productDesc;
+	}
+
+	public void setProductDesc(String productDesc) {
+		this.productDesc = productDesc;
+	}
+
+	@Column(name = "borrower_birthday")
+	public Integer getBorrowerBirthday() {
+		return this.borrowerBirthday;
+	}
+
+	public void setBorrowerBirthday(Integer borrowerBirthday) {
+		this.borrowerBirthday = borrowerBirthday;
+	}
+
+	@Column(name = "product_machine_number", length = 20)
+	public String getProductMachineNumber() {
+		return this.productMachineNumber;
+	}
+
+	public void setProductMachineNumber(String productMachineNumber) {
+		this.productMachineNumber = productMachineNumber;
+	}
+
+	@Column(name = "contract_serial_num", length = 30)
+	public String getContractSerialNum() {
+		return this.contractSerialNum;
+	}
+
+	public void setContractSerialNum(String contractSerialNum) {
+		this.contractSerialNum = contractSerialNum;
 	}
 
 }

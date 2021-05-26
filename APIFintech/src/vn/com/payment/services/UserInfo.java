@@ -45,6 +45,7 @@ import vn.com.payment.redis.RedisBusiness;
 import vn.com.payment.ultities.Commons;
 import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.MD5;
+import vn.com.payment.ultities.Utils;
 import vn.com.payment.ultities.ValidData;
 
 public class UserInfo {
@@ -53,6 +54,7 @@ public class UserInfo {
 	PermmissionHome permmissionHome = new PermmissionHome();
 	GroupRolesHome groupRolesHome = new GroupRolesHome();
 	AccountHome accountHome = new AccountHome();
+	Utils utils = new Utils();
 	public static String prefixKey = "APIFintech";
 	Gson gson = new Gson();
 	long statusSuccess = 100l;
@@ -290,7 +292,7 @@ public class UserInfo {
 					String receiveChat = "";
 					String serviceCode = "API";
 					String subService = "APIFintech";
-					boolean sentNoti = sentNotify(key, reqChangePass.getUsername(), subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
+					boolean sentNoti = utils.sentNotify(key, reqChangePass.getUsername(), subject, content, message, isHtml, receiveEmail, receiveSMS, receiveChat, serviceCode, subService);
 					FileLogger.log("changePass sentNoti : " + sentNoti, LogType.USERINFO);
 				}else{
 					resChangePass.setStatus(statusFale);
@@ -311,6 +313,33 @@ public class UserInfo {
 			response = response.header(Commons.ReceiveTime, getTimeNow());
 			return response.header(Commons.ResponseTime, getTimeNow()).entity(resChangePass.toJSON()).build();
 		}
+	}
+	
+	public boolean checkLogin(String userName, String token){
+		boolean result = false;
+		try {
+			Account acc = accountHome.getAccountUsename(userName);
+			if (acc != null){
+				String key = UserInfo.prefixKey + userName;
+				String tokenResponse = RedisBusiness.getValue_fromCache(key);
+				if(tokenResponse != null){
+					TokenRedis tokenRedis = gson.fromJson(tokenResponse, TokenRedis.class);
+					if(token.equals(tokenRedis.getToken())){
+						result = true;
+					}else{
+						FileLogger.log("checkLogin token_fromCache:" + tokenResponse + " # request_token: " + token, LogType.BUSSINESS);
+					}
+				}else{
+					FileLogger.log("checkLogin token_fromCache null ", LogType.BUSSINESS);
+				}
+			}else{
+				FileLogger.log("checkLogin getAccountUsename null ", LogType.BUSSINESS);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("checkLogin Exception "+ e, LogType.ERROR);
+		}
+		return result;
 	}
 	
 	public static String getTimeNow() {
@@ -338,41 +367,6 @@ public class UserInfo {
 		return ran;
 	}
 	
-	public boolean sentNotify(String key, String userName, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
-		boolean sent = false;
-		try {
-			
-			String  message =  "Kính gửi: " + userName + " <br><br>";
-			message += "Ngày: " + getTimeNow() + " Mật khẩu của quý khách đã được thay đổi thành: "+ content+"<br>";
-			message += "\r\n Quý khách vui lòng nhập đăng nhập lại với mật khẩu mới.<br><br>";
-			message += "\r\n";
-			message += "\r\n Trân trọng!";
-			
-			NotifyObject notifyObject = new NotifyObject();
-			notifyObject.setSubject(subject);
-			notifyObject.setContent(message);
-			notifyObject.setMessage_type(message_type);
-			notifyObject.setIs_html(is_html);
-			notifyObject.setReceive_email_expect(receive_email_expect);
-			notifyObject.setReceive_sms_expect(receive_sms_expect);
-			notifyObject.setReceive_chat_id_expect(receive_chat_id_expect);
-			notifyObject.setService_code(service_code);
-			notifyObject.setSub_service_code(sub_service_code);
-			FileLogger.log("sentNotify key : " + key, LogType.USERINFO);
-			FileLogger.log("sentNotify notifyObject : " + notifyObject.toJSON(), LogType.USERINFO);
-			RedisBusiness redisBusiness = new RedisBusiness();
-			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject.toJSON());
-			FileLogger.log("sentNotify checkPush : " + checkPush, LogType.USERINFO);
-			if(checkPush){
-				sent = true;
-			}else{
-				sent = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return sent;
-	}
 	
 	public static void main(String[] args) {
 		try {
