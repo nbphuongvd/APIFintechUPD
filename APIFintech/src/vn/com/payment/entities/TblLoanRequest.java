@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 26, 2021 11:23:46 PM by Hibernate Tools 3.5.0.Final
+// Generated May 27, 2021 9:38:08 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -34,10 +34,6 @@ public class TblLoanRequest implements java.io.Serializable {
 	private Integer loanForMonth;
 	private String loanCode;
 	private String loanName;
-	private String secondExpertiseBy;
-	private Date secondExpertiseDate;
-	private String accountanceSettedBy;
-	private Date accountanceSettedDate;
 	private String contractSerialNum;
 
 	public TblLoanRequest() {
@@ -52,8 +48,7 @@ public class TblLoanRequest implements java.io.Serializable {
 	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy,
 			String approvedBy, Integer finalStatus, Integer previousStatus, Integer sponsorId, Date latestUpdate,
 			String approveRejectedReason, Integer calculateProfitType, Integer loanForMonth, String loanCode,
-			String loanName, String secondExpertiseBy, Date secondExpertiseDate, String accountanceSettedBy,
-			Date accountanceSettedDate, String contractSerialNum) {
+			String loanName, String contractSerialNum) {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.expireDate = expireDate;
@@ -69,10 +64,6 @@ public class TblLoanRequest implements java.io.Serializable {
 		this.loanForMonth = loanForMonth;
 		this.loanCode = loanCode;
 		this.loanName = loanName;
-		this.secondExpertiseBy = secondExpertiseBy;
-		this.secondExpertiseDate = secondExpertiseDate;
-		this.accountanceSettedBy = accountanceSettedBy;
-		this.accountanceSettedDate = accountanceSettedDate;
 		this.contractSerialNum = contractSerialNum;
 	}
 
@@ -226,44 +217,6 @@ public class TblLoanRequest implements java.io.Serializable {
 
 	public void setLoanName(String loanName) {
 		this.loanName = loanName;
-	}
-
-	@Column(name = "second_expertise_by", length = 100)
-	public String getSecondExpertiseBy() {
-		return this.secondExpertiseBy;
-	}
-
-	public void setSecondExpertiseBy(String secondExpertiseBy) {
-		this.secondExpertiseBy = secondExpertiseBy;
-	}
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "second_expertise_date", length = 19)
-	public Date getSecondExpertiseDate() {
-		return this.secondExpertiseDate;
-	}
-
-	public void setSecondExpertiseDate(Date secondExpertiseDate) {
-		this.secondExpertiseDate = secondExpertiseDate;
-	}
-
-	@Column(name = "accountance_setted_by", length = 100)
-	public String getAccountanceSettedBy() {
-		return this.accountanceSettedBy;
-	}
-
-	public void setAccountanceSettedBy(String accountanceSettedBy) {
-		this.accountanceSettedBy = accountanceSettedBy;
-	}
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "accountance_setted_date", length = 19)
-	public Date getAccountanceSettedDate() {
-		return this.accountanceSettedDate;
-	}
-
-	public void setAccountanceSettedDate(Date accountanceSettedDate) {
-		this.accountanceSettedDate = accountanceSettedDate;
 	}
 
 	@Column(name = "contract_serial_num", length = 30)
