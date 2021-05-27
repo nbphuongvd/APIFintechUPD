@@ -358,8 +358,11 @@ public class Bussiness {
 				tblLoanReqDetail.setProductSerialNo(reqCreaterLoan.getProduct_serial_no());
 				tblLoanReqDetail.setProductColor(reqCreaterLoan.getProduct_color());
 				tblLoanReqDetail.setBorrowerType((int)reqCreaterLoan.getBorrower_type());
-				tblLoanReqDetail.setBorrowerPhone(reqCreaterLoan.getBorrower_phone());
-				tblLoanReqDetail.setBorrowerEmail(reqCreaterLoan.getBorrower_email());
+				try {
+					tblLoanReqDetail.setBorrowerPhone(reqCreaterLoan.getBorrower_phone());
+					tblLoanReqDetail.setBorrowerEmail(reqCreaterLoan.getBorrower_email());
+				} catch (Exception e) {					
+				}
 				tblLoanReqDetail.setBorrowerId(Integer.parseInt(reqCreaterLoan.getBorrower_id_number()));
 				tblLoanReqDetail.setDisburseToBankNo(reqCreaterLoan.getDisburse_to_bank_no());
 				tblLoanReqDetail.setDisburseToBankName(reqCreaterLoan.getDisburse_to_bank_name());
@@ -441,16 +444,16 @@ public class Bussiness {
 				boolean checkINS =  tblLoanReqDetailHome.createLoanTrans(tblLoanRequest, tblLoanReqDetail, imagesListSet, illustrationNewLoanBill, tblLoanRequestAskAns);
 				if(checkINS){
 					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " thanh cong:", LogType.BUSSINESS);
-					
-					if(percentAns <= 50){
-						resCreaterLoan.setStatus(tblLoanRequest.getFinalStatus());
-						resCreaterLoan.setMessage("Khoan vay bi tu choi do thieu thong tin");
-						resCreaterLoan.setRequest_code(loanID.longValue());
-					}else{
-						resCreaterLoan.setStatus(tblLoanRequest.getFinalStatus());
+					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " percentAns:", LogType.BUSSINESS);
+//					if(percentAns <= 50){
+//						resCreaterLoan.setStatus(tblLoanRequest.getFinalStatus());
+//						resCreaterLoan.setMessage("Khoan vay bi tu choi do thieu thong tin");
+//						resCreaterLoan.setRequest_code(loanID.longValue());
+//					}else{
+						resCreaterLoan.setStatus(statusSuccess);
 						resCreaterLoan.setMessage("Yeu cau dang duoc xu ly");
 						resCreaterLoan.setRequest_code(loanID.longValue());
-					}
+//					}
 				}else{
 					FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " that bai:", LogType.BUSSINESS);
 					resCreaterLoan.setStatus(statusFale);

@@ -115,7 +115,7 @@ public class TblImages implements java.io.Serializable {
 		this.imageName = imageName;
 	}
 
-	@Column(name = "partner_image_id", length = 50)
+	@Column(name = "partner_image_id", length = 200)
 	public String getPartnerImageId() {
 		return this.partnerImageId;
 	}

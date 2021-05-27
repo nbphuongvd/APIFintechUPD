@@ -583,20 +583,20 @@ public class ValidData {
 				resCreaterLoan.setMessage(messageErr);
 				return resCreaterLoan;
 			}
-			if (ValidData.checkNull(reqCreaterLoan.getBorrower_phone()) == false){
-				String messageErr = "Valid CreaterLoan borrower_phone invalid";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resCreaterLoan.setStatus(statusFale);
-				resCreaterLoan.setMessage(messageErr);
-				return resCreaterLoan;
-			}
-			if (ValidData.checkNull(reqCreaterLoan.getBorrower_email()) == false){
-				String messageErr = "Valid CreaterLoan borrower_email invalid";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resCreaterLoan.setStatus(statusFale);
-				resCreaterLoan.setMessage(messageErr);
-				return resCreaterLoan;
-			}
+//			if (ValidData.checkNull(reqCreaterLoan.getBorrower_phone()) == false){
+//				String messageErr = "Valid CreaterLoan borrower_phone invalid";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resCreaterLoan.setStatus(statusFale);
+//				resCreaterLoan.setMessage(messageErr);
+//				return resCreaterLoan;
+//			}
+//			if (ValidData.checkNull(reqCreaterLoan.getBorrower_email()) == false){
+//				String messageErr = "Valid CreaterLoan borrower_email invalid";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resCreaterLoan.setStatus(statusFale);
+//				resCreaterLoan.setMessage(messageErr);
+//				return resCreaterLoan;
+//			}
 			if (ValidData.checkNull(reqCreaterLoan.getBorrower_id_number()) == false){
 				String messageErr = "Valid CreaterLoan borrower_id_number invalid";
 				FileLogger.log(messageErr, LogType.BUSSINESS);

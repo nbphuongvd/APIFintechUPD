@@ -73,7 +73,19 @@ public class BaseMongoDB {
 	}
 	
 	public static void main(String[] args) {
+		int port_no = MainCfg.port_mongo;
+		String host_name = MainCfg.host_name_mongo, db_name = MainCfg.db_name;
+
+		// Mongodb connection string.
+		String client_url = "mongodb://" + host_name + ":" + port_no + "/" + db_name;
+		MongoClientURI uri = new MongoClientURI(client_url);
+
+		// Connecting to the mongodb server using the given client uri.
+		MongoClient mongo_client = new MongoClient(uri);
+		// Fetching the database from the mongodb.
+		MongoDatabase db = mongo_client.getDatabase(db_name);
 		BaseMongoDB mongoDB = new BaseMongoDB();
-//		mongoDB.insertDocument(listDoc, collection)
+		MongoCollection<Document> coll = db.getCollection("a");
+		System.out.println("aaa" + coll);
 	}
 }
