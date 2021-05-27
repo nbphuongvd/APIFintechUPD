@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 23, 2021 6:52:19 PM by Hibernate Tools 3.5.0.Final
+// Generated 27-May-2021 15:21:49 by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -25,7 +25,7 @@ public class TblImages implements java.io.Serializable {
 	private String imageUrl;
 	private Integer imageIsFront;
 	private String imageName;
-	private Integer partnerImageId;
+	private String partnerImageId;
 	private Integer imageStatus;
 	private Date deleteDate;
 
@@ -37,7 +37,7 @@ public class TblImages implements java.io.Serializable {
 	}
 
 	public TblImages(int loanRequestDetailId, Integer imageType, String imageByte, String imageUrl,
-			Integer imageIsFront, String imageName, Integer partnerImageId, Integer imageStatus, Date deleteDate) {
+			Integer imageIsFront, String imageName, String partnerImageId, Integer imageStatus, Date deleteDate) {
 		this.loanRequestDetailId = loanRequestDetailId;
 		this.imageType = imageType;
 		this.imageByte = imageByte;
@@ -115,12 +115,12 @@ public class TblImages implements java.io.Serializable {
 		this.imageName = imageName;
 	}
 
-	@Column(name = "partner_image_id")
-	public Integer getPartnerImageId() {
+	@Column(name = "partner_image_id", length = 50)
+	public String getPartnerImageId() {
 		return this.partnerImageId;
 	}
 
-	public void setPartnerImageId(Integer partnerImageId) {
+	public void setPartnerImageId(String partnerImageId) {
 		this.partnerImageId = partnerImageId;
 	}
 

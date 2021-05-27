@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 26, 2021 10:30:00 PM by Hibernate Tools 3.5.0.Final
+// Generated 27-May-2021 15:25:44 by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -53,6 +53,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private Integer borrowerBirthday;
 	private String productMachineNumber;
 	private String contractSerialNum;
+	private String bankBranch;
 
 	public TblLoanReqDetail() {
 	}
@@ -72,7 +73,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 			String borrowerPhone, String borrowerEmail, Integer disburseTo, String disburseToBankNo,
 			String disburseToBankName, String disburseToBankCode, Long productValuation, Long borrowerIncome,
 			String borrowerFullname, String borrowerAddress, String idIssueAt, Integer idIssueDate, String productDesc,
-			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum) {
+			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum, String bankBranch) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.importFrom = importFrom;
@@ -107,6 +108,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.borrowerBirthday = borrowerBirthday;
 		this.productMachineNumber = productMachineNumber;
 		this.contractSerialNum = contractSerialNum;
+		this.bankBranch = bankBranch;
 	}
 
 	@Id
@@ -427,6 +429,15 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setContractSerialNum(String contractSerialNum) {
 		this.contractSerialNum = contractSerialNum;
+	}
+
+	@Column(name = "bank_branch")
+	public String getBankBranch() {
+		return this.bankBranch;
+	}
+
+	public void setBankBranch(String bankBranch) {
+		this.bankBranch = bankBranch;
 	}
 
 }

@@ -42,6 +42,7 @@ public class ReqCreaterLoan {
 	public long borrower_birthday; //Ngày sinh borrower format: yyyyMMdd
 	public String product_machine_number; // So may thiet bi
 	public String contract_serial_num; // So hop dong
+	public String bank_branch; 
 	
 	public List<ObjImage> images;
 	public List<Fees> fees;
@@ -287,6 +288,12 @@ public class ReqCreaterLoan {
 	}
 	public void setContract_serial_num(String contract_serial_num) {
 		this.contract_serial_num = contract_serial_num;
+	}
+	public String getBank_branch() {
+		return bank_branch;
+	}
+	public void setBank_branch(String bank_branch) {
+		this.bank_branch = bank_branch;
 	}
 	
 }

@@ -385,6 +385,7 @@ public class Bussiness {
 				tblLoanReqDetail.setProductDesc(reqCreaterLoan.getProduct_desc());
 				tblLoanReqDetail.setBorrowerBirthday((int)reqCreaterLoan.getBorrower_birthday());
 				tblLoanReqDetail.setProductMachineNumber(reqCreaterLoan.getProduct_machine_number());
+				tblLoanReqDetail.setBankBranch(reqCreaterLoan.getBank_branch());
 				
 				List<TblImages> imagesListSet = new ArrayList<>();
 				if(reqCreaterLoan.getImages() != null){
@@ -393,7 +394,7 @@ public class Bussiness {
 						TblImages tblImages = new TblImages();
 						tblImages.setLoanRequestDetailId(loanID.intValue());
 						tblImages.setImageName(objImage.getImage_name());
-						tblImages.setPartnerImageId((int) objImage.getPartner_image_id());
+						tblImages.setPartnerImageId(objImage.getPartner_image_id());
 						tblImages.setImageType((int)objImage.getImage_type());
 						tblImages.setImageByte(objImage.getImage_byte());
 						tblImages.setImageUrl(objImage.getImage_url());

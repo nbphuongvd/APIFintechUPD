@@ -604,6 +604,22 @@ public class ValidData {
 				resCreaterLoan.setMessage(messageErr);
 				return resCreaterLoan;
 			}
+			if (ValidData.checkNullLong(reqCreaterLoan.getLoan_amount()) == false){
+				String messageErr = "Valid CreaterLoan loan_amount invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resCreaterLoan.setStatus(statusFale);
+				resCreaterLoan.setMessage(messageErr);
+				return resCreaterLoan;
+			}
+			
+			if (ValidData.isNumberic(String.valueOf(reqCreaterLoan.getLoan_amount())) == false){
+				String messageErr = "Valid CreaterLoan loan_amount invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resCreaterLoan.setStatus(statusFale);
+				resCreaterLoan.setMessage(messageErr);
+				return resCreaterLoan;
+			}
+			
 			if (ValidData.checkNullLong(reqCreaterLoan.getProduct_valuation()) == false){
 				String messageErr = "Valid CreaterLoan product_valuation invalid";
 				FileLogger.log(messageErr, LogType.BUSSINESS);

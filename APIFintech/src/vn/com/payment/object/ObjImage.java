@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 
 public class ObjImage {
 	public String image_name;
-	public long partner_image_id;
+	public String partner_image_id;
 	public long image_type;
 	public String image_byte;
 	public String image_url;
@@ -25,10 +25,11 @@ public class ObjImage {
 	public void setImage_name(String image_name) {
 		this.image_name = image_name;
 	}
-	public long getPartner_image_id() {
+	
+	public String getPartner_image_id() {
 		return partner_image_id;
 	}
-	public void setPartner_image_id(long partner_image_id) {
+	public void setPartner_image_id(String partner_image_id) {
 		this.partner_image_id = partner_image_id;
 	}
 	public long getImage_type() {
