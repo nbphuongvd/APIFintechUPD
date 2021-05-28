@@ -1,6 +1,8 @@
 package vn.com.payment.ultities;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,13 +10,18 @@ import com.sun.corba.se.impl.transport.ReadTCPTimeoutsImpl;
 
 import vn.com.payment.config.LogType;
 import vn.com.payment.home.TblLoanRequestHome;
+import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ResAllContractList;
+import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.services.UserInfo;
 
 import java.text.ParseException;
 
 public class ValidData {
 	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	UserInfo userInfo = new UserInfo();
 	public static boolean isNumberInt(String num) {
 		try {
 			int i = Integer.parseInt(num);
@@ -647,6 +654,15 @@ public class ValidData {
 				resCreaterLoan.setMessage(messageErr);
 				return resCreaterLoan;
 			}					
+			boolean checkLG = userInfo.checkLogin(reqCreaterLoan.getUsername(), reqCreaterLoan.getToken());
+			if(!checkLG){
+				FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resCreaterLoan.setStatus(statusFale);
+				resCreaterLoan.setMessage(messageErr);
+				return resCreaterLoan;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid CreaterLoan exception: "+ e;
@@ -655,7 +671,43 @@ public class ValidData {
 		return null;
 	}
 
-	
+	public ResAllContractList validGetContractList(ReqContractList reqContractList){
+		ResAllContractList resAllContractList = new ResAllContractList();
+		List<ResContractList> resContractList = new ArrayList<>();
+		try {
+			if (ValidData.checkNull(reqContractList.getUsername()) == false){
+				String messageErr = "Valid etContractList Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllContractList.setStatus(statusFale);
+				resAllContractList.setMessage(messageErr);
+				resAllContractList.setContract_list(resContractList);
+				return resAllContractList;
+			}
+			if (ValidData.checkNull(reqContractList.getToken()) == false){
+				String messageErr = "Valid etContractList token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllContractList.setStatus(statusFale);
+				resAllContractList.setMessage(messageErr);
+				resAllContractList.setContract_list(resContractList);
+				return resAllContractList;
+			}
+			boolean checkLG = userInfo.checkLogin(reqContractList.getUsername(), reqContractList.getToken());
+			if(!checkLG){
+				FileLogger.log("etContractList: " + reqContractList.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllContractList.setStatus(statusFale);
+				resAllContractList.setMessage(messageErr);
+				resAllContractList.setContract_list(resContractList);
+				return resAllContractList;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid resContractList exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
 //	100	Thành công
 //	101	Sai token
 //	102	Token hết hạn hoặc không tồn tại

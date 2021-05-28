@@ -108,6 +108,16 @@ public class ApiController {
 	   return bussiness.getContractNumber(formParams);
    }
    
+   @POST
+   @Path("/api/getContractList")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getContractList(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getContractList");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getContractList(formParams);
+   }
+   
 //   @POST
 //   @Path("/api/test")
 //   @Produces({MediaType.APPLICATION_JSON})
@@ -128,6 +138,7 @@ public class ApiController {
    
    static {
 	   setTimeZone();
+//	   ConfigDAO.shareInstance();
 	}
 
    private static void setTimeZone() {

@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated 27-May-2021 15:25:44 by Hibernate Tools 3.5.0.Final
+// Generated 28-May-2021 16:04:13 by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -24,7 +24,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private Integer importFrom;
 	private Integer manufactureDate;
 	private long expectAmount;
-	private int borrowerId;
+	private String borrowerId;
 	private Long approvedAmount;
 	private Date createdDate;
 	private Date editedDate;
@@ -54,11 +54,12 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private String productMachineNumber;
 	private String contractSerialNum;
 	private String bankBranch;
+	private Integer idExpireDate;
 
 	public TblLoanReqDetail() {
 	}
 
-	public TblLoanReqDetail(int loanId, int productId, long expectAmount, int borrowerId, Date createdDate) {
+	public TblLoanReqDetail(int loanId, int productId, long expectAmount, String borrowerId, Date createdDate) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.expectAmount = expectAmount;
@@ -67,13 +68,14 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	}
 
 	public TblLoanReqDetail(int loanId, int productId, Integer importFrom, Integer manufactureDate, long expectAmount,
-			int borrowerId, Long approvedAmount, Date createdDate, Date editedDate, Integer disbursementDate,
+			String borrowerId, Long approvedAmount, Date createdDate, Date editedDate, Integer disbursementDate,
 			Integer productBrand, String productModal, Integer totalRun, Integer productCondition,
 			Integer productOwnByBorrower, String productSerialNo, String productColor, Integer borrowerType,
 			String borrowerPhone, String borrowerEmail, Integer disburseTo, String disburseToBankNo,
 			String disburseToBankName, String disburseToBankCode, Long productValuation, Long borrowerIncome,
 			String borrowerFullname, String borrowerAddress, String idIssueAt, Integer idIssueDate, String productDesc,
-			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum, String bankBranch) {
+			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum, String bankBranch,
+			Integer idExpireDate) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.importFrom = importFrom;
@@ -109,6 +111,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.productMachineNumber = productMachineNumber;
 		this.contractSerialNum = contractSerialNum;
 		this.bankBranch = bankBranch;
+		this.idExpireDate = idExpireDate;
 	}
 
 	@Id
@@ -168,12 +171,12 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.expectAmount = expectAmount;
 	}
 
-	@Column(name = "borrower_id", nullable = false)
-	public int getBorrowerId() {
+	@Column(name = "borrower_id", nullable = false, length = 20)
+	public String getBorrowerId() {
 		return this.borrowerId;
 	}
 
-	public void setBorrowerId(int borrowerId) {
+	public void setBorrowerId(String borrowerId) {
 		this.borrowerId = borrowerId;
 	}
 
@@ -438,6 +441,15 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setBankBranch(String bankBranch) {
 		this.bankBranch = bankBranch;
+	}
+
+	@Column(name = "id_expire_date")
+	public Integer getIdExpireDate() {
+		return this.idExpireDate;
+	}
+
+	public void setIdExpireDate(Integer idExpireDate) {
+		this.idExpireDate = idExpireDate;
 	}
 
 }

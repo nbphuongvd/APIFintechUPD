@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 27, 2021 9:38:08 PM by Hibernate Tools 3.5.0.Final
+// Generated 28-May-2021 16:02:37 by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -35,6 +35,8 @@ public class TblLoanRequest implements java.io.Serializable {
 	private String loanCode;
 	private String loanName;
 	private String contractSerialNum;
+	private Integer branchId;
+	private Integer roomId;
 
 	public TblLoanRequest() {
 	}
@@ -48,7 +50,7 @@ public class TblLoanRequest implements java.io.Serializable {
 	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy,
 			String approvedBy, Integer finalStatus, Integer previousStatus, Integer sponsorId, Date latestUpdate,
 			String approveRejectedReason, Integer calculateProfitType, Integer loanForMonth, String loanCode,
-			String loanName, String contractSerialNum) {
+			String loanName, String contractSerialNum, Integer branchId, Integer roomId) {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.expireDate = expireDate;
@@ -65,6 +67,8 @@ public class TblLoanRequest implements java.io.Serializable {
 		this.loanCode = loanCode;
 		this.loanName = loanName;
 		this.contractSerialNum = contractSerialNum;
+		this.branchId = branchId;
+		this.roomId = roomId;
 	}
 
 	@Id
@@ -226,6 +230,24 @@ public class TblLoanRequest implements java.io.Serializable {
 
 	public void setContractSerialNum(String contractSerialNum) {
 		this.contractSerialNum = contractSerialNum;
+	}
+
+	@Column(name = "branch_id")
+	public Integer getBranchId() {
+		return this.branchId;
+	}
+
+	public void setBranchId(Integer branchId) {
+		this.branchId = branchId;
+	}
+
+	@Column(name = "room_id")
+	public Integer getRoomId() {
+		return this.roomId;
+	}
+
+	public void setRoomId(Integer roomId) {
+		this.roomId = roomId;
 	}
 
 }
