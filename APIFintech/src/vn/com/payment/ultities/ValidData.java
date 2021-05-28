@@ -2,11 +2,13 @@ package vn.com.payment.ultities;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.corba.se.impl.transport.ReadTCPTimeoutsImpl;
+import com.sun.tools.internal.xjc.model.SymbolSpace;
 
 import vn.com.payment.config.LogType;
 import vn.com.payment.home.TblLoanRequestHome;
@@ -59,13 +61,6 @@ public class ValidData {
 		}
 		return false;
 	}
-	
-	public static void main(String[] args) {
-		long a = 0;
-		
-		System.out.println(checkNullLong(a));
-	}
-
 	
 	public static boolean isNotContainSpecialChar(String inputString) {
 		boolean rs = false;
@@ -534,6 +529,22 @@ public class ValidData {
 	    }
 	    return true;
 	  }
+	
+
+	public static boolean isValidDateStr(String inDate) {
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	    dateFormat.setLenient(false);
+	    try {
+	      if((inDate.length() != 8)){
+	    	  return false;
+		  }
+	      dateFormat.parse(inDate.trim());
+	      System.out.println(dateFormat.getDateTimeInstance());
+	    } catch (ParseException pe) {
+	      return false;
+	    }
+	    return true;
+	  }
 	long statusFale = 111l;
 	
 	public ResCreaterLoan validCreaterLoan(ReqCreaterLoan reqCreaterLoan){
@@ -691,6 +702,27 @@ public class ValidData {
 				resAllContractList.setContract_list(resContractList);
 				return resAllContractList;
 			}
+			if (ValidData.checkNull(reqContractList.getFrom_date()) == true){
+				if(ValidData.isValidDateStr(reqContractList.getFrom_date()) == false){
+					String messageErr = "Valid From_date invalid yyyyMMdd";
+					FileLogger.log(messageErr, LogType.BUSSINESS);
+					resAllContractList.setStatus(statusFale);
+					resAllContractList.setMessage(messageErr);
+					resAllContractList.setContract_list(resContractList);
+					return resAllContractList;
+				}
+			}
+			if (ValidData.checkNull(reqContractList.getTo_date()) == true){
+				if(ValidData.isValidDateStr(reqContractList.getFrom_date()) == false){
+					String messageErr = "Valid To_date invalid yyyyMMdd";
+					FileLogger.log(messageErr, LogType.BUSSINESS);
+					resAllContractList.setStatus(statusFale);
+					resAllContractList.setMessage(messageErr);
+					resAllContractList.setContract_list(resContractList);
+					return resAllContractList;
+				}
+			}
+
 			boolean checkLG = userInfo.checkLogin(reqContractList.getUsername(), reqContractList.getToken());
 			if(!checkLG){
 				FileLogger.log("etContractList: " + reqContractList.getUsername()+ " check login false:", LogType.BUSSINESS);
@@ -720,4 +752,24 @@ public class ValidData {
 //	108	Khoản vay bị từ chối do user trong Blacklist
 //	109	Khoản vay bị từ chối do phương tiện không đáp ứng
 //	110	Khoản vại bị từ chôi do thiếu thông tin
+	
+	public static void main(String[] args) {
+//		if(ValidData.isValidDateStr("20200528q") == false){
+		try {
+//			 SimpleDateFormat formatter6=new SimpleDateFormat("yyyyMMdd");  
+//			    Date date1=formatter6.parse("a30200528qd");  
+//			    System.out.println(date1);
+//				System.out.println(ValidData.isValidDateStr("aa30200528qd"));
+				String date = "aa30200528qd";
+				if((date.length() != 6)){
+					System.out.println("aa");
+				}else{
+					System.out.println("bb");
+				}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		}
+	}
 }

@@ -540,6 +540,7 @@ public class Bussiness {
 		ResAllContractList resAllContractList = new ResAllContractList();
 		List<ResContractList> resContractList = new ArrayList<>();
 		try {
+			FileLogger.log("getContractList dataGetContractList: " + dataGetContractList, LogType.BUSSINESS);
 			ReqContractList reqContractList = gson.fromJson(dataGetContractList, ReqContractList.class);
 			ResAllContractList resCreaterLoanValid = validData.validGetContractList(reqContractList);
 			if (resCreaterLoanValid != null) {
@@ -561,10 +562,21 @@ public class Bussiness {
 						 roomID.add(Integer.parseInt(msg.get(i).toString())); 
 				 	 }
 				}
-			} else {
-				System.out.println("null");
 			}
-			List<ResContractList> lisResContract = dbFintechHome.listResContractList(branchID, roomID);
+			System.out.println("branchID: "+ branchID);
+			System.out.println("roomID: "+ roomID);
+			String loan_code 			= "";
+			try {
+				loan_code = reqContractList.getLoan_code();
+			} catch (Exception e) {
+			}
+			int final_status 			= reqContractList.getFinal_status();
+			String id_number 			= reqContractList.getId_number();
+			String borrower_name 		= reqContractList.getBorrower_name();
+			String from_date 			= reqContractList.getFrom_date();
+			String to_date	 			= reqContractList.getTo_date();
+			int calculate_profit_type 	= reqContractList.getCalculate_profit_type();
+			List<ResContractList> lisResContract = dbFintechHome.listResContractList(branchID, roomID, loan_code, final_status, id_number, borrower_name, from_date, to_date, calculate_profit_type);
 			if(lisResContract != null){
 				resAllContractList.setStatus(statusSuccess);
 				resAllContractList.setMessage("Yeu cau thanh cong");

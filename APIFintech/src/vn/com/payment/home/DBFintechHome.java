@@ -1,6 +1,8 @@
 package vn.com.payment.home;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -25,6 +27,7 @@ import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblLoanRequestAskAns;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.ultities.FileLogger;
+import vn.com.payment.ultities.ValidData;
 
 public class DBFintechHome extends BaseSqlHomeDao{
 
@@ -57,8 +60,10 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		}
 		return false;
 	}
-	
-	public List<ResContractList> listResContractList(List<Integer> branchID, List<Integer> roomID) {
+
+	public List<ResContractList> listResContractList(List<Integer> branchID, List<Integer> roomID,
+			String loan_code, int final_status, String id_number, 
+			String borrower_name, String from_date, String to_date, int calculate_profit_type) {
 		Session session = null;
 		Transaction tx = null;
 		List<Object> list = null;
@@ -75,15 +80,51 @@ public class DBFintechHome extends BaseSqlHomeDao{
 								+ "FROM TblLoanReqDetail ld INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
 								+ "Where "
 								+ "lr.roomId in :listRoom and "
-								+ "lr.branchId in :listbranchId";
-//								+ "lr.loanCode =:loanCode and ld.borrowerId =:borrowerId and "
-//								+ "lr.branchId =: branchID and "
-//								+ "lr.roomId in listRoom"; 
+								+ "lr.branchId in :listbranchId ";
+			if(ValidData.checkNull(loan_code) == true){
+				sql = sql + "and lr.loanCode =:loan_code ";
+			}
+			if(ValidData.checkNullLong(final_status) == true){
+				sql = sql + "and lr.finalStatus =:final_status ";
+			}
+			if(ValidData.checkNull(borrower_name) == true){
+				sql = sql + "and ld.borrowerFullname =:borrower_name ";
+			}
+			if(ValidData.checkNull(from_date) == true){
+				sql = sql + "and lr.createdDate > :from_date ";
+			}
+			if(ValidData.checkNull(to_date) == true){
+				sql = sql + "and lr.createdDate < :to_date ";
+			}
+			if(ValidData.checkNullLong(calculate_profit_type) == true){
+				sql = sql + "and lr.calculateProfitType =:calculate_profit_type ";
+			}
 			System.out.println("sql: "+ sql);
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
-			query.setParameter("listbranchId", branchID);
+
+			if(ValidData.checkNull(loan_code) == true){
+				query.setParameter("loan_code", loan_code);
+			}
+			if(ValidData.checkNullLong(final_status) == true){
+				query.setParameter("final_status", final_status);
+			}
+			if(ValidData.checkNull(borrower_name) == true){
+				query.setParameter("borrower_name", borrower_name);
+			}
+			if(ValidData.checkNull(from_date) == true){
+				Date fromDate = new SimpleDateFormat("yyyyMMdd").parse(from_date);  
+				query.setParameter("from_date", fromDate);
+			}
+			if(ValidData.checkNull(to_date) == true){
+				Date toDate = new SimpleDateFormat("yyyyMMdd").parse(to_date);  
+				query.setParameter("to_date", toDate);
+			}
+			if(ValidData.checkNullLong(final_status) == true){
+				query.setParameter("calculate_profit_type", calculate_profit_type);
+			}
 			query.setParameter("listRoom", roomID);
+			query.setParameter("listbranchId", branchID);
 			list = query.getResultList();
 			
 			System.out.println(list.size());
@@ -100,8 +141,8 @@ public class DBFintechHome extends BaseSqlHomeDao{
 					reContractList.setFinal_status(Long.parseLong(row[6]+""));
 					reContractList.setCreated_date(row[7]+"");
 					reContractList.setBorrower_fullname(row[8]+"");
-					reContractList.setBranch_id(Long.parseLong(row[9]+""));
-					reContractList.setRoom_code(Long.parseLong(row[10]+""));
+					reContractList.setBranch_id(Long.parseLong(row[10]+""));
+					reContractList.setRoom_code(Long.parseLong(row[9]+""));
 				}
 				System.out.println("----------------------------------------------");
 				lisResContractList.add(reContractList);
@@ -128,11 +169,11 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	      list.add(new Integer(19));
 		DBFintechHome dbFintechHome = new DBFintechHome();
 //		String a = "'18','19'";
-		List<ResContractList> lisResContractList = dbFintechHome.listResContractList(list1, list);
-		for (ResContractList resContractList : lisResContractList) {
-			System.out.println(resContractList.getLoan_code());
-		}
-		
-	      System.out.println(list);
+//		List<ResContractList> lisResContractList = dbFintechHome.listResContractList(list1, list);
+//		for (ResContractList resContractList : lisResContractList) {
+//			System.out.println(resContractList.getLoan_code());
+//		}
+//		
+//	      System.out.println(list);
 	}
 }

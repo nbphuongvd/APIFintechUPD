@@ -8,9 +8,9 @@ public class ReqContractList {
 	public String token;
 	public String from_date;
 	public String to_date;
-	public long branch_id; 				// id chi nhánh
-	public long calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
-	public long final_status; 			// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
+	public int branch_id; 				// id chi nhánh
+	public int calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
+	public int final_status; 			// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
 	public String loan_code;			// ma hop dong
 	public String id_number;			// cmt/ho chieu
 	public String borrower_name;		// tên khách hàng
@@ -58,27 +58,29 @@ public class ReqContractList {
 		this.to_date = to_date;
 	}
 
-	public long getBranch_id() {
+	
+
+	public int getBranch_id() {
 		return branch_id;
 	}
 
-	public void setBranch_id(long branch_id) {
+	public void setBranch_id(int branch_id) {
 		this.branch_id = branch_id;
 	}
 
-	public long getCalculate_profit_type() {
+	public int getCalculate_profit_type() {
 		return calculate_profit_type;
 	}
 
-	public void setCalculate_profit_type(long calculate_profit_type) {
+	public void setCalculate_profit_type(int calculate_profit_type) {
 		this.calculate_profit_type = calculate_profit_type;
 	}
 
-	public long getFinal_status() {
+	public int getFinal_status() {
 		return final_status;
 	}
 
-	public void setFinal_status(long final_status) {
+	public void setFinal_status(int final_status) {
 		this.final_status = final_status;
 	}
 
