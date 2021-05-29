@@ -8,12 +8,14 @@ public class ReqContractList {
 	public String token;
 	public String from_date;
 	public String to_date;
-	public int branch_id; 				// id chi nhánh
-	public int calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
-	public int final_status; 			// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
+	public String branch_id; 				// id chi nhánh
+	public String calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
+	public String final_status; 			// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
 	public String loan_code;			// ma hop dong
 	public String id_number;			// cmt/ho chieu
 	public String borrower_name;		// tên khách hàng
+	public String limit;
+	public String offSet;
 
 	public String toJSON(){
 		String json	=	"";
@@ -57,30 +59,28 @@ public class ReqContractList {
 	public void setTo_date(String to_date) {
 		this.to_date = to_date;
 	}
-
 	
-
-	public int getBranch_id() {
+	public String getBranch_id() {
 		return branch_id;
 	}
 
-	public void setBranch_id(int branch_id) {
+	public void setBranch_id(String branch_id) {
 		this.branch_id = branch_id;
 	}
 
-	public int getCalculate_profit_type() {
+	public String getCalculate_profit_type() {
 		return calculate_profit_type;
 	}
 
-	public void setCalculate_profit_type(int calculate_profit_type) {
+	public void setCalculate_profit_type(String calculate_profit_type) {
 		this.calculate_profit_type = calculate_profit_type;
 	}
 
-	public int getFinal_status() {
+	public String getFinal_status() {
 		return final_status;
 	}
 
-	public void setFinal_status(int final_status) {
+	public void setFinal_status(String final_status) {
 		this.final_status = final_status;
 	}
 
@@ -106,6 +106,22 @@ public class ReqContractList {
 
 	public void setBorrower_name(String borrower_name) {
 		this.borrower_name = borrower_name;
+	}
+
+	public String getLimit() {
+		return limit;
+	}
+
+	public void setLimit(String limit) {
+		this.limit = limit;
+	}
+
+	public String getOffSet() {
+		return offSet;
+	}
+
+	public void setOffSet(String offSet) {
+		this.offSet = offSet;
 	}
 	
 }

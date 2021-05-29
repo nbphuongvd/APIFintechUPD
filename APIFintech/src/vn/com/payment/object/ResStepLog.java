@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-public class ResAllContractList {
+import vn.com.payment.entities.TblLoanExpertiseSteps;
+
+public class ResStepLog {
 	public long status;
 	public String message;
-	public long totalRecord;
-	public List<ResContractList> contract_list;
+	public String loan_id;
+	public List<TblLoanExpertiseSteps> loan_logs;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -31,17 +33,17 @@ public class ResAllContractList {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public List<ResContractList> getContract_list() {
-		return contract_list;
+	public List<TblLoanExpertiseSteps> getLoan_logs() {
+		return loan_logs;
 	}
-	public void setContract_list(List<ResContractList> contract_list) {
-		this.contract_list = contract_list;
+	public void setLoan_logs(List<TblLoanExpertiseSteps> loan_logs) {
+		this.loan_logs = loan_logs;
 	}
-	public long getTotalRecord() {
-		return totalRecord;
+	public String getLoan_id() {
+		return loan_id;
 	}
-	public void setTotalRecord(long totalRecord) {
-		this.totalRecord = totalRecord;
+	public void setLoan_id(String loan_id) {
+		this.loan_id = loan_id;
 	}
 	
 }

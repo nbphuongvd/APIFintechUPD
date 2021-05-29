@@ -118,6 +118,26 @@ public class ApiController {
 	   return bussiness.getContractList(formParams);
    }
    
+   @POST
+   @Path("/api/getLogStepsList")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getLogStepsList(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getContractList");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getLogStepsList(formParams);
+   }
+   
+   @POST
+   @Path("/api/getContractDetail")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getContractDetail(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getContractList");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getContractDetail(formParams);
+   }
+   
 //   @POST
 //   @Path("/api/test")
 //   @Produces({MediaType.APPLICATION_JSON})

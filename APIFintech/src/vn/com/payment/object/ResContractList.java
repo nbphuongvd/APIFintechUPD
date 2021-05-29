@@ -12,8 +12,8 @@ public class ResContractList {
 	public long final_status; 
 	public String created_date; 
 	public String borrower_fullname; 
-	public long branch_id; 
-	public long room_code; // phong giao dich
+	public String branch_id; 
+	public String room_code; // phong giao dich
 
 	public String toJSON(){
 		String json	=	"";
@@ -98,21 +98,22 @@ public class ResContractList {
 		this.borrower_fullname = borrower_fullname;
 	}
 
-	public long getBranch_id() {
+	public String getBranch_id() {
 		return branch_id;
 	}
 
-	public void setBranch_id(long branch_id) {
+	public void setBranch_id(String branch_id) {
 		this.branch_id = branch_id;
 	}
 
-	public long getRoom_code() {
+	public String getRoom_code() {
 		return room_code;
 	}
 
-	public void setRoom_code(long room_code) {
+	public void setRoom_code(String room_code) {
 		this.room_code = room_code;
 	}
+
 	
 }
 //"loan_code":			tbl_loan_request

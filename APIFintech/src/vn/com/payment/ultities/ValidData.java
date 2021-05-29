@@ -14,9 +14,12 @@ import vn.com.payment.config.LogType;
 import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ResAllContractList;
+import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.object.ResStepLog;
 import vn.com.payment.services.UserInfo;
 
 import java.text.ParseException;
@@ -736,6 +739,91 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid resContractList exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	public ResStepLog validGetLogStepsList(ReqStepLog reqStepLog){
+		ResStepLog resStepLog = new ResStepLog();
+		List<ResContractList> resContractList = new ArrayList<>();
+		try {
+			if (ValidData.checkNull(reqStepLog.getUsername()) == false){
+				String messageErr = "Valid GetLogStepsList Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			if (ValidData.checkNull(reqStepLog.getToken()) == false){
+				String messageErr = "Valid GetLogStepsList token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			if (ValidData.checkNull(reqStepLog.getLoan_id()) == false){
+				String messageErr = "Valid GetLogStepsList loan_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			boolean checkLG = userInfo.checkLogin(reqStepLog.getUsername(), reqStepLog.getToken());
+			if(!checkLG){
+				FileLogger.log("GetLogStepsList: " + reqStepLog.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid resContractList exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	
+	public ResContractDetail validgetContractDetail(ReqStepLog reqStepLog){
+		ResContractDetail resStepLog = new ResContractDetail();
+		List<ResContractList> resContractList = new ArrayList<>();
+		try {
+			if (ValidData.checkNull(reqStepLog.getUsername()) == false){
+				String messageErr = "Valid validgetContractDetail Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			if (ValidData.checkNull(reqStepLog.getToken()) == false){
+				String messageErr = "Valid validgetContractDetail token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			if (ValidData.checkNull(reqStepLog.getLoan_id()) == false){
+				String messageErr = "Valid validgetContractDetail loan_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+			boolean checkLG = userInfo.checkLogin(reqStepLog.getUsername(), reqStepLog.getToken());
+			if(!checkLG){
+				FileLogger.log("validgetContractDetail: " + reqStepLog.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resStepLog.setStatus(statusFale);
+				resStepLog.setMessage(messageErr);
+				return resStepLog;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validgetContractDetail exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

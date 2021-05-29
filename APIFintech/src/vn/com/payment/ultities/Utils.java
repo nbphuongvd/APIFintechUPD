@@ -2,6 +2,7 @@ package vn.com.payment.ultities;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -101,7 +102,16 @@ public class Utils {
 		try {
 			return ft.parse(date);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Timestamp getTimeStampNow() {
+		try {
+			Timestamp fromTS1 = new Timestamp(new Date().getTime());
+			return fromTS1;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -139,17 +149,17 @@ public class Utils {
 		return id;
 	}
 
-	 public static String objectToGJson(Object obj){
-		  try {
-			  Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd-MM-yyyy HH:mm:ss").create();
-			  String json = gson.toJson(obj);
-			  return json;
-		  } catch (Exception e) {
-			  e.printStackTrace();
-		  }
-		  return null;
-	  }
-	 
+	public static String objectToGJson(Object obj) {
+		try {
+			Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat("dd-MM-yyyy HH:mm:ss").create();
+			String json = gson.toJson(obj);
+			return json;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static boolean checkNumberPhone(String number) {
 		Pattern pattern = Pattern.compile("(\\+84|0)\\d{9,10}"); // (\\+84|0)\\d{9,10}
 																	// ^[0-9]*$
@@ -168,43 +178,53 @@ public class Utils {
 			return false;
 		}
 	}
-	
+
 	public static String getTimeNow() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATETIME);
 		return format.format(new Date());
 	}
+
 	public static String getTimeNowDate() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
 		return format.format(new Date());
 	}
+
+	public static String getTimeStamp() {
+		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATESTAMP);
+		return format.format(new Date());
+	}
+	
 	public static String getTimeOut(int dateBefore) {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
 		Date dt = new Date();
-		Calendar c = Calendar.getInstance(); 
-		c.setTime(dt); 
+		Calendar c = Calendar.getInstance();
+		c.setTime(dt);
 		c.add(Calendar.MONTH, dateBefore);
 		dt = c.getTime();
-//		System.out.println(format.format(dt));
+		// System.out.println(format.format(dt));
 		return format.format(dt);
 	}
-	
+
 	public static String getTimeEXP() {
 		SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
 		Date dt = new Date();
-		Calendar c = Calendar.getInstance(); 
-		c.setTime(dt); 
+		Calendar c = Calendar.getInstance();
+		c.setTime(dt);
 		c.add(Calendar.DATE, 1);
 		dt = c.getTime();
-//		System.out.println(format.format(dt));
+		// System.out.println(format.format(dt));
 		return format.format(dt);
 	}
-	
-	public static String getNgayvay(String date){
+
+	public static String getNgayvay(String date) {
 		String result = "";
 		try {
 			Date date1 = new SimpleDateFormat("yyyyMMdd").parse(date);
 			SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE_OUT);
-			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			Calendar calendar = new GregorianCalendar(/*
+														 * remember about
+														 * timezone!
+														 */);
 			calendar.setTime(date1);
 			calendar.add(Calendar.DATE, 30);
 			Date dateReturn = calendar.getTime();
@@ -215,13 +235,16 @@ public class Utils {
 		}
 		return result;
 	}
-	
-	public static String getNgayvayNew(String date){
+
+	public static String getNgayvayNew(String date) {
 		String result = "";
 		try {
 			Date date1 = new SimpleDateFormat("MM/dd/yyyy").parse(date);
 			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-			Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+			Calendar calendar = new GregorianCalendar(/*
+														 * remember about
+														 * timezone!
+														 */);
 			calendar.setTime(date1);
 			Date dateReturn = calendar.getTime();
 			System.out.println(dateReturn);
@@ -231,7 +254,7 @@ public class Utils {
 		}
 		return result;
 	}
-	
+
 	public static String getRandomStr(int length) {
 		String stock = "0123456789abcdefghijklmnopqrstuvwxyz";
 		String ran = "";
@@ -240,22 +263,24 @@ public class Utils {
 		}
 		return ran;
 	}
-	
+
 	public static int getBillid() {
-		int random = (int)(Math.random()*(99999-00001+1)+00001);  
+		int random = (int) (Math.random() * (99999 - 00001 + 1) + 00001);
 		return random;
 	}
-	
-	public boolean sentNotify(String key, String userName, String subject, String content, String message_type, String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect, String service_code, String sub_service_code){
+
+	public boolean sentNotify(String key, String userName, String subject, String content, String message_type,
+			String is_html, String receive_email_expect, String receive_sms_expect, String receive_chat_id_expect,
+			String service_code, String sub_service_code) {
 		boolean sent = false;
 		try {
-			
-			String  message =  "Kính gửi: " + userName + " <br><br>";
-			message += "Ngày: " + getTimeNow() + " Mật khẩu của quý khách đã được thay đổi thành: "+ content+"<br>";
+
+			String message = "Kính gửi: " + userName + " <br><br>";
+			message += "Ngày: " + getTimeNow() + " Mật khẩu của quý khách đã được thay đổi thành: " + content + "<br>";
 			message += "\r\n Quý khách vui lòng nhập đăng nhập lại với mật khẩu mới.<br><br>";
 			message += "\r\n";
 			message += "\r\n Trân trọng!";
-			
+
 			NotifyObject notifyObject = new NotifyObject();
 			notifyObject.setSubject(subject);
 			notifyObject.setContent(message);
@@ -271,9 +296,9 @@ public class Utils {
 			RedisBusiness redisBusiness = new RedisBusiness();
 			boolean checkPush = redisBusiness.enQueueToRedis(key, notifyObject.toJSON());
 			FileLogger.log("sentNotify checkPush : " + checkPush, LogType.USERINFO);
-			if(checkPush){
+			if (checkPush) {
 				sent = true;
-			}else{
+			} else {
 				sent = false;
 			}
 		} catch (Exception e) {
@@ -282,9 +307,11 @@ public class Utils {
 		return sent;
 	}
 
-	 
 	public static void main(String[] args) {
-		System.out.println(minuteToHouse(5l));
+//		Timestamp getTimeStampNow()
+		System.out.println(new Date());
+		System.out.println(Utils.getTimeStampNow());
+		String s = new SimpleDateFormat("yyMMdd").format(Utils.getTimeStampNow());
+		System.out.println("a:"+ s);
 	}
-
 }

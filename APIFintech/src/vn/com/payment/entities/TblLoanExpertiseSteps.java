@@ -1,6 +1,7 @@
 package vn.com.payment.entities;
 // Generated 28-May-2021 16:01:10 by Hibernate Tools 3.5.0.Final
 
+import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +22,7 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 	private Integer loanExpertiseId;
 	private int loanId;
 	private String expertiseUser;
-	private Date expertiseDate;
+	private Timestamp expertiseDate;
 	private Integer expertiseStatus;
 	private Integer expertiseStep;
 	private String expertiseComment;
@@ -33,7 +34,7 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 		this.loanId = loanId;
 	}
 
-	public TblLoanExpertiseSteps(int loanId, String expertiseUser, Date expertiseDate, Integer expertiseStatus,
+	public TblLoanExpertiseSteps(int loanId, String expertiseUser, Timestamp expertiseDate, Integer expertiseStatus,
 			Integer expertiseStep, String expertiseComment) {
 		this.loanId = loanId;
 		this.expertiseUser = expertiseUser;
@@ -79,7 +80,7 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 		return this.expertiseDate;
 	}
 
-	public void setExpertiseDate(Date expertiseDate) {
+	public void setExpertiseDate(Timestamp expertiseDate) {
 		this.expertiseDate = expertiseDate;
 	}
 
