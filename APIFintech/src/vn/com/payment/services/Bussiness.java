@@ -10,12 +10,14 @@ import vn.com.payment.entities.TblLoanExpertiseSteps;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblLoanRequestAskAns;
+import vn.com.payment.entities.TblLoanRequestAskAnsGen;
 import vn.com.payment.entities.TblProduct;
 import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.home.AccountHome;
 import vn.com.payment.home.BaseMongoDB;
 import vn.com.payment.home.DBFintechHome;
 import vn.com.payment.home.TblBanksHome;
+import vn.com.payment.home.TblLoanBillHome;
 import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.home.TblRateConfigHome;
@@ -52,6 +54,7 @@ import vn.com.payment.redis.RedisBusiness;
 import vn.com.payment.thread.ThreadInsertLogStep;
 import vn.com.payment.ultities.Commons;
 import vn.com.payment.ultities.FileLogger;
+import vn.com.payment.ultities.GsonUltilities;
 import vn.com.payment.ultities.MD5;
 import vn.com.payment.ultities.TripleDES;
 import vn.com.payment.ultities.Utils;
@@ -59,6 +62,7 @@ import vn.com.payment.ultities.ValidData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
@@ -70,6 +74,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Currency;
 import java.util.Date;
@@ -104,13 +109,16 @@ import org.omg.PortableServer.ServantLocatorOperations;
 import org.springframework.util.Base64Utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 public class Bussiness {
 	AccountHome accountHome = new AccountHome();
 	TblProductHome tblProductHome = new TblProductHome();
 	TblRateConfigHome tblRateConfigHome = new TblRateConfigHome();
 	TblLoanRequestHome tbLoanRequestHome = new TblLoanRequestHome();
+	TblLoanBillHome tblLoanBillHome = new TblLoanBillHome();
 	TblBanksHome tblBanksHome = new TblBanksHome();
 	BaseMongoDB mongoDB = new BaseMongoDB();
 	Caculator caculator = new Caculator();
@@ -384,6 +392,15 @@ public class Bussiness {
 			TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
 			BigInteger loanID = tblLoanReqDetailHome.getIDAutoIncrement();
 			System.out.println(loanID);
+			
+//		1	Nhận tiền qua  - disburse_to - tbl_loan_req_detail
+//		2	Loại sản phẩm - borrower_type  - tbl_loan_req_detail
+//		3	Thương hiệu - product_brand - tbl_loan_req_detail
+//		4	Cách tính lãi - calculate_profit_type - tbl_loan_request
+//		5	Số tháng vay - loan_for_month - tbl_loan_request
+//		6	Serial HĐ - product_serial_no - tbl_loan_req_detail
+//		7	Ngày vay - created_date - tbl_loan_request
+//		8	Ngày trả - disbursement_date - tbl_loan_req_detail
 
 			TblLoanRequest tblLoanRequest = new TblLoanRequest();
 			tblLoanRequest.setLoanId(loanID.intValue());
@@ -402,16 +419,19 @@ public class Bussiness {
 			tblLoanRequest.setRoomId(room_id);
 			tblLoanRequest.setCalculateProfitType((int) reqCreaterLoan.getCalculate_profit_type());
 			tblLoanRequest.setLoanForMonth((int) reqCreaterLoan.getLoan_amount());
+			tblLoanRequest.setLoanForMonth((int)reqCreaterLoan.getLoan_for_month());
 
 			TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
-			// tblLoanReqDetail.setProductBrand(reqCreaterLoan.getProduct_brand());
+			tblLoanReqDetail.setDisburseTo((int)reqCreaterLoan.getDisburse_to());
 			tblLoanReqDetail.setProductModal(reqCreaterLoan.getProduct_modal());
+			tblLoanReqDetail.setProductBrand(Integer.parseInt(reqCreaterLoan.getProduct_brand()));
 			tblLoanReqDetail.setTotalRun((int) reqCreaterLoan.getTotal_run());
 			tblLoanReqDetail.setProductCondition((int) reqCreaterLoan.getProduct_condition());
 			tblLoanReqDetail.setProductOwnByBorrower((int) reqCreaterLoan.getProduct_own_by_borrower());
 			tblLoanReqDetail.setProductSerialNo(reqCreaterLoan.getProduct_serial_no());
 			tblLoanReqDetail.setProductColor(reqCreaterLoan.getProduct_color());
 			tblLoanReqDetail.setBorrowerType((int) reqCreaterLoan.getBorrower_type());
+			tblLoanReqDetail.setDisbursementDate(Integer.parseInt(reqCreaterLoan.getLoan_expect_date()));
 			try {
 				tblLoanReqDetail.setBorrowerPhone(reqCreaterLoan.getBorrower_phone());
 				tblLoanReqDetail.setBorrowerEmail(reqCreaterLoan.getBorrower_email());
@@ -421,16 +441,8 @@ public class Bussiness {
 			tblLoanReqDetail.setDisburseToBankNo(reqCreaterLoan.getDisburse_to_bank_no());
 			tblLoanReqDetail.setDisburseToBankName(reqCreaterLoan.getDisburse_to_bank_name());
 			tblLoanReqDetail.setDisburseToBankCode(reqCreaterLoan.getDisburse_to_bank_code());
-			// tblLoanReqDetail.setReqDetailId(31);
 			tblLoanReqDetail.setLoanId(loanID.intValue());
-			// tblLoanReqDetail.setProductId(aa.intValue());
-			// tblLoanReqDetail.setProductName("d_date,edited_date,disbursement_date"
-			// + aa.intValue());
-			// tblLoanReqDetail.setImportFrom(aa.intValue());
-			// tblLoanReqDetail.setManufactureDate(aa.intValue());
-			// tblLoanReqDetail.setExpectAmount(500000);
-			// tblLoanReqDetail.setBorrowerId(0);
-			// tblLoanReqDetail.setApprovedAmount(500000l);
+
 			tblLoanReqDetail.setCreatedDate(new Date());
 			tblLoanReqDetail.setEditedDate(new Date());
 			tblLoanReqDetail.setExpectAmount(reqCreaterLoan.getLoan_amount());
@@ -446,6 +458,11 @@ public class Bussiness {
 			tblLoanReqDetail.setBorrowerBirthday((int) reqCreaterLoan.getBorrower_birthday());
 			tblLoanReqDetail.setProductMachineNumber(reqCreaterLoan.getProduct_machine_number());
 			tblLoanReqDetail.setBankBranch(reqCreaterLoan.getBank_branch());
+			tblLoanReqDetail.setDisburseTo((int) reqCreaterLoan.getDisburse_to());
+//			tblLoanReqDetail.setFees(reqCreaterLoan.getFees().toString());
+			tblLoanReqDetail.setChangeFee(Integer.parseInt(reqCreaterLoan.getChange_fee()));
+			
+			
 
 			List<TblImages> imagesListSet = new ArrayList<>();
 			if (reqCreaterLoan.getImages() != null) {
@@ -454,6 +471,7 @@ public class Bussiness {
 					TblImages tblImages = new TblImages();
 					tblImages.setLoanRequestDetailId(loanID.intValue());
 					tblImages.setImageName(objImage.getImage_name());
+					tblImages.setImageInputName(objImage.getImage_input_name());
 					tblImages.setPartnerImageId(objImage.getPartner_image_id());
 					tblImages.setImageType((int) objImage.getImage_type());
 					tblImages.setImageByte(objImage.getImage_byte());
@@ -463,29 +481,43 @@ public class Bussiness {
 				}
 			}
 
+			String feeStr = "";
 			List<Fees> feesListSet = reqCreaterLoan.getFees();
-
+//			for (Fees fees : feesListSet) {
+//				if(feeStr.equals("")){
+////					feeStr = feeStr + "[" + fees.toJSON();
+//					feeStr = feeStr + fees.toJSON();
+//				}else{
+//					feeStr = feeStr + "," + fees.toJSON();
+//				}
+//			}
+//			JSONArray jArray = new JSONArray(feeStr);
+			tblLoanReqDetail.setFees(gson.toJson(feesListSet));
+//			tblLoanReqDetail.setQAThamDinh1(gson.toJson(questionsList));
 			// Bussiness bussiness = new Bussiness();
 			String billID = Utils.getTimeNowDate() + "_" + Utils.getBillid();
 			double sotienvay = (double) reqCreaterLoan.getLoan_amount();
 			double sothangvay = (double) reqCreaterLoan.getLoan_for_month();
 			double loaitrano = (double) reqCreaterLoan.getCalculate_profit_type();
-			List<TblLoanBill> illustrationNewLoanBill = caculator.illustrationNewLoanBill(reqCreaterLoan.getUsername(),
-					billID, sotienvay, sothangvay, reqCreaterLoan.getLoan_expect_date(), loaitrano, feesListSet,
-					loanID.intValue());
+			List<TblLoanBill> illustrationNewLoanBill = caculator.illustrationNewLoanBill(reqCreaterLoan.getUsername(), billID, sotienvay, sothangvay, reqCreaterLoan.getLoan_expect_date(), loaitrano, feesListSet,loanID.intValue());
 
 			int percentAns = 0;
 			TblLoanRequestAskAns tblLoanRequestAskAns = new TblLoanRequestAskAns();
 			if ((reqCreaterLoan.getQuestion_and_answears()) != null) {
 				List<ObjQuestions> questionsList = reqCreaterLoan.getQuestion_and_answears();
-				String q_a_tham_dinh_1 = "";
-				int totalQ = 0;
-				int totalTrus = 0;
-				for (ObjQuestions objQuestions : questionsList) {
-					q_a_tham_dinh_1 = q_a_tham_dinh_1 + objQuestions.toJSON();
-				}
+//				List<ObjQuestions> questionsList1 = new ArrayList<>();
+//				String q_a_tham_dinh_1 = "";
+//				int totalQ = 0;
+//				int totalTrus = 0;
+//				
+//				Gson gson = new Gson();
+//				for (ObjQuestions objQuestions : questionsList) {
+////					q_a_tham_dinh_1 = q_a_tham_dinh_1 + objQuestions.toJSON();
+//					questionsList1.add(objQuestions);
+//				}
 				tblLoanRequestAskAns.setLoanId(loanID.intValue());
-				tblLoanRequestAskAns.setQAThamDinh1(q_a_tham_dinh_1);
+//				tblLoanRequestAskAns.setQAThamDinh1(q_a_tham_dinh_1);
+				tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
 				// percentAns =
 				// caculator.questionPercent(reqCreaterLoan.getUsername(),
 				// questionsList);
@@ -499,6 +531,8 @@ public class Bussiness {
 			tblLoanRequest.setFinalStatus(statusPending);
 			tblLoanRequest.setPreviousStatus(statusPending);
 			// }
+			System.out.println("createrLoan: " + reqCreaterLoan.getUsername() + " tblLoanReqDetail: "
+					+ gson.toJson(tblLoanReqDetail));
 			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername() + " tblLoanReqDetail: "
 					+ gson.toJson(tblLoanReqDetail), LogType.BUSSINESS);
 			FileLogger.log(
@@ -529,6 +563,8 @@ public class Bussiness {
 				tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
 				tblLoanExpertiseSteps.setExpertiseStep(1);
 				tblLoanExpertiseSteps.setExpertiseComment("");
+				tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
+				tblLoanExpertiseSteps.setAction(reqCreaterLoan.getAction());
 
 				Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
 				t.start();
@@ -567,8 +603,7 @@ public class Bussiness {
 			ResAllContractList resCreaterLoanValid = validData.validGetContractList(reqContractList);
 			if (resCreaterLoanValid != null) {
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
-				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resCreaterLoanValid.toJSON())
-						.build();
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resCreaterLoanValid.toJSON()).build();
 			}
 			Account acc = accountHome.getAccountUsename(reqContractList.getUsername());
 			List<Integer> branchID = new ArrayList<>();
@@ -661,9 +696,10 @@ public class Bussiness {
 					}
 				}
 			}
-			boolean checkLoan = dbFintechHome.checkLoan(branchID, roomID, Integer.parseInt(reqStepLog.getLoan_id()));
-			if (checkLoan) {
-				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome.getLoanExpertiseSteps(Integer.parseInt(reqStepLog.getLoan_id()));
+//			boolean checkLoan = dbFintechHome.checkLoan(branchID, roomID, reqStepLog.getLoan_id());
+			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqStepLog.getLoan_id());
+			if (tblLoanRequest != null) {
+				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome.getLoanExpertiseSteps(tblLoanRequest.getLoanId());
 				if (getLoanExpertiseSteps != null) {
 					resStepLog.setStatus(statusSuccess);
 					resStepLog.setMessage("Yeu cau thanh cong");
@@ -722,7 +758,7 @@ public class Bussiness {
 					}
 				}
 			}
-			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, Integer.parseInt(reqStepLog.getLoan_id()));
+			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqStepLog.getLoan_id());
 //			boolean checkLoan = dbFintechHome.checkLoan(branchID, roomID, Integer.parseInt(reqStepLog.getLoan_id()));
 			if (tblLoanRequest != null) {			
 				resContractDetail.setStatus(statusSuccess);
@@ -734,8 +770,18 @@ public class Bussiness {
 				resContractDetail.setFinal_status(tblLoanRequest.getFinalStatus().toString());
 				resContractDetail.setLoan_code(tblLoanRequest.getLoanCode());
 				resContractDetail.setLoan_name(tblLoanRequest.getLoanName());
+				resContractDetail.setCalculate_profit_type(tblLoanRequest.getCalculateProfitType().toString());
+				resContractDetail.setLoan_for_month(tblLoanRequest.getLoanForMonth().toString());	
+				
+//				Nhận tiền qua  	- disburse_to 			- tbl_loan_req_detail
+//				Loại sản phẩm 	- borrower_type  		- tbl_loan_req_detail
+//				Thương hiệu 	- product_brand 		- tbl_loan_req_detail
+//				Cách tính lãi	- calculate_profit_type - tbl_loan_request
+//				Số tháng vay 	- loan_for_month 		- tbl_loan_request
+//				Serial HĐ 		- product_serial_no 	- tbl_loan_req_detail
+//				Ngày vay 		- created_date 			- tbl_loan_request
 
-				TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(Integer.parseInt(reqStepLog.getLoan_id()));
+				TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
 				try {
 					ResContractList getBranchRoom = dbFintechHome.getBranchRoom(tblLoanRequest.getBranchId(), tblLoanRequest.getRoomId(), tblLoanRequest.getLoanId());
 					resContractDetail.setBranch(getBranchRoom.getBranch_id());
@@ -743,23 +789,46 @@ public class Bussiness {
 				} catch (Exception e) {
 				}
 				try {
-					List<TblImages> tblImages = dbFintechHome.getTblImages(tblLoanReqDetail.getReqDetailId());
+					List<TblImages> tblImages = dbFintechHome.getTblImages(tblLoanRequest.getLoanId());
 					resContractDetail.setImages(tblImages);
 				} catch (Exception e) {
 				}
 				try {
-					List<TblLoanRequestAskAns> tblLoanRequestAskAns = dbFintechHome.getRequestAskAns(Integer.parseInt(reqStepLog.getLoan_id()));
-					resContractDetail.setQuestion_and_answears(tblLoanRequestAskAns);
+					List<TblLoanRequestAskAns> tblLoanRequestAskAns = dbFintechHome.getRequestAskAns(tblLoanRequest.getLoanId());
+					
+					List<TblLoanRequestAskAnsGen> resListLoanRequestAskAns = new ArrayList<>();
+					Type listTypeAskAns = new TypeToken<List<Object>>() {}.getType();
+					for (TblLoanRequestAskAns tblAskAns : tblLoanRequestAskAns) {
+						TblLoanRequestAskAnsGen tblLoanRequestAskAnsGen = new TblLoanRequestAskAnsGen();
+						ArrayList<Object> lstObj = GsonUltilities.fromJson(tblAskAns.getQAThamDinh1(), listTypeAskAns);
+						tblLoanRequestAskAnsGen.setQAId(tblAskAns.getQAId());
+						tblLoanRequestAskAnsGen.setLoanId(tblAskAns.getLoanId());
+						tblLoanRequestAskAnsGen.setQAThamDinh2(tblAskAns.getQAThamDinh2());
+						tblLoanRequestAskAnsGen.setThamDinh1Rate(tblAskAns.getThamDinh1Rate());
+						tblLoanRequestAskAnsGen.setThamDinh2Rate(tblAskAns.getThamDinh2Rate());
+						tblLoanRequestAskAnsGen.setQAThamDinh1(lstObj);
+						resListLoanRequestAskAns.add(tblLoanRequestAskAnsGen);
+					}
+					resContractDetail.setQuestion_and_answears(resListLoanRequestAskAns);
 				} catch (Exception e) {
 				}
+				Type listType = new TypeToken<List<Object>>() {}.getType();
+				ArrayList<Object> lstObj = GsonUltilities.fromJson(tblLoanReqDetail.getFees(), listType);
+				resContractDetail.setFees(lstObj);
+				tblLoanReqDetail.setFees("");
 				resContractDetail.setLoan_req_detail(tblLoanReqDetail);
-
+				try {
+					List<TblLoanBill> listLoanBill = tblLoanBillHome.getTblLoanBill(tblLoanRequest.getLoanId());
+					resContractDetail.setLoanBill(listLoanBill);
+				} catch (Exception e) {
+				}
+				
 			}else{
 				resContractDetail.setStatus(statusFale);
 				resContractDetail.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
 			}
 			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
-			FileLogger.log("getContractList: " + reqStepLog.getUsername() + " response to client:" + resContractDetail.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("getContractList: " + reqStepLog.getUsername() + " response to client:" + resContractDetail.toJSON().replace("'\'", ""), LogType.BUSSINESS);
 			FileLogger.log("----------------Ket thuc getContractList: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resContractDetail.toJSON()).build();
 		} catch (Exception e) {
@@ -935,6 +1004,7 @@ public class Bussiness {
 			}
 			System.out.println("aa: " + branchID);
 			System.out.println("aa: " + roomID);
+			String aaa = "";
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

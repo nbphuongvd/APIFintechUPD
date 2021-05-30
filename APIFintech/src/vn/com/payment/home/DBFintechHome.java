@@ -81,7 +81,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 								+ "ld.borrowerPhone, ld.productBrand, "
 								+ "ld.approvedAmount, lr.finalStatus, "
 								+ "lr.createdDate, ld.borrowerFullname, "
-								+ "tr.roomName, br.branchName "
+								+ "tr.roomName, br.branchName, lr.loanId "
 								+ "FROM TblLoanReqDetail ld "
 								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
 								+ "INNER JOIN Branch br ON br.rowId in lr.branchId "
@@ -157,8 +157,9 @@ public class DBFintechHome extends BaseSqlHomeDao{
 					reContractList.setFinal_status(Long.parseLong(row[6]+""));
 					reContractList.setCreated_date(row[7]+"");
 					reContractList.setBorrower_fullname(row[8]+"");
-					reContractList.setBranch_id(row[10]+"");
 					reContractList.setRoom_code(row[9]+"");
+					reContractList.setBranch_id(row[10]+"");
+					reContractList.setLoan_id(Long.parseLong(row[11]+""));
 				}
 				System.out.println("----------------------------------------------");
 				lisResContractList.add(reContractList);
@@ -293,7 +294,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
-	public boolean checkLoan(List<Integer> branchID, List<Integer> roomID, int loanID) {
+	public boolean checkLoan(List<Integer> branchID, List<Integer> roomID, String loanID) {
 		Session session = null;
 		Transaction tx = null;
 		List<Object> list = null;
@@ -309,7 +310,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			System.out.println("sql: "+ sql);
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
-			query.setParameter("loanID", loanID);
+			query.setParameter("loanCode", loanID);
 			query.setParameter("listRoom", roomID);
 			query.setParameter("listbranchId", branchID);
 			list = query.getResultList();
@@ -330,7 +331,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	}
 	
 	
-	public TblLoanRequest getLoan(List<Integer> branchID, List<Integer> roomID, int loanID) {
+	public TblLoanRequest getLoan(List<Integer> branchID, List<Integer> roomID, String loanID) {
 		Session session = null;
 		Transaction tx = null;
 		List<Object> list = null;
@@ -339,7 +340,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			String sql = "FROM TblLoanRequest Where "
-								+ "loanId =:loanID and "
+								+ "loanCode =:loanID and "
 								+ "roomId in :listRoom and "
 								+ "branchId in :listbranchId";
 			System.out.println("sql: "+ sql);
@@ -512,7 +513,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 				}
 			}
 		}
-		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, 67);
+		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "");
 		System.out.println(lisResContractList.getLoanName());
 //		for (ResContractList resContractList : lisResContractList) {
 //			System.out.println(resContractList.getLoan_code());

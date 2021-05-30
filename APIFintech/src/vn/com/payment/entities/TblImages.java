@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated 27-May-2021 15:21:49 by Hibernate Tools 3.5.0.Final
+// Generated May 30, 2021 1:21:56 AM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -28,6 +28,7 @@ public class TblImages implements java.io.Serializable {
 	private String partnerImageId;
 	private Integer imageStatus;
 	private Date deleteDate;
+	private String imageInputName;
 
 	public TblImages() {
 	}
@@ -37,7 +38,8 @@ public class TblImages implements java.io.Serializable {
 	}
 
 	public TblImages(int loanRequestDetailId, Integer imageType, String imageByte, String imageUrl,
-			Integer imageIsFront, String imageName, String partnerImageId, Integer imageStatus, Date deleteDate) {
+			Integer imageIsFront, String imageName, String partnerImageId, Integer imageStatus, Date deleteDate,
+			String imageInputName) {
 		this.loanRequestDetailId = loanRequestDetailId;
 		this.imageType = imageType;
 		this.imageByte = imageByte;
@@ -47,6 +49,7 @@ public class TblImages implements java.io.Serializable {
 		this.partnerImageId = partnerImageId;
 		this.imageStatus = imageStatus;
 		this.deleteDate = deleteDate;
+		this.imageInputName = imageInputName;
 	}
 
 	@Id
@@ -115,7 +118,7 @@ public class TblImages implements java.io.Serializable {
 		this.imageName = imageName;
 	}
 
-	@Column(name = "partner_image_id", length = 200)
+	@Column(name = "partner_image_id", length = 150)
 	public String getPartnerImageId() {
 		return this.partnerImageId;
 	}
@@ -141,6 +144,15 @@ public class TblImages implements java.io.Serializable {
 
 	public void setDeleteDate(Date deleteDate) {
 		this.deleteDate = deleteDate;
+	}
+
+	@Column(name = "image_input_name")
+	public String getImageInputName() {
+		return this.imageInputName;
+	}
+
+	public void setImageInputName(String imageInputName) {
+		this.imageInputName = imageInputName;
 	}
 
 }

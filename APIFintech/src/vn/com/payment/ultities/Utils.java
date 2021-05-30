@@ -216,6 +216,24 @@ public class Utils {
 		return format.format(dt);
 	}
 
+	
+	public static String getNgayTrano(int sothangvay, String ngayvay) {
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("yyyyMMdd").parse(ngayvay);
+			SimpleDateFormat format = new SimpleDateFormat(MainCfg.FORMATTER_DATE);
+			Calendar calendar = new GregorianCalendar();
+			calendar.setTime(date1);
+			calendar.add(Calendar.DATE, sothangvay);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
 	public static String getNgayvay(String date) {
 		String result = "";
 		try {

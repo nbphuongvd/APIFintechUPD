@@ -20,7 +20,7 @@ public class MainCfg extends BaseConfig {
 	public static int 	 TIME_RETRY_CHECKPENDING = 60000;
 	public static String GATEWAY_ID			 	 = "";
 	public static String FORMATTER_DATETIME		=	"yyyy-MM-dd HH:mm:ss";
-	public static String FORMATTER_DATE			=	"yyyyMdd";
+	public static String FORMATTER_DATE			=	"yyyyMMdd";
 	public static String FORMATTER_DATESTAMP	=	"yyMdd";
 	public static String FORMATTER_DATE_OUT		=	"MM/dd/yyyy";
 	

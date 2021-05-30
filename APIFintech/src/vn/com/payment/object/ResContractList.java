@@ -3,6 +3,7 @@ package vn.com.payment.object;
 import com.google.gson.Gson;
 
 public class ResContractList {
+	public long loan_id;
 	public String loan_code;
 	public String loan_name;
 	public long id_number;
@@ -24,6 +25,14 @@ public class ResContractList {
 			e.printStackTrace();
 		}
 		return json;
+	}
+	
+	public long getLoan_id() {
+		return loan_id;
+	}
+
+	public void setLoan_id(long loan_id) {
+		this.loan_id = loan_id;
 	}
 
 	public String getLoan_code() {

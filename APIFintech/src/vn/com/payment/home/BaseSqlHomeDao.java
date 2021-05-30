@@ -209,7 +209,7 @@ public class BaseSqlHomeDao {
 			// session
 			Transaction tx = session.beginTransaction();
 			Object result = session.merge(detachedInstance);
-
+			
 			// log.debug("merge successful");
 			tx.commit();
 			return result;

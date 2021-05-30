@@ -317,7 +317,7 @@ public class Caculator {
 			double tinhphituvan = 0;
 			double tientrahangthang = 0;
 			double tinhphitattoan = 0;
-
+			int ngaytrano =  Integer.parseInt(Utils.getNgayTrano((int)sothangvay, ngayvay));
 			if (loaitrano == 1) {
 				// Lịch trả nợ theo dư nợ giảm dần
 				int kyvay = 0;
@@ -410,6 +410,7 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu_a));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
+					tblLoanBill.setDayMustPay(ngaytrano);
 					feesListSet.add(tblLoanBill);
 					kyvay = kyvay + 1;
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));
@@ -504,6 +505,7 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
+					tblLoanBill.setDayMustPay(ngaytrano);
 					feesListSet.add(tblLoanBill);
 
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));

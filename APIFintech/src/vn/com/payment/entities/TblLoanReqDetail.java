@@ -1,7 +1,9 @@
 package vn.com.payment.entities;
-// Generated 28-May-2021 16:04:13 by Hibernate Tools 3.5.0.Final
+// Generated May 30, 2021 3:52:30 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -55,6 +57,9 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private String contractSerialNum;
 	private String bankBranch;
 	private Integer idExpireDate;
+	private String fees;
+	private Integer changeFee;
+	
 
 	public TblLoanReqDetail() {
 	}
@@ -75,7 +80,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 			String disburseToBankName, String disburseToBankCode, Long productValuation, Long borrowerIncome,
 			String borrowerFullname, String borrowerAddress, String idIssueAt, Integer idIssueDate, String productDesc,
 			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum, String bankBranch,
-			Integer idExpireDate) {
+			Integer idExpireDate, String fees, Integer changeFee) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.importFrom = importFrom;
@@ -112,6 +117,8 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.contractSerialNum = contractSerialNum;
 		this.bankBranch = bankBranch;
 		this.idExpireDate = idExpireDate;
+		this.fees = fees;
+		this.changeFee = changeFee;
 	}
 
 	@Id
@@ -452,4 +459,21 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.idExpireDate = idExpireDate;
 	}
 
+	@Column(name = "fees", length = 5000)
+	public String getFees() {
+		return this.fees;
+	}
+
+	public void setFees(String fees) {
+		this.fees = fees;
+	}
+
+	@Column(name = "change_fee")
+	public Integer getChangeFee() {
+		return this.changeFee;
+	}
+
+	public void setChangeFee(Integer changeFee) {
+		this.changeFee = changeFee;
+	}
 }

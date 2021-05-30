@@ -8,6 +8,13 @@ public class Fees {
 	public long fee_type;
 	public double fix_fee_amount;
 	public double fix_fee_percent;
+	public String extra_fee_id;
+	public String extra_fee_name;
+	public String extra_fee_code;
+	public String created_by;
+	public String pay_type;
+	public String created_date;
+
 	public String toJSON(){
 	String json	=	"";
 		try {
@@ -43,5 +50,52 @@ public class Fees {
 		this.fix_fee_percent = fix_fee_percent;
 	}
 
+	public String getExtra_fee_id() {
+		return extra_fee_id;
+	}
+
+	public void setExtra_fee_id(String extra_fee_id) {
+		this.extra_fee_id = extra_fee_id;
+	}
+
+	public String getExtra_fee_name() {
+		return extra_fee_name;
+	}
+
+	public void setExtra_fee_name(String extra_fee_name) {
+		this.extra_fee_name = extra_fee_name;
+	}
+
+	public String getExtra_fee_code() {
+		return extra_fee_code;
+	}
+
+	public void setExtra_fee_code(String extra_fee_code) {
+		this.extra_fee_code = extra_fee_code;
+	}
+
+	public String getCreated_by() {
+		return created_by;
+	}
+
+	public void setCreated_by(String created_by) {
+		this.created_by = created_by;
+	}
+
+	public String getPay_type() {
+		return pay_type;
+	}
+
+	public void setPay_type(String pay_type) {
+		this.pay_type = pay_type;
+	}
+
+	public String getCreated_date() {
+		return created_date;
+	}
+
+	public void setCreated_date(String created_date) {
+		this.created_date = created_date;
+	}
 	
 }

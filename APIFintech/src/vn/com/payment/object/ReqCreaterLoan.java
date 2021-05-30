@@ -11,6 +11,8 @@ public class ReqCreaterLoan {
 	public String token;
 	public String loan_code;
 	public String loan_name;
+	public String action;
+	public String change_fee; //1 : có thay đổi  0 : không thay đổi
 	public long loan_amount;
 	public long calculate_profit_type;
 	public long loan_for_month;
@@ -70,6 +72,12 @@ public class ReqCreaterLoan {
 		this.token = token;
 	}
 	
+	public String getAction() {
+		return action;
+	}
+	public void setAction(String action) {
+		this.action = action;
+	}
 	public String getLoan_code() {
 		return loan_code;
 	}
@@ -295,5 +303,10 @@ public class ReqCreaterLoan {
 	public void setBank_branch(String bank_branch) {
 		this.bank_branch = bank_branch;
 	}
-	
+	public String getChange_fee() {
+		return change_fee;
+	}
+	public void setChange_fee(String change_fee) {
+		this.change_fee = change_fee;
+	}
 }

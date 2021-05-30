@@ -1,7 +1,6 @@
 package vn.com.payment.entities;
-// Generated 28-May-2021 16:01:10 by Hibernate Tools 3.5.0.Final
+// Generated May 30, 2021 1:42:24 PM by Hibernate Tools 3.5.0.Final
 
-import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,10 +21,13 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 	private Integer loanExpertiseId;
 	private int loanId;
 	private String expertiseUser;
-	private Timestamp expertiseDate;
+	private Date expertiseDate;
 	private Integer expertiseStatus;
 	private Integer expertiseStep;
 	private String expertiseComment;
+	private String loanCode;
+	private String action;
+	private Date createdDate;
 
 	public TblLoanExpertiseSteps() {
 	}
@@ -34,14 +36,17 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 		this.loanId = loanId;
 	}
 
-	public TblLoanExpertiseSteps(int loanId, String expertiseUser, Timestamp expertiseDate, Integer expertiseStatus,
-			Integer expertiseStep, String expertiseComment) {
+	public TblLoanExpertiseSteps(int loanId, String expertiseUser, Date expertiseDate, Integer expertiseStatus,
+			Integer expertiseStep, String expertiseComment, String loanCode, String action, Date createdDate) {
 		this.loanId = loanId;
 		this.expertiseUser = expertiseUser;
 		this.expertiseDate = expertiseDate;
 		this.expertiseStatus = expertiseStatus;
 		this.expertiseStep = expertiseStep;
 		this.expertiseComment = expertiseComment;
+		this.loanCode = loanCode;
+		this.action = action;
+		this.createdDate = createdDate;
 	}
 
 	@Id
@@ -80,7 +85,7 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 		return this.expertiseDate;
 	}
 
-	public void setExpertiseDate(Timestamp expertiseDate) {
+	public void setExpertiseDate(Date expertiseDate) {
 		this.expertiseDate = expertiseDate;
 	}
 
@@ -109,6 +114,34 @@ public class TblLoanExpertiseSteps implements java.io.Serializable {
 
 	public void setExpertiseComment(String expertiseComment) {
 		this.expertiseComment = expertiseComment;
+	}
+
+	@Column(name = "loan_code")
+	public String getLoanCode() {
+		return this.loanCode;
+	}
+
+	public void setLoanCode(String loanCode) {
+		this.loanCode = loanCode;
+	}
+
+	@Column(name = "action")
+	public String getAction() {
+		return this.action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "createdDate", length = 10)
+	public Date getCreatedDate() {
+		return this.createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 
 }

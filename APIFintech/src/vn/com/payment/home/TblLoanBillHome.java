@@ -1,13 +1,23 @@
 package vn.com.payment.home;
 // Generated 25-May-2021 21:30:25 by Hibernate Tools 3.5.0.Final
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 
+import vn.com.payment.config.LogType;
 import vn.com.payment.entities.TblLoanBill;
+import vn.com.payment.entities.TblLoanReqDetail;
+import vn.com.payment.ultities.FileLogger;
 
 /**
  * Home object for domain model class TblLoanBill.
@@ -15,7 +25,7 @@ import vn.com.payment.entities.TblLoanBill;
  * @author Hibernate Tools
  */
 @Stateless
-public class TblLoanBillHome {
+public class TblLoanBillHome extends BaseSqlHomeDao{
 
 	private static final Log log = LogFactory.getLog(TblLoanBillHome.class);
 
@@ -33,38 +43,23 @@ public class TblLoanBillHome {
 		}
 	}
 
-	public void remove(TblLoanBill persistentInstance) {
-		log.debug("removing TblLoanBill instance");
+	public List<TblLoanBill> getTblLoanBill(int loan_id) {
+		List<TblLoanBill> results = new ArrayList<>();
+		Session session = null;
+		TblLoanBill tblLoanBill = new TblLoanBill();
 		try {
-			entityManager.remove(persistentInstance);
-			log.debug("remove successful");
-		} catch (RuntimeException re) {
-			log.error("remove failed", re);
-			throw re;
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(TblLoanBill.class);
+			Criterion getLoan 				= Restrictions.eq("loanId", loan_id);
+			crtProduct.add(getLoan);
+			results = crtProduct.list();
+			return results;
+		} catch (Exception e) {
+			FileLogger.log(" getLoanDetail Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
 		}
-	}
-
-	public TblLoanBill merge(TblLoanBill detachedInstance) {
-		log.debug("merging TblLoanBill instance");
-		try {
-			TblLoanBill result = entityManager.merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public TblLoanBill findById(Integer id) {
-		log.debug("getting TblLoanBill instance with id: " + id);
-		try {
-			TblLoanBill instance = entityManager.find(TblLoanBill.class, id);
-			log.debug("get successful");
-			return instance;
-		} catch (RuntimeException re) {
-			log.error("get failed", re);
-			throw re;
-		}
+		return null;
 	}
 }
