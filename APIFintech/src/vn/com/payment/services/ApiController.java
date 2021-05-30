@@ -137,6 +137,15 @@ public class ApiController {
    	   System.out.println(formParams);
 	   return bussiness.getContractDetail(formParams);
    }
+   @POST
+   @Path("/api/updateStatus")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response updateStatus(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong getContractList");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.updateStatus(formParams);
+   }
    
 //   @POST
 //   @Path("/api/test")

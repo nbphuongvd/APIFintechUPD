@@ -15,11 +15,13 @@ import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqStepLog;
+import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResStepLog;
+import vn.com.payment.object.ResUpdateStatus;
 import vn.com.payment.services.UserInfo;
 
 import java.text.ParseException;
@@ -575,14 +577,14 @@ public class ValidData {
 				resCreaterLoan.setMessage(messageErr);
 				return resCreaterLoan;
 			}
-			boolean checkContract =  tblLoanRequestHome.checktblLoanRequest(reqCreaterLoan.getLoan_code());
-			if(!checkContract){
-				String messageErr = "Valid CreaterLoan loan_code already exists ";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resCreaterLoan.setStatus(statusFale);
-				resCreaterLoan.setMessage(messageErr);
-				return resCreaterLoan;
-			}	
+//			boolean checkContract =  tblLoanRequestHome.checktblLoanRequest(reqCreaterLoan.getLoan_code());
+//			if(!checkContract){
+//				String messageErr = "Valid CreaterLoan loan_code already exists ";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resCreaterLoan.setStatus(statusFale);
+//				resCreaterLoan.setMessage(messageErr);
+//				return resCreaterLoan;
+//			}	
 			if (ValidData.checkNullLong(reqCreaterLoan.getProduct_type()) == false){
 				String messageErr = "Valid CreaterLoan product_type invalid";
 				FileLogger.log(messageErr, LogType.BUSSINESS);
@@ -590,20 +592,20 @@ public class ValidData {
 				resCreaterLoan.setMessage(messageErr);
 				return resCreaterLoan;
 			}
-			if (ValidData.checkNull(reqCreaterLoan.getProduct_brand()) == false){
-				String messageErr = "Valid CreaterLoan product_brand invalid";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resCreaterLoan.setStatus(statusFale);
-				resCreaterLoan.setMessage(messageErr);
-				return resCreaterLoan;
-			}
-			if (ValidData.checkNullLong(reqCreaterLoan.getTotal_run()) == false){
-				String messageErr = "Valid CreaterLoan total_run invalid";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resCreaterLoan.setStatus(statusFale);
-				resCreaterLoan.setMessage(messageErr);
-				return resCreaterLoan;
-			}
+//			if (ValidData.checkNull(reqCreaterLoan.getProduct_brand()) == false){
+//				String messageErr = "Valid CreaterLoan product_brand invalid";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resCreaterLoan.setStatus(statusFale);
+//				resCreaterLoan.setMessage(messageErr);
+//				return resCreaterLoan;
+//			}
+//			if (ValidData.checkNullLong(reqCreaterLoan.getTotal_run()) == false){
+//				String messageErr = "Valid CreaterLoan total_run invalid";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resCreaterLoan.setStatus(statusFale);
+//				resCreaterLoan.setMessage(messageErr);
+//				return resCreaterLoan;
+//			}
 //			if (ValidData.checkNull(reqCreaterLoan.getBorrower_phone()) == false){
 //				String messageErr = "Valid CreaterLoan borrower_phone invalid";
 //				FileLogger.log(messageErr, LogType.BUSSINESS);
@@ -824,6 +826,48 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid validgetContractDetail exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	
+	public ResUpdateStatus validUpdateStatus(ReqUpdateStatus reqUpdateStatus){
+		ResUpdateStatus resUpdateStatus = new ResUpdateStatus();
+		try {
+			if (ValidData.checkNull(reqUpdateStatus.getUsername()) == false){
+				String messageErr = "Valid validUpdateStatus Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUpdateStatus.setStatus(statusFale);
+				resUpdateStatus.setMessage(messageErr);
+				return resUpdateStatus;
+			}
+			if (ValidData.checkNull(reqUpdateStatus.getToken()) == false){
+				String messageErr = "Valid validUpdateStatus token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUpdateStatus.setStatus(statusFale);
+				resUpdateStatus.setMessage(messageErr);
+				return resUpdateStatus;
+			}
+			if (ValidData.checkNull(reqUpdateStatus.getLoan_code()) == false){
+				String messageErr = "Valid validUpdateStatus loan_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUpdateStatus.setStatus(statusFale);
+				resUpdateStatus.setMessage(messageErr);
+				return resUpdateStatus;
+			}
+			boolean checkLG = userInfo.checkLogin(reqUpdateStatus.getUsername(), reqUpdateStatus.getToken());
+			if(!checkLG){
+				FileLogger.log("validUpdateStatus: " + reqUpdateStatus.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUpdateStatus.setStatus(statusFale);
+				resUpdateStatus.setMessage(messageErr);
+				return resUpdateStatus;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validUpdateStatus exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

@@ -444,6 +444,30 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
+	public TblLoanRequest getTblLoanRequest(String loanCode) {
+		List<TblLoanRequest> results = new ArrayList<>();
+		Session session = null;
+		TblLoanRequest tblLoanRequest = new TblLoanRequest();
+		try {
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(TblLoanRequest.class);
+			Criterion getLoan 				= Restrictions.eq("loanCode", loanCode);
+			crtProduct.add(getLoan);
+			results = crtProduct.list();
+			if(results.size() > 0){
+				tblLoanRequest = (TblLoanRequest) results.get(0);
+			}
+			return tblLoanRequest;
+		} catch (Exception e) {
+			FileLogger.log(" getTblLoanRequest Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
+	
 	public ResContractList getBranchRoom(int branchID, int roomID, int loanID) {
 		Session session = null;
 		Transaction tx = null;

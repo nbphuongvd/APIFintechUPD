@@ -55,9 +55,9 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		return false;
 	}
 	
-	public boolean createLoanTrans(TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList, List<TblLoanBill> loanBillList, TblLoanRequestAskAns tblLoanRequestAskAns) {
+	public boolean createLoanTrans(int insOrUpd, TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList, List<TblLoanBill> loanBillList, TblLoanRequestAskAns tblLoanRequestAskAns) {
 		try {
-			boolean checkSaveTrans = saveTransaction(tblLoanRequest, tblLoanReqDetail, imagesList, loanBillList, tblLoanRequestAskAns);
+			boolean checkSaveTrans = saveOrUpdateTransaction(insOrUpd, tblLoanRequest, tblLoanReqDetail, imagesList, loanBillList, tblLoanRequestAskAns);
 			System.out.println("id: " + tblLoanRequest.getLoanId());
 			return checkSaveTrans;
 		} catch (Exception e) {
