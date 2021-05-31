@@ -8,9 +8,20 @@ public class ReqAppraisal {
 	public String username;
 	public String token;
 	public String loan_code;
+	public String action;
+	public String memo;
 	public List<ObjImage> images;
 	public List<ObjQuestions> question_and_answears;
 	
+	
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -62,4 +73,12 @@ public class ReqAppraisal {
 		return json;
 	}
 
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+	
 }

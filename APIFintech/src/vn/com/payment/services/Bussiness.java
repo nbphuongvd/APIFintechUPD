@@ -18,6 +18,7 @@ import vn.com.payment.home.BaseMongoDB;
 import vn.com.payment.home.DBFintechHome;
 import vn.com.payment.home.TblBanksHome;
 import vn.com.payment.home.TblLoanBillHome;
+import vn.com.payment.home.TblLoanReqDetailHome;
 import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.home.TblProductHome;
 import vn.com.payment.home.TblRateConfigHome;
@@ -133,7 +134,7 @@ public class Bussiness {
 	long statusSuccess = 100l;
 	long statusFale = 111l;
 	long statusFaleToken = 104l;
-	int statusPending = 999;
+	int statusPending = 107;
 	int statusReject = 110;
 
 	public Response getContractNumber(String dataContract) {
@@ -418,11 +419,18 @@ public class Bussiness {
 			if(tblLoanRequest.getLoanId() != null){
 				insOrUpd = 1;
 				tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
+				boolean checkDelete = dbFintechHome.deleteTblImages(tblLoanReqDetail.getLoanId());
+				FileLogger.log("createrLoan checkDelete IMG: " + checkDelete, LogType.BUSSINESS);				
+				boolean checkDeleteAskAns = dbFintechHome.deleteAskAns(tblLoanReqDetail.getLoanId());
+				FileLogger.log("createrLoan deleteAskAns checkDeleteAskAns: " + checkDeleteAskAns, LogType.BUSSINESS);
+
 			}else{				
 				tblLoanRequest = new TblLoanRequest();
 				tblLoanReqDetail = new TblLoanReqDetail();
 				tblLoanRequest.setLoanId(loanID.intValue());
 				tblLoanReqDetail.setLoanId(loanID.intValue());
+				tblLoanRequest.setFinalStatus(statusPending);
+				tblLoanRequest.setPreviousStatus(statusPending);
 			}
 			tblLoanRequest.setCreatedDate(new Date());
 			tblLoanRequest.setEditedDate(new Date());
@@ -430,7 +438,6 @@ public class Bussiness {
 			tblLoanRequest.setApprovedDate(new Date());
 			tblLoanRequest.setCreatedBy(reqCreaterLoan.getUsername());
 			tblLoanRequest.setApprovedBy(reqCreaterLoan.getUsername());
-			// tblLoanRequest.setSponsorId(1);
 			tblLoanRequest.setLatestUpdate(new Date());
 			tblLoanRequest.setLoanCode(reqCreaterLoan.getLoan_code());
 			tblLoanRequest.setLoanName(reqCreaterLoan.getLoan_name());
@@ -505,7 +512,7 @@ public class Bussiness {
 				List<ObjImage> imagesList = reqCreaterLoan.getImages();
 				for (ObjImage objImage : imagesList) {
 					TblImages tblImages = new TblImages();
-					tblImages.setLoanRequestDetailId(loanID.intValue());
+					tblImages.setLoanRequestDetailId(tblLoanRequest.getLoanId());
 					tblImages.setImageName(objImage.getImage_name());
 					tblImages.setImageInputName(objImage.getImage_input_name());
 					tblImages.setPartnerImageId(objImage.getPartner_image_id());
@@ -516,8 +523,6 @@ public class Bussiness {
 					imagesListSet.add(tblImages);
 				}
 			}
-ádasdas
-			String feeStr = "";
 			List<Fees> feesListSet = reqCreaterLoan.getFees();
 			tblLoanReqDetail.setFees(gson.toJson(feesListSet));
 			String billID = Utils.getTimeNowDate() + "_" + Utils.getBillid();
@@ -532,13 +537,11 @@ public class Bussiness {
 			TblLoanRequestAskAns tblLoanRequestAskAns = new TblLoanRequestAskAns();
 			if ((reqCreaterLoan.getQuestion_and_answears()) != null) {
 				List<ObjQuestions> questionsList = reqCreaterLoan.getQuestion_and_answears();
-				tblLoanRequestAskAns.setLoanId(loanID.intValue());
+				tblLoanRequestAskAns.setLoanId(tblLoanRequest.getLoanId());
 				tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
 			}
 			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername() + " percentAns: " + percentAns,
-					LogType.BUSSINESS);
-			tblLoanRequest.setFinalStatus(statusPending);
-			tblLoanRequest.setPreviousStatus(statusPending);
+					LogType.BUSSINESS);			
 			System.out.println("createrLoan: " + reqCreaterLoan.getUsername() + " tblLoanReqDetail: "
 					+ gson.toJson(tblLoanReqDetail));
 			FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername() + " tblLoanReqDetail: "
@@ -636,16 +639,26 @@ public class Bussiness {
 				loan_code = reqContractList.getLoan_code();
 			} catch (Exception e) {
 			}
-			String final_status = reqContractList.getFinal_status();
+			List<Integer> final_statusAR = new ArrayList<>(); 
+			try {
+				List<String> final_status = reqContractList.getFinal_status();
+				for (String string : final_status) {
+					final_statusAR.add(Integer.parseInt(string));
+				}
+//				for (int i = 0; i < final_status.length(); i++) {
+//					
+//				}
+			} catch (Exception e) {
+			}
 			String id_number = reqContractList.getId_number();
 			String borrower_name = reqContractList.getBorrower_name();
 			String from_date = reqContractList.getFrom_date();
 			String to_date = reqContractList.getTo_date();
 			String calculate_profit_type = reqContractList.getCalculate_profit_type();
 			List<ResContractList> lisResContract = dbFintechHome.listResContractList(branchID, roomID, loan_code,
-					final_status, id_number, borrower_name, from_date, to_date, calculate_profit_type,
+					final_statusAR, id_number, borrower_name, from_date, to_date, calculate_profit_type,
 					reqContractList.getLimit(), reqContractList.getOffSet());
-			long total = dbFintechHome.listCountContractList(branchID, roomID, loan_code, final_status, id_number,
+			long total = dbFintechHome.listCountContractList(branchID, roomID, loan_code, final_statusAR, id_number,
 					borrower_name, from_date, to_date, calculate_profit_type, reqContractList.getLimit(),
 					reqContractList.getOffSet());
 			if (lisResContract != null) {
@@ -1106,56 +1119,78 @@ public class Bussiness {
 					}
 				}
 			}
-			List<TblImages> imagesListSet = new ArrayList<>();
-			if (reqAppraisal.getImages() != null) {
-				List<ObjImage> imagesList = reqAppraisal.getImages();
-				for (ObjImage objImage : imagesList) {
-					TblImages tblImages = new TblImages();
-					tblImages.setLoanRequestDetailId(loanID.intValue());
-					tblImages.setImageName(objImage.getImage_name());
-					tblImages.setImageInputName(objImage.getImage_input_name());
-					tblImages.setPartnerImageId(objImage.getPartner_image_id());
-					tblImages.setImageType((int) objImage.getImage_type());
-					tblImages.setImageByte(objImage.getImage_byte());
-					tblImages.setImageUrl(objImage.getImage_url());
-					tblImages.setImageIsFront((int) objImage.getImage_is_front());
-					imagesListSet.add(tblImages);
-				}
-			}
-			TblLoanRequestAskAns tblLoanRequestAskAns = new TblLoanRequestAskAns();
-			if ((reqAppraisal.getQuestion_and_answears()) != null) {
-				List<ObjQuestions> questionsList = reqAppraisal.getQuestion_and_answears();
-				tblLoanRequestAskAns.setLoanId(loanID.intValue());
-				tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
-			}
 			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqAppraisal.getLoan_code());
 			if (tblLoanRequest != null) {
-				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome.getLoanExpertiseSteps(tblLoanRequest.getLoanId());
-				if (getLoanExpertiseSteps != null) {
-					resStepLog.setStatus(statusSuccess);
-					resStepLog.setMessage("Yeu cau thanh cong");
-					resStepLog.setLoan_id(reqStepLog.getLoan_id());
-					resStepLog.setLoan_logs(getLoanExpertiseSteps);
-				} else {
-					resStepLog.setStatus(statusSuccess);
-					resStepLog.setMessage("Yeu cau thanh cong - Khong co log cua hop dong nay");
-					resStepLog.setLoan_id(reqStepLog.getLoan_id());
+				TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
+				try {
+					boolean checkDelete = dbFintechHome.deleteTblImages(tblLoanReqDetail.getReqDetailId());
+					FileLogger.log("updateAppraisal checkDelete IMG: " + checkDelete, LogType.BUSSINESS);				
+//					boolean checkDeleteAskAns = dbFintechHome.deleteAskAns(tblLoanReqDetail.getLoanId());
+//					FileLogger.log("updateAppraisal deleteAskAns checkDeleteAskAns: " + checkDeleteAskAns, LogType.BUSSINESS);
+				} catch (Exception e) {
+				}				
+				List<TblImages> imagesListSet = new ArrayList<>();
+				if (reqAppraisal.getImages() != null) {
+					List<ObjImage> imagesList = reqAppraisal.getImages();
+					for (ObjImage objImage : imagesList) {
+						TblImages tblImages = new TblImages();
+						tblImages.setLoanRequestDetailId(tblLoanReqDetail.getReqDetailId());
+						tblImages.setImageName(objImage.getImage_name());
+						tblImages.setImageInputName(objImage.getImage_input_name());
+						tblImages.setPartnerImageId(objImage.getPartner_image_id());
+						tblImages.setImageType((int) objImage.getImage_type());
+						tblImages.setImageByte(objImage.getImage_byte());
+						tblImages.setImageUrl(objImage.getImage_url());
+						tblImages.setImageIsFront((int) objImage.getImage_is_front());
+						imagesListSet.add(tblImages);
+					}
+				}
+				TblLoanRequestAskAns tblLoanRequestAskAns = new TblLoanRequestAskAns();
+				if ((reqAppraisal.getQuestion_and_answears()) != null) {
+					List<ObjQuestions> questionsList = reqAppraisal.getQuestion_and_answears();
+					tblLoanRequestAskAns.setLoanId(tblLoanReqDetail.getLoanId());
+					tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
+				}
+				int insOrUpd = 0; // 0 insert, 1 update
+				tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
+				tblLoanRequest.setFinalStatus(110);
+				boolean checkINS = tbLoanRequestHome.createLoanTransTD(1, tblLoanRequest, tblLoanReqDetail, imagesListSet, tblLoanRequestAskAns);
+				if (checkINS) {
+					resAppraisal.setStatus(statusSuccess);
+					resAppraisal.setMessage("Yeu cau thanh cong");
+					resAppraisal.setLoan_code(tblLoanRequest.getLoanCode());
+					
+					TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+					tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
+					tblLoanExpertiseSteps.setExpertiseUser(tblLoanRequest.getApprovedBy());
+					tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
+					tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
+					tblLoanExpertiseSteps.setExpertiseStep(1);
+					tblLoanExpertiseSteps.setExpertiseComment(reqAppraisal.getMemo());
+					tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
+					tblLoanExpertiseSteps.setAction(reqAppraisal.getAction());
+
+					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
+					t.start();
+				}else{
+					resAppraisal.setStatus(statusFale);
+					resAppraisal.setMessage("Yeu cau that bai");
 				}
 			} else {
 				resAppraisal.setStatus(statusFale);
 				resAppraisal.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
 			}
 			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
-			FileLogger.log("getContractList: " + reqAppraisal.getUsername() + " response to client:" + resAppraisal.toJSON(),LogType.BUSSINESS);
-			FileLogger.log("----------------Ket thuc getContractList: ", LogType.BUSSINESS);
+			FileLogger.log("updateAppraisal: " + reqAppraisal.getUsername() + " response to client:" + resAppraisal.toJSON(),LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc updateAppraisal: ", LogType.BUSSINESS);
 			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAppraisal.toJSON()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
-			FileLogger.log("----------------Ket thuc createrLoan Exception " + e, LogType.ERROR);
+			FileLogger.log("----------------Ket thuc updateAppraisal Exception " + e, LogType.ERROR);
 			resAppraisal.setStatus(statusFale);
 			resAppraisal.setMessage("Yeu cau that bai - Da co loi xay ra");
 			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
-			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resStepLog.toJSON()).build();
+			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAppraisal.toJSON()).build();
 		}
 	}
 

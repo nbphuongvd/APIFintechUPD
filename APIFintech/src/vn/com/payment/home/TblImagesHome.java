@@ -15,7 +15,7 @@ import vn.com.payment.entities.TblImages;
  * @author Hibernate Tools
  */
 @Stateless
-public class TblImagesHome {
+public class TblImagesHome extends BaseSqlHomeDao{
 
 	private static final Log log = LogFactory.getLog(TblImagesHome.class);
 
@@ -36,11 +36,12 @@ public class TblImagesHome {
 	public void remove(TblImages persistentInstance) {
 		log.debug("removing TblImages instance");
 		try {
-			entityManager.remove(persistentInstance);
+			delete(persistentInstance);
 			log.debug("remove successful");
-		} catch (RuntimeException re) {
+		} catch (Exception re) {
+			System.out.println("xxx");
 			log.error("remove failed", re);
-			throw re;
+			re.printStackTrace();
 		}
 	}
 
@@ -66,5 +67,14 @@ public class TblImagesHome {
 			log.error("get failed", re);
 			throw re;
 		}
+	}
+	
+	public static void main(String[] args) {
+		TblImagesHome tblImagesHome = new TblImagesHome();
+		TblImages tblImages = new TblImages();
+		tblImages.setImageId(5l);
+		tblImages.setLoanRequestDetailId(46);
+		System.out.println(tblImages);
+		tblImagesHome.remove(tblImages);
 	}
 }

@@ -66,6 +66,18 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		}
 		return false;
 	}
+	
+	public boolean createLoanTransTD(int insOrUpd, TblLoanRequest tblLoanRequest, TblLoanReqDetail tblLoanReqDetail, List<TblImages> imagesList, TblLoanRequestAskAns tblLoanRequestAskAns) {
+		try {
+			boolean checkSaveTrans = saveOrUpdateTransactionTD(insOrUpd, tblLoanRequest, tblLoanReqDetail, imagesList, tblLoanRequestAskAns);
+			System.out.println("id: " + tblLoanRequest.getLoanId());
+			return checkSaveTrans;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("TblLoanRequestHome createLoanRequest Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
 
 	public boolean updateLoanRequest(TblLoanRequest tblLoanRequest) {
 		try {

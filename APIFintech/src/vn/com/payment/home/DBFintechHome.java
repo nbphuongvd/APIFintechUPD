@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.NativeQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -67,7 +69,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	}
 
 	public List<ResContractList> listResContractList(List<Integer> branchID, List<Integer> roomID,
-			String loan_code, String final_status, String id_number, 
+			String loan_code, List<Integer> final_status, String id_number, 
 			String borrower_name, String from_date, String to_date, String calculate_profit_type, String limit, String offSet) {
 		Session session = null;
 		Transaction tx = null;
@@ -92,8 +94,8 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			if(ValidData.checkNull(loan_code) == true){
 				sql = sql + "and lr.loanCode =:loan_code ";
 			}
-			if(ValidData.checkNull(final_status) == true){
-				sql = sql + "and lr.finalStatus =:final_status ";
+			if(final_status.size() > 0){
+				sql = sql + "and lr.finalStatus in :final_status ";
 			}
 			if(ValidData.checkNull(borrower_name) == true){
 				sql = sql + "and ld.borrowerFullname =:borrower_name ";
@@ -117,9 +119,9 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			if(ValidData.checkNull(loan_code) == true){
 				query.setParameter("loan_code", loan_code);
 			}
-			if(ValidData.checkNull(final_status) == true){
-				query.setParameter("final_status", Integer.parseInt(final_status));
-			}
+			if(final_status.size() > 0){
+				query.setParameter("final_status", final_status);
+			}	
 			if(ValidData.checkNull(borrower_name) == true){
 				query.setParameter("borrower_name", borrower_name);
 			}
@@ -212,7 +214,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	}
 	
 	public long listCountContractList(List<Integer> branchID, List<Integer> roomID,
-			String loan_code, String final_status, String id_number, 
+			String loan_code, List<Integer> final_status, String id_number, 
 			String borrower_name, String from_date, String to_date, String calculate_profit_type, String limit, String offSet) {
 		Session session = null;
 		Transaction tx = null;
@@ -229,8 +231,8 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			if(ValidData.checkNull(loan_code) == true){
 				sql = sql + "and lr.loanCode =:loan_code ";
 			}
-			if(ValidData.checkNull(final_status) == true){
-				sql = sql + "and lr.finalStatus =:final_status ";
+			if(final_status.size() > 0){
+				sql = sql + "and lr.finalStatus in :final_status ";
 			}
 			if(ValidData.checkNull(borrower_name) == true){
 				sql = sql + "and ld.borrowerFullname =:borrower_name ";
@@ -254,8 +256,8 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			if(ValidData.checkNull(loan_code) == true){
 				query.setParameter("loan_code", loan_code);
 			}
-			if(ValidData.checkNull(final_status) == true){
-				query.setParameter("final_status", Integer.parseInt(final_status));
+			if(final_status.size() > 0){
+				query.setParameter("final_status", final_status);
 			}
 			if(ValidData.checkNull(borrower_name) == true){
 				query.setParameter("borrower_name", borrower_name);
@@ -546,6 +548,46 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
+	public boolean deleteTblImages(int loan_request_detail_id) {
+		Session session = null;
+		Transaction tx = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "delete from TblImages where loanRequestDetailId =:detailId ";	
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			query.setParameter("detailId", loan_request_detail_id);
+			int check = query.executeUpdate();
+			tx.commit();
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log(">> deleteTblImages err " + e,LogType.ERROR);
+		}
+		return result;
+    }
+	
+	public boolean deleteAskAns(int loan_id) {
+		Session session = null;
+		Transaction tx = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "delete from TblLoanRequestAskAns where loanId =:loan_id ";	
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			query.setParameter("loan_id", loan_id);
+			int check = query.executeUpdate();
+			tx.commit();
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log(">> deleteAskAns err " + e,LogType.ERROR);
+		}
+		return result;
+    }
+	
 	public static void main(String[] args) {
 
 		 List<Integer> list1 = new ArrayList<>();
@@ -557,28 +599,30 @@ public class DBFintechHome extends BaseSqlHomeDao{
 //	      list.add(new Integer(19));
 		AccountHome accountHome = new AccountHome();
 		DBFintechHome dbFintechHome = new DBFintechHome();
-		Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
-		List<Integer> branchID = new ArrayList<>();
-		List<Integer> roomID = new ArrayList<>();
-		if (ValidData.checkNull(acc.getBranchId()) == true) {
-			JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-			Iterator<String> keys = isJsonObject.keys();
-			while (keys.hasNext()) {
-				String key = keys.next();
-				System.out.println(key);
-				JSONArray msg = (JSONArray) isJsonObject.get(key);
-				branchID.add(new Integer(key.toString()));
-				for (int i = 0; i < msg.length(); i++) {
-					roomID.add(Integer.parseInt(msg.get(i).toString()));
-				}
-			}
-		}
-		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "");
-		System.out.println(lisResContractList.getLoanName());
+//		Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
+//		List<Integer> branchID = new ArrayList<>();
+//		List<Integer> roomID = new ArrayList<>();
+//		if (ValidData.checkNull(acc.getBranchId()) == true) {
+//			JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+//			Iterator<String> keys = isJsonObject.keys();
+//			while (keys.hasNext()) {
+//				String key = keys.next();
+//				System.out.println(key);
+//				JSONArray msg = (JSONArray) isJsonObject.get(key);
+//				branchID.add(new Integer(key.toString()));
+//				for (int i = 0; i < msg.length(); i++) {
+//					roomID.add(Integer.parseInt(msg.get(i).toString()));
+//				}
+//			}
+//		}
+//		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "");
+//		System.out.println(lisResContractList.getLoanName());
 //		for (ResContractList resContractList : lisResContractList) {
 //			System.out.println(resContractList.getLoan_code());
 //		}
 //		
 //	      System.out.println(list);
+		boolean aaaa = dbFintechHome.deleteTblImages(48);
+		System.out.println("a: "+ aaaa);
 	}
 }

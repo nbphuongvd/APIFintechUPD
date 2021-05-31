@@ -1,6 +1,12 @@
 package vn.com.payment.object;
 
+import java.util.List;
+
+import org.json.JSONArray;
+
 import com.google.gson.Gson;
+
+import vn.com.payment.entities.TblRateConfig;
 
 public class ReqContractList {
 	
@@ -10,10 +16,10 @@ public class ReqContractList {
 	public String to_date;
 	public String branch_id; 				// id chi nhánh
 	public String calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
-	public String final_status; 			// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
-	public String loan_code;			// ma hop dong
-	public String id_number;			// cmt/ho chieu
-	public String borrower_name;		// tên khách hàng
+	public List<String> final_status;		// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
+	public String loan_code;				// ma hop dong
+	public String id_number;				// cmt/ho chieu
+	public String borrower_name;			// tên khách hàng
 	public String limit;
 	public String offSet;
 
@@ -75,21 +81,41 @@ public class ReqContractList {
 	public void setCalculate_profit_type(String calculate_profit_type) {
 		this.calculate_profit_type = calculate_profit_type;
 	}
-
-	public String getFinal_status() {
-		return final_status;
-	}
-
-	public void setFinal_status(String final_status) {
-		this.final_status = final_status;
-	}
+//
+//	public String getFinal_status() {
+//		return final_status;
+//	}
+//
+//	public void setFinal_status(String final_status) {
+//		this.final_status = final_status;
+//	}
+	
+	
 
 	public String getLoan_code() {
 		return loan_code;
 	}
 
+//	public JSONArray getFinal_status() {
+//		return final_status;
+//	}
+//
+//	public void setFinal_status(JSONArray final_status) {
+//		this.final_status = final_status;
+//	}
+
+	
+	
 	public void setLoan_code(String loan_code) {
 		this.loan_code = loan_code;
+	}
+
+	public List<String> getFinal_status() {
+		return final_status;
+	}
+
+	public void setFinal_status(List<String> final_status) {
+		this.final_status = final_status;
 	}
 
 	public String getId_number() {

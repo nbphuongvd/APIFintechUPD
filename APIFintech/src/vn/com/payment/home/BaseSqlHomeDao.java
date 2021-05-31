@@ -189,12 +189,16 @@ public class BaseSqlHomeDao {
 		Session session = null;
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
+			Transaction tx = session.beginTransaction();
 			session.delete(persistentInstance);
 			// log.debug("delete successful");
+			tx.commit();
+			System.out.println("ok");
 		} catch (Exception re) {
 			// log.error("delete failed", re);
-
-			throw re;
+			System.out.println("bbb");
+			re.printStackTrace();
+//			throw re;
 		} finally {
 			releaseSession(session);
 		}
@@ -370,6 +374,56 @@ public class BaseSqlHomeDao {
 					if(obj4 != null){
 						for (Object object4 : obj4) {
 							session.saveOrUpdate(object4);
+						}
+					}
+					if(obj5 != null){
+						session.saveOrUpdate(obj5);
+					}
+					System.out.println("aaa");
+				}
+				transaction.commit();
+				result = true;
+			} catch (Exception e) {
+				session.flush();
+				session.clear();
+			}
+			session.close();
+			return result;
+		} catch (Exception re) {
+			re.printStackTrace();
+			FileLogger.log("BaseSqlHomeDao saveTransaction Exception " + re, LogType.ERROR);
+		} finally {
+			releaseSession(session);
+		}
+		return result;
+	}
+	
+	public boolean saveOrUpdateTransactionTD(int insOrUpd, Object obj1, Object obj2, List<TblImages> obj3, TblLoanRequestAskAns obj5) throws Exception {
+		Session session = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+
+			Transaction transaction = session.beginTransaction();
+			try {
+				if(insOrUpd == 0){
+					session.save(obj1);
+					session.save(obj2);
+					if(obj3 != null){
+						for (Object object : obj3) {
+							session.save(object);
+						}
+					}	
+					if(obj5 != null){
+						session.save(obj5);
+					}
+					System.out.println("aaa");
+				}else{
+					session.saveOrUpdate(obj1);
+					session.saveOrUpdate(obj2);
+					if(obj3 != null){
+						for (Object object : obj3) {
+							session.saveOrUpdate(object);
 						}
 					}
 					if(obj5 != null){
