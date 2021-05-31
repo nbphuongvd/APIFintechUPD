@@ -367,7 +367,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	}
 	
 	
-	public TblLoanRequest getLoan(List<Integer> branchID, List<Integer> roomID, String loanID) {
+	public TblLoanRequest getLoan(List<Integer> branchID, List<Integer> roomID, String loanCode) {
 		Session session = null;
 		Transaction tx = null;
 		List<Object> list = null;
@@ -376,13 +376,13 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
 			String sql = "FROM TblLoanRequest Where "
-								+ "loanCode =:loanID and "
+								+ "loanCode =:loanCode and "
 								+ "roomId in :listRoom and "
 								+ "branchId in :listbranchId";
 			System.out.println("sql: "+ sql);
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
-			query.setParameter("loanID", loanID);
+			query.setParameter("loanCode", loanCode);
 			query.setParameter("listRoom", roomID);
 			query.setParameter("listbranchId", branchID);
 			list = query.getResultList();

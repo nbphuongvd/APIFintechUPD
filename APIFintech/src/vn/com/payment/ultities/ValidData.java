@@ -12,11 +12,13 @@ import com.sun.tools.internal.xjc.model.SymbolSpace;
 
 import vn.com.payment.config.LogType;
 import vn.com.payment.home.TblLoanRequestHome;
+import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
+import vn.com.payment.object.ResAppraisal;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResCreaterLoan;
@@ -872,6 +874,49 @@ public class ValidData {
 		}
 		return null;
 	}
+	
+	public ResAppraisal validUpdateAppraisal(ReqAppraisal reqAppraisal){
+		ResAppraisal resAppraisal = new ResAppraisal();
+		try {
+			if (ValidData.checkNull(reqAppraisal.getUsername()) == false){
+				String messageErr = "Valid validUpdateAppraisal Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAppraisal.setStatus(statusFale);
+				resAppraisal.setMessage(messageErr);
+				return resAppraisal;
+			}
+			if (ValidData.checkNull(reqAppraisal.getToken()) == false){
+				String messageErr = "Valid validUpdateAppraisal token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAppraisal.setStatus(statusFale);
+				resAppraisal.setMessage(messageErr);
+				return resAppraisal;
+			}
+			if (ValidData.checkNull(reqAppraisal.getLoan_code()) == false){
+				String messageErr = "Valid validUpdateAppraisal loan_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAppraisal.setStatus(statusFale);
+				resAppraisal.setMessage(messageErr);
+				return resAppraisal;
+			}
+			boolean checkLG = userInfo.checkLogin(reqAppraisal.getUsername(), reqAppraisal.getToken());
+			if(!checkLG){
+				FileLogger.log("validUpdateAppraisal: " + reqAppraisal.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAppraisal.setStatus(statusFale);
+				resAppraisal.setMessage(messageErr);
+				return resAppraisal;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validUpdateAppraisal exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	
 //	100	Thành công
 //	101	Sai token
 //	102	Token hết hạn hoặc không tồn tại

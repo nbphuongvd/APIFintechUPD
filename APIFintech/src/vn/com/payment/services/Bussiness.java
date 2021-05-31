@@ -37,6 +37,7 @@ import vn.com.payment.object.ProductReq;
 import vn.com.payment.object.ProductRes;
 import vn.com.payment.object.RateConfigReq;
 import vn.com.payment.object.RateConfigRes;
+import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqChangePass;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
@@ -44,6 +45,7 @@ import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
+import vn.com.payment.object.ResAppraisal;
 import vn.com.payment.object.ResChangePass;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
@@ -408,6 +410,7 @@ public class Bussiness {
 			// 6 Serial HĐ - product_serial_no - tbl_loan_req_detail
 			// 7 Ngày vay - created_date - tbl_loan_request
 			// 8 Ngày trả - disbursement_date - tbl_loan_req_detail
+			
 			TblLoanRequest tblLoanRequest = new TblLoanRequest();
 			TblLoanReqDetail tblLoanReqDetail = new TblLoanReqDetail();
 			tblLoanRequest = dbFintechHome.getTblLoanRequest(reqCreaterLoan.getLoan_code());
@@ -513,7 +516,7 @@ public class Bussiness {
 					imagesListSet.add(tblImages);
 				}
 			}
-
+ádasdas
 			String feeStr = "";
 			List<Fees> feesListSet = reqCreaterLoan.getFees();
 			tblLoanReqDetail.setFees(gson.toJson(feesListSet));
@@ -1075,6 +1078,88 @@ public class Bussiness {
 		}
 	}
 
+	public Response updateAppraisal(String dataAppraisal) {
+		FileLogger.log("----------------Bat dau updateAppraisal--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		ResAppraisal resAppraisal = new ResAppraisal();
+		try {
+			FileLogger.log("updateAppraisal dataAppraisal: " + dataAppraisal, LogType.BUSSINESS);
+			ReqAppraisal reqAppraisal = gson.fromJson(dataAppraisal, ReqAppraisal.class);
+			ResAppraisal resAppraisal2 = validData.validUpdateAppraisal(reqAppraisal);
+			if (resAppraisal2 != null) {
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAppraisal2.toJSON()).build();
+			}
+			List<Integer> branchID = new ArrayList<>();
+			List<Integer> roomID = new ArrayList<>();
+			Account acc = accountHome.getAccountUsename(reqAppraisal.getUsername());
+			if (ValidData.checkNull(acc.getBranchId()) == true) {
+				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+				Iterator<String> keys = isJsonObject.keys();
+				while (keys.hasNext()) {
+					String key = keys.next();
+					System.out.println(key);
+					JSONArray msg = (JSONArray) isJsonObject.get(key);
+					branchID.add(new Integer(key.toString()));
+					for (int i = 0; i < msg.length(); i++) {
+						roomID.add(Integer.parseInt(msg.get(i).toString()));
+					}
+				}
+			}
+			List<TblImages> imagesListSet = new ArrayList<>();
+			if (reqAppraisal.getImages() != null) {
+				List<ObjImage> imagesList = reqAppraisal.getImages();
+				for (ObjImage objImage : imagesList) {
+					TblImages tblImages = new TblImages();
+					tblImages.setLoanRequestDetailId(loanID.intValue());
+					tblImages.setImageName(objImage.getImage_name());
+					tblImages.setImageInputName(objImage.getImage_input_name());
+					tblImages.setPartnerImageId(objImage.getPartner_image_id());
+					tblImages.setImageType((int) objImage.getImage_type());
+					tblImages.setImageByte(objImage.getImage_byte());
+					tblImages.setImageUrl(objImage.getImage_url());
+					tblImages.setImageIsFront((int) objImage.getImage_is_front());
+					imagesListSet.add(tblImages);
+				}
+			}
+			TblLoanRequestAskAns tblLoanRequestAskAns = new TblLoanRequestAskAns();
+			if ((reqAppraisal.getQuestion_and_answears()) != null) {
+				List<ObjQuestions> questionsList = reqAppraisal.getQuestion_and_answears();
+				tblLoanRequestAskAns.setLoanId(loanID.intValue());
+				tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
+			}
+			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqAppraisal.getLoan_code());
+			if (tblLoanRequest != null) {
+				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome.getLoanExpertiseSteps(tblLoanRequest.getLoanId());
+				if (getLoanExpertiseSteps != null) {
+					resStepLog.setStatus(statusSuccess);
+					resStepLog.setMessage("Yeu cau thanh cong");
+					resStepLog.setLoan_id(reqStepLog.getLoan_id());
+					resStepLog.setLoan_logs(getLoanExpertiseSteps);
+				} else {
+					resStepLog.setStatus(statusSuccess);
+					resStepLog.setMessage("Yeu cau thanh cong - Khong co log cua hop dong nay");
+					resStepLog.setLoan_id(reqStepLog.getLoan_id());
+				}
+			} else {
+				resAppraisal.setStatus(statusFale);
+				resAppraisal.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
+			}
+			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+			FileLogger.log("getContractList: " + reqAppraisal.getUsername() + " response to client:" + resAppraisal.toJSON(),LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getContractList: ", LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAppraisal.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc createrLoan Exception " + e, LogType.ERROR);
+			resAppraisal.setStatus(statusFale);
+			resAppraisal.setMessage("Yeu cau that bai - Da co loi xay ra");
+			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resStepLog.toJSON()).build();
+		}
+	}
+
+	
 	public static void main(String[] args) {
 		try {
 			Bussiness bussiness = new Bussiness();
