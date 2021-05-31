@@ -366,22 +366,6 @@ public class Bussiness {
 			Account acc = accountHome.getAccountUsename(reqCreaterLoan.getUsername());
 			int branch_id = 0;
 			int room_id = 0;
-//			if (ValidData.checkNull(acc.getBranchId()) == true) {
-//				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-//				Iterator<String> keys = isJsonObject.keys();
-//				while (keys.hasNext()) {
-//					String key = keys.next();
-//					System.out.println(key);
-//					JSONArray msg = (JSONArray) isJsonObject.get(key);
-//					System.out.println(msg);
-//					System.out.println(msg.get(0));
-//					branch_id = Integer.parseInt(key);
-//					room_id = Integer.parseInt(msg.get(0).toString());
-//				}
-//			}
-			
-			List<Integer> branchID = new ArrayList<>();
-			List<Integer> roomID = new ArrayList<>();
 			if (ValidData.checkNull(acc.getBranchId()) == true) {
 				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
 				Iterator<String> keys = isJsonObject.keys();
@@ -389,12 +373,28 @@ public class Bussiness {
 					String key = keys.next();
 					System.out.println(key);
 					JSONArray msg = (JSONArray) isJsonObject.get(key);
-					branchID.add(new Integer(key.toString()));
-					for (int i = 0; i < msg.length(); i++) {
-						roomID.add(Integer.parseInt(msg.get(i).toString()));
-					}
+					System.out.println(msg);
+					System.out.println(msg.get(0));
+					branch_id = Integer.parseInt(key);
+					room_id = Integer.parseInt(msg.get(0).toString());
 				}
 			}
+//			
+//			List<Integer> branchID11 = new ArrayList<>();
+//			List<Integer> roomID11 = new ArrayList<>();
+//			if (ValidData.checkNull(acc.getBranchId()) == true) {
+//				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+//				Iterator<String> keys = isJsonObject.keys();
+//				while (keys.hasNext()) {
+//					String key = keys.next();
+//					System.out.println(key);
+//					JSONArray msg = (JSONArray) isJsonObject.get(key);
+//					branchID.add(new Integer(key.toString()));
+//					for (int i = 0; i < msg.length(); i++) {
+//						roomID.add(Integer.parseInt(msg.get(i).toString()));
+//					}
+//				}
+//			}
 			System.out.println("aaa");
 			TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
 			BigInteger loanID = tblLoanReqDetailHome.getIDAutoIncrement();
@@ -438,7 +438,6 @@ public class Bussiness {
 			tblLoanRequest.setLoanForMonth((int) reqCreaterLoan.getLoan_amount());
 			tblLoanRequest.setLoanForMonth((int) reqCreaterLoan.getLoan_for_month());
 
-			
 			tblLoanReqDetail.setDisburseTo((int) reqCreaterLoan.getDisburse_to());
 			try {
 				tblLoanReqDetail.setProductModal(reqCreaterLoan.getProduct_modal());
@@ -775,9 +774,9 @@ public class Bussiness {
 				resContractDetail.setStatus(statusSuccess);
 				resContractDetail.setMessage("Yeu cau thanh cong");
 				resContractDetail.setCreated_by(tblLoanRequest.getCreatedBy());
-				resContractDetail.setCreated_date(tblLoanRequest.getCreatedDate().toString());
+				resContractDetail.setCreated_date(Utils.convertDateToString("yyyy/MM/dd HH:mm:ss", tblLoanRequest.getCreatedDate()));
 				resContractDetail.setApproved_by(tblLoanRequest.getApprovedBy());
-				resContractDetail.setApproved_date(tblLoanRequest.getApprovedDate().toString());
+				resContractDetail.setApproved_date(Utils.convertDateToString("yyyy/MM/dd HH:mm:ss", tblLoanRequest.getApprovedDate()));
 				resContractDetail.setFinal_status(tblLoanRequest.getFinalStatus().toString());
 				resContractDetail.setLoan_code(tblLoanRequest.getLoanCode());
 				resContractDetail.setLoan_name(tblLoanRequest.getLoanName());
@@ -900,7 +899,11 @@ public class Bussiness {
 				tblLoanExpertiseSteps.setExpertiseStep(2);
 				tblLoanExpertiseSteps.setExpertiseComment(reqUpdateStatus.getMemo());
 				tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
-				tblLoanExpertiseSteps.setAction(reqUpdateStatus.getAction());
+				try {
+					tblLoanExpertiseSteps.setAction(reqUpdateStatus.getAction());
+				} catch (Exception e) {
+				}
+				
 				Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
 				t.start();
 				

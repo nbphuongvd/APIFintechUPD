@@ -45,6 +45,7 @@ public class ReqCreaterLoan {
 	public String product_machine_number; // So may thiet bi
 	public String contract_serial_num; // So hop dong
 	public String bank_branch; 
+	public long status;
 	
 	public List<ObjImage> images;
 	public List<Fees> fees;

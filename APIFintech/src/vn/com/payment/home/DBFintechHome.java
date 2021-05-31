@@ -147,19 +147,55 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			for (int i = 0; i<  list.size(); i++){
 				Object[] row = (Object[]) list.get(i);		
 				ResContractList reContractList = new ResContractList();
-				for (int j = 0; j < row.length; j++) {				
-					reContractList.setLoan_code(row[0]+"");
-					reContractList.setLoan_name(row[1]+"");
-					reContractList.setId_number(Long.parseLong(row[2]+""));
-					reContractList.setBorrower_phone(Long.parseLong(row[3]+""));
-					reContractList.setProduct_name(row[4]+"");
-					reContractList.setApproved_amount(Long.parseLong(row[5]+""));
-					reContractList.setFinal_status(Long.parseLong(row[6]+""));
-					reContractList.setCreated_date(row[7]+"");
-					reContractList.setBorrower_fullname(row[8]+"");
-					reContractList.setRoom_code(row[9]+"");
-					reContractList.setBranch_id(row[10]+"");
-					reContractList.setLoan_id(Long.parseLong(row[11]+""));
+				for (int j = 0; j < row.length; j++) {		
+					try {
+						reContractList.setLoan_code(row[0]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setLoan_name(row[1]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setId_number(row[2]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setBorrower_phone(Long.parseLong(row[3]+""));
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setProduct_name(row[4]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setApproved_amount(Long.parseLong(row[5]+""));
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setFinal_status(Long.parseLong(row[6]+""));
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setCreated_date(row[7]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setBorrower_fullname(row[8]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setRoom_code(row[9]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setBranch_id(row[10]+"");
+					} catch (Exception e) {
+					}
+					try {
+						reContractList.setLoan_id(Long.parseLong(row[11]+""));
+					} catch (Exception e) {
+					}
 				}
 				System.out.println("----------------------------------------------");
 				lisResContractList.add(reContractList);

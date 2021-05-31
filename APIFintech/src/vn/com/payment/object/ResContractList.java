@@ -6,7 +6,7 @@ public class ResContractList {
 	public long loan_id;
 	public String loan_code;
 	public String loan_name;
-	public long id_number;
+	public String id_number;
 	public long borrower_phone;
 	public String product_name;
 	public long approved_amount; 
@@ -50,12 +50,12 @@ public class ResContractList {
 	public void setLoan_name(String loan_name) {
 		this.loan_name = loan_name;
 	}
-
-	public long getId_number() {
+	
+	public String getId_number() {
 		return id_number;
 	}
 
-	public void setId_number(long id_number) {
+	public void setId_number(String id_number) {
 		this.id_number = id_number;
 	}
 
