@@ -367,6 +367,11 @@ public class Bussiness {
 			}
 
 			Account acc = accountHome.getAccountUsename(reqCreaterLoan.getUsername());
+			String fullName = reqCreaterLoan.getUsername();
+			try {
+				fullName = acc.getFirstName() + " " + acc.getLastName();
+			} catch (Exception e) {
+			}
 			int branch_id = 0;
 			int room_id = 0;
 			if (ValidData.checkNull(acc.getBranchId()) == true) {
@@ -568,7 +573,7 @@ public class Bussiness {
 				// }
 				TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
 				tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
-				tblLoanExpertiseSteps.setExpertiseUser(tblLoanRequest.getApprovedBy());
+				tblLoanExpertiseSteps.setExpertiseUser(fullName);
 				tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
 				tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
 				tblLoanExpertiseSteps.setExpertiseStep(1);
@@ -721,8 +726,7 @@ public class Bussiness {
 			// reqStepLog.getLoan_id());
 			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqStepLog.getLoan_id());
 			if (tblLoanRequest != null) {
-				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome
-						.getLoanExpertiseSteps(tblLoanRequest.getLoanId());
+				List<TblLoanExpertiseSteps> getLoanExpertiseSteps = dbFintechHome.getLoanExpertiseSteps(tblLoanRequest.getLoanId());
 				if (getLoanExpertiseSteps != null) {
 					resStepLog.setStatus(statusSuccess);
 					resStepLog.setMessage("Yeu cau thanh cong");
@@ -887,6 +891,11 @@ public class Bussiness {
 			List<Integer> branchID = new ArrayList<>();
 			List<Integer> roomID = new ArrayList<>();
 			Account acc = accountHome.getAccountUsename(reqUpdateStatus.getUsername());
+			String fullName = reqUpdateStatus.getUsername();
+			try {
+				fullName = acc.getFirstName() + " " + acc.getLastName();
+			} catch (Exception e) {
+			}
 			if (ValidData.checkNull(acc.getBranchId()) == true) {
 				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
 				Iterator<String> keys = isJsonObject.keys();
@@ -900,16 +909,17 @@ public class Bussiness {
 					}
 				}
 			}
+			System.out.println(gson.toJson(reqUpdateStatus));
 			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqUpdateStatus.getLoan_code());
 			if (tblLoanRequest != null) {
 				tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
 				tblLoanRequest.setFinalStatus(Integer.parseInt(reqUpdateStatus.getFinal_status()));
 				tblLoanRequest.setLatestUpdate(new Date());
-				
-				
+
 				TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+				System.out.println(gson.toJson(tblLoanRequest));
 				tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
-				tblLoanExpertiseSteps.setExpertiseUser(reqUpdateStatus.getUsername());
+				tblLoanExpertiseSteps.setExpertiseUser(fullName);
 				tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
 				tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
 				tblLoanExpertiseSteps.setExpertiseStep(2);
@@ -1106,6 +1116,11 @@ public class Bussiness {
 			List<Integer> branchID = new ArrayList<>();
 			List<Integer> roomID = new ArrayList<>();
 			Account acc = accountHome.getAccountUsename(reqAppraisal.getUsername());
+			String fullName = reqAppraisal.getUsername();
+			try {
+				fullName = acc.getFirstName() + " " + acc.getLastName();
+			} catch (Exception e) {
+			}
 			if (ValidData.checkNull(acc.getBranchId()) == true) {
 				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
 				Iterator<String> keys = isJsonObject.keys();
@@ -1162,7 +1177,7 @@ public class Bussiness {
 					
 					TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
 					tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
-					tblLoanExpertiseSteps.setExpertiseUser(tblLoanRequest.getApprovedBy());
+					tblLoanExpertiseSteps.setExpertiseUser(fullName);
 					tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
 					tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
 					tblLoanExpertiseSteps.setExpertiseStep(1);

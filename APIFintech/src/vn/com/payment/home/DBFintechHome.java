@@ -373,7 +373,6 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		Session session = null;
 		Transaction tx = null;
 		List<Object> list = null;
-		boolean result = false;
 		TblLoanRequest tblLoanRequest = new TblLoanRequest();
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
@@ -599,30 +598,30 @@ public class DBFintechHome extends BaseSqlHomeDao{
 //	      list.add(new Integer(19));
 		AccountHome accountHome = new AccountHome();
 		DBFintechHome dbFintechHome = new DBFintechHome();
-//		Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
-//		List<Integer> branchID = new ArrayList<>();
-//		List<Integer> roomID = new ArrayList<>();
-//		if (ValidData.checkNull(acc.getBranchId()) == true) {
-//			JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-//			Iterator<String> keys = isJsonObject.keys();
-//			while (keys.hasNext()) {
-//				String key = keys.next();
-//				System.out.println(key);
-//				JSONArray msg = (JSONArray) isJsonObject.get(key);
-//				branchID.add(new Integer(key.toString()));
-//				for (int i = 0; i < msg.length(); i++) {
-//					roomID.add(Integer.parseInt(msg.get(i).toString()));
-//				}
-//			}
-//		}
-//		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "");
-//		System.out.println(lisResContractList.getLoanName());
+		Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
+		List<Integer> branchID = new ArrayList<>();
+		List<Integer> roomID = new ArrayList<>();
+		if (ValidData.checkNull(acc.getBranchId()) == true) {
+			JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+			Iterator<String> keys = isJsonObject.keys();
+			while (keys.hasNext()) {
+				String key = keys.next();
+				System.out.println(key);
+				JSONArray msg = (JSONArray) isJsonObject.get(key);
+				branchID.add(new Integer(key.toString()));
+				for (int i = 0; i < msg.length(); i++) {
+					roomID.add(Integer.parseInt(msg.get(i).toString()));
+				}
+			}
+		}
+		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "MHD.43.10027");
+		System.out.println(lisResContractList.getLoanName());
 //		for (ResContractList resContractList : lisResContractList) {
 //			System.out.println(resContractList.getLoan_code());
 //		}
 //		
 //	      System.out.println(list);
-		boolean aaaa = dbFintechHome.deleteTblImages(48);
-		System.out.println("a: "+ aaaa);
+//		boolean aaaa = dbFintechHome.deleteTblImages(48);
+//		System.out.println("a: "+ aaaa);
 	}
 }
