@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated May 30, 2021 1:21:56 AM by Hibernate Tools 3.5.0.Final
+// Generated Jun 1, 2021 10:27:43 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -29,6 +29,7 @@ public class TblImages implements java.io.Serializable {
 	private Integer imageStatus;
 	private Date deleteDate;
 	private String imageInputName;
+	private String uploadBy;
 
 	public TblImages() {
 	}
@@ -39,7 +40,7 @@ public class TblImages implements java.io.Serializable {
 
 	public TblImages(int loanRequestDetailId, Integer imageType, String imageByte, String imageUrl,
 			Integer imageIsFront, String imageName, String partnerImageId, Integer imageStatus, Date deleteDate,
-			String imageInputName) {
+			String imageInputName, String uploadBy) {
 		this.loanRequestDetailId = loanRequestDetailId;
 		this.imageType = imageType;
 		this.imageByte = imageByte;
@@ -50,6 +51,7 @@ public class TblImages implements java.io.Serializable {
 		this.imageStatus = imageStatus;
 		this.deleteDate = deleteDate;
 		this.imageInputName = imageInputName;
+		this.uploadBy = uploadBy;
 	}
 
 	@Id
@@ -153,6 +155,15 @@ public class TblImages implements java.io.Serializable {
 
 	public void setImageInputName(String imageInputName) {
 		this.imageInputName = imageInputName;
+	}
+
+	@Column(name = "upload_by")
+	public String getUploadBy() {
+		return this.uploadBy;
+	}
+
+	public void setUploadBy(String uploadBy) {
+		this.uploadBy = uploadBy;
 	}
 
 }

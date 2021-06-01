@@ -22,6 +22,8 @@ import org.hibernate.query.NativeQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.Account;
 import vn.com.payment.entities.Permmission;
@@ -31,6 +33,7 @@ import vn.com.payment.entities.TblLoanExpertiseSteps;
 import vn.com.payment.entities.TblLoanReqDetail;
 import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.entities.TblLoanRequestAskAns;
+import vn.com.payment.entities.TblLoanSponsorMapp;
 import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.ultities.FileLogger;
@@ -43,15 +46,32 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	Gson gson = new Gson();
 	
-	public boolean createExpertiseSteps(TblLoanExpertiseSteps TblLoanExpertiseSteps) {
+	public boolean createExpertiseSteps(TblLoanExpertiseSteps tblLoanExpertiseSteps) {
 		try {
-			save(TblLoanExpertiseSteps);
-			System.out.println("id: " + TblLoanExpertiseSteps.getLoanExpertiseId());
+			FileLogger.log("createExpertiseSteps "+ gson.toJson(tblLoanExpertiseSteps), LogType.BUSSINESS);
+			save(tblLoanExpertiseSteps);
+			FileLogger.log("createExpertiseSteps id: "+ tblLoanExpertiseSteps.getLoanExpertiseId(), LogType.BUSSINESS);
+			System.out.println("id: " + tblLoanExpertiseSteps.getLoanExpertiseId());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			FileLogger.log("createExpertiseSteps Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
+	
+	public boolean createTblLoanSponsorMapp(TblLoanSponsorMapp tblLoanSponsorMapp) {
+		try {
+			FileLogger.log("createTblLoanSponsorMapp "+ gson.toJson(tblLoanSponsorMapp), LogType.BUSSINESS);
+			save(tblLoanSponsorMapp);
+			FileLogger.log("createTblLoanSponsorMapp id: "+ tblLoanSponsorMapp.getSponsorId(), LogType.BUSSINESS);
+			System.out.println("id: " + tblLoanSponsorMapp.getSponsorId());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("createTblLoanSponsorMapp Exception "+ e, LogType.ERROR);
 		}
 		return false;
 	}
@@ -389,9 +409,10 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			list = query.getResultList();
 			if(list.size() > 0){
 				tblLoanRequest = (TblLoanRequest) list.get(0);
+				return tblLoanRequest;
 			}
 			System.out.println(list.size());
-			return tblLoanRequest;
+			
 		} catch (Exception e) {
 			FileLogger.log(">> checkLoan err " + e.getMessage(),LogType.ERROR);
 			e.printStackTrace();
@@ -425,8 +446,8 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			results = crtProduct.list();
 			if(results.size() > 0){
 				tblLoanReqDetail = (TblLoanReqDetail) results.get(0);
+				return tblLoanReqDetail;
 			}
-			return tblLoanReqDetail;
 		} catch (Exception e) {
 			FileLogger.log(" getLoanDetail Exception "+ e, LogType.ERROR);
 			e.printStackTrace();

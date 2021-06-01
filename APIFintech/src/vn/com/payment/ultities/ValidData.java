@@ -12,12 +12,14 @@ import com.sun.tools.internal.xjc.model.SymbolSpace;
 
 import vn.com.payment.config.LogType;
 import vn.com.payment.home.TblLoanRequestHome;
+import vn.com.payment.object.ReqAllotment;
 import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
+import vn.com.payment.object.ResAllotment;
 import vn.com.payment.object.ResAppraisal;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
@@ -911,6 +913,47 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid validUpdateAppraisal exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	public ResAllotment validSetAllotment(ReqAllotment reqAllotment){
+		ResAllotment resAllotment = new ResAllotment();
+		try {
+			if (ValidData.checkNull(reqAllotment.getUsername()) == false){
+				String messageErr = "Valid validSetAllotment Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllotment.setStatus(statusFale);
+				resAllotment.setMessage(messageErr);
+				return resAllotment;
+			}
+			if (ValidData.checkNull(reqAllotment.getToken()) == false){
+				String messageErr = "Valid validSetAllotment token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllotment.setStatus(statusFale);
+				resAllotment.setMessage(messageErr);
+				return resAllotment;
+			}
+			if (ValidData.checkNull(reqAllotment.getLoan_code()) == false){
+				String messageErr = "Valid validSetAllotment loan_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllotment.setStatus(statusFale);
+				resAllotment.setMessage(messageErr);
+				return resAllotment;
+			}
+			boolean checkLG = userInfo.checkLogin(reqAllotment.getUsername(), reqAllotment.getToken());
+			if(!checkLG){
+				FileLogger.log("validSetAllotment: " + reqAllotment.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resAllotment.setStatus(statusFale);
+				resAllotment.setMessage(messageErr);
+				return resAllotment;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validSetAllotment exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

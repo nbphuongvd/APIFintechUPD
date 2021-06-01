@@ -157,6 +157,17 @@ public class ApiController {
 	   return bussiness.updateAppraisal(formParams);
    }
    
+   @POST
+   @Path("/api/setAllotment")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response setAllotment(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong setAllotment");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.setAllotment(formParams);
+   }
+   
+   
 //   @POST
 //   @Path("/api/test")
 //   @Produces({MediaType.APPLICATION_JSON})
