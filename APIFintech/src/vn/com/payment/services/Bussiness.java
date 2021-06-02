@@ -59,7 +59,7 @@ import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUpdateStatus;
 import vn.com.payment.object.TokenRedis;
 import vn.com.payment.redis.RedisBusiness;
-import vn.com.payment.thread.ThreadInsertLogStep;
+//import vn.com.payment.thread.ThreadInsertLogStep;
 import vn.com.payment.ultities.Commons;
 import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.GsonUltilities;
@@ -586,9 +586,11 @@ public class Bussiness {
 				tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
 				tblLoanExpertiseSteps.setAction(reqCreaterLoan.getAction());
 
-				
-				Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
-				t.start();
+				FileLogger.log("createrLoan ThreadInsertLogStep", LogType.BUSSINESS);
+				boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+				FileLogger.log("createrLoan ThreadInsertLogStep checkINS: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+//				Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
+//				t.start();
 
 			} else {
 				FileLogger.log("createrLoan: " + reqCreaterLoan.getUsername() + " that bai:", LogType.BUSSINESS);
@@ -944,9 +946,11 @@ public class Bussiness {
 						tblLoanExpertiseSteps.setAction(reqUpdateStatus.getAction());
 					} catch (Exception e) {
 					}
-					
-					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
-					t.start();
+					FileLogger.log("updateStatus ThreadInsertLogStep", LogType.BUSSINESS);
+					boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+					FileLogger.log("updateStatus ThreadInsertLogStep checkINS: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+//					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
+//					t.start();
 					
 				}else{
 					resUpdateStatus.setStatus(statusFale);
@@ -1056,9 +1060,11 @@ public class Bussiness {
 						tblLoanExpertiseSteps.setAction(reqAllotment.getAction());
 					} catch (Exception e) {
 					}
-					
-					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
-					t.start();
+					FileLogger.log("setAllotment ThreadInsertLogStep", LogType.BUSSINESS);
+					boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+					FileLogger.log("setAllotment ThreadInsertLogStep checkINS: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+//					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
+//					t.start();
 					
 				}else{
 					resAllotment.setStatus(statusFale);
@@ -1285,7 +1291,8 @@ public class Bussiness {
 				if ((reqAppraisal.getQuestion_and_answears()) != null) {
 					List<ObjQuestions> questionsList = reqAppraisal.getQuestion_and_answears();
 					tblLoanRequestAskAns.setLoanId(tblLoanReqDetail.getLoanId());
-					tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
+//					tblLoanRequestAskAns.setQAThamDinh1(gson.toJson(questionsList));
+					tblLoanRequestAskAns.setQAThamDinh2(gson.toJson(questionsList));
 				}
 				int insOrUpd = 0; // 0 insert, 1 update
 				tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
@@ -1306,8 +1313,11 @@ public class Bussiness {
 					tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
 					tblLoanExpertiseSteps.setAction(reqAppraisal.getAction());
 
-					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
-					t.start();
+					FileLogger.log("Bat dau ThreadInsertLogStep", LogType.BUSSINESS);
+					boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+					FileLogger.log("ThreadInsertLogStep checkINS: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+//					Thread t = new Thread(new ThreadInsertLogStep(tblLoanExpertiseSteps));
+//					t.start();
 				}else{
 					resAppraisal.setStatus(statusFale);
 					resAppraisal.setMessage("Yeu cau that bai");
