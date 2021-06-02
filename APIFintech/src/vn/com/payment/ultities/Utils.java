@@ -3,6 +3,7 @@ package vn.com.payment.ultities;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -102,6 +103,18 @@ public class Utils {
 		try {
 			return ft.parse(date);
 		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static Timestamp stringToTimestamp(String date) {
+		try {
+			DateFormat df = new SimpleDateFormat("yyyyMMdd");
+			Date startDate = df.parse(date);
+			Timestamp fromTS1 = new Timestamp(startDate.getTime());
+			return fromTS1;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;

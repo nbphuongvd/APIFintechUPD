@@ -15,6 +15,7 @@ import vn.com.payment.home.TblLoanRequestHome;
 import vn.com.payment.object.ReqAllotment;
 import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqContractList;
+import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
@@ -23,6 +24,7 @@ import vn.com.payment.object.ResAllotment;
 import vn.com.payment.object.ResAppraisal;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
+import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUpdateStatus;
@@ -954,6 +956,49 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid validSetAllotment exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	public ResAllContractList validListSponsor(ReqContractListSponsor reqContractListSponsor){
+		ResAllContractList resContractListSponsor = new ResAllContractList();
+		try {
+			if (ValidData.checkNull(reqContractListSponsor.getUsername()) == false){
+				String messageErr = "Valid ListSponsor Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resContractListSponsor.setStatus(statusFale);
+				resContractListSponsor.setMessage(messageErr);
+				return resContractListSponsor;
+			}
+			if (ValidData.checkNull(reqContractListSponsor.getToken()) == false){
+				String messageErr = "Valid ListSponsor token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resContractListSponsor.setStatus(statusFale);
+				resContractListSponsor.setMessage(messageErr);
+				return resContractListSponsor;
+			}
+			
+			if (ValidData.checkNull(reqContractListSponsor.getSponsor_id()) == false){
+				String messageErr = "Valid ListSponsor Sponsor_id invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resContractListSponsor.setStatus(statusFale);
+				resContractListSponsor.setMessage(messageErr);
+				return resContractListSponsor;
+			}
+			
+			boolean checkLG = userInfo.checkLogin(reqContractListSponsor.getUsername(), reqContractListSponsor.getToken());
+			if(!checkLG){
+				FileLogger.log("ListSponsor : " + reqContractListSponsor.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resContractListSponsor.setStatus(statusFale);
+				resContractListSponsor.setMessage(messageErr);
+				return resContractListSponsor;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid resContractList exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

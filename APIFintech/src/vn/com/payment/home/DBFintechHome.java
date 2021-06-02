@@ -36,6 +36,7 @@ import vn.com.payment.entities.TblLoanRequestAskAns;
 import vn.com.payment.entities.TblLoanSponsorMapp;
 import vn.com.payment.entities.TblRateConfig;
 import vn.com.payment.object.ResContractList;
+import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.ValidData;
 
@@ -132,6 +133,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			if(ValidData.checkNull(id_number) == true){
 				sql = sql + "and ld.borrowerId =:id_number ";
 			}
+			sql = sql + "ORDER BY lr.createdDate DESC";
 			System.out.println("sql: "+ sql);
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
@@ -298,30 +300,9 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			}
 			query.setParameter("listRoom", roomID);
 			query.setParameter("listbranchId", branchID);
-//			query.setFirstResult(Integer.parseInt(offSet));
-//			query.setMaxResults(Integer.parseInt(limit));
 			list = query.getResultList();
 			
 			System.out.println(list.get(0));
-//			for (int i = 0; i<  list.size(); i++){
-//				Object[] row = (Object[]) list.get(i);		
-//				ResContractList reContractList = new ResContractList();
-//				for (int j = 0; j < row.length; j++) {				
-//					reContractList.setLoan_code(row[0]+"");
-//					reContractList.setLoan_name(row[1]+"");
-//					reContractList.setId_number(Long.parseLong(row[2]+""));
-//					reContractList.setBorrower_phone(Long.parseLong(row[3]+""));
-//					reContractList.setProduct_name(row[4]+"");
-//					reContractList.setApproved_amount(Long.parseLong(row[5]+""));
-//					reContractList.setFinal_status(Long.parseLong(row[6]+""));
-//					reContractList.setCreated_date(row[7]+"");
-//					reContractList.setBorrower_fullname(row[8]+"");
-//					reContractList.setBranch_id(Long.parseLong(row[10]+""));
-//					reContractList.setRoom_code(Long.parseLong(row[9]+""));
-//				}
-//				System.out.println("----------------------------------------------");
-//				lisResContractList.add(reContractList);
-//			}
 			System.out.println(list.size());
 			return (long)list.get(0);
 		} catch (Exception e) {
@@ -524,7 +505,202 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		}
 		return null;
 	}
+	public List<ResContractListSponsor> listListSponsor(int sponsorID, String loan_code, List<Integer> final_status, String borrower_name, String from_date, String to_date, String calculate_profit_type, String limit, String offSet) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		List<ResContractListSponsor> lisResContractListSponsor = new ArrayList<>();		
+		String time = String.valueOf(10);
+		try {
+			
+			session = HibernateUtil.getSessionFactory().openSession();
+			int loan = 1;
+			String sql = "SELECT lr.loanCode, "
+								+ "lr.loanName, ld.productBrand, "
+								+ "ld.approvedAmount, lr.finalStatus, "
+								+ "ld.disbursementDate, ld.borrowerFullname, "
+								+ "lr.loanId, lr.calculateProfitType, lr.loanForMonth "
+								+ "FROM TblLoanReqDetail ld "
+								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
+								+ "INNER JOIN TblLoanSponsorMapp ls ON ls.loanId = ld.loanId "
+								+ "Where ls.sponsorId =:sponsorID ";
+			if(ValidData.checkNull(loan_code) == true){
+				sql = sql + "and lr.loanCode =:loan_code ";
+			}
+			if(final_status.size() > 0){
+				sql = sql + "and lr.finalStatus in :final_status ";
+			}
+			if(ValidData.checkNull(borrower_name) == true){
+				sql = sql + "and ld.borrowerFullname =:borrower_name ";
+			}
+			if(ValidData.checkNull(from_date) == true){
+				sql = sql + "and lr.createdDate >= :from_date ";
+			}
+			if(ValidData.checkNull(to_date) == true){
+				sql = sql + "and lr.createdDate <= :to_date ";
+			}
+			if(ValidData.checkNull(calculate_profit_type) == true){
+				sql = sql + "and lr.calculateProfitType =:calculate_profit_type ";
+			}
+			sql = sql + "ORDER BY lr.createdDate DESC";
+			System.out.println("sql: "+ sql);
+			session = HibernateUtil.getSessionFactory().openSession();
+			Query query = session.createQuery(sql);
+			query.setParameter("sponsorID", sponsorID);
+			if(ValidData.checkNull(loan_code) == true){
+				query.setParameter("loan_code", loan_code);
+			}
+			if(final_status.size() > 0){
+				query.setParameter("final_status", final_status);
+			}	
+			if(ValidData.checkNull(borrower_name) == true){
+				query.setParameter("borrower_name", borrower_name);
+			}
+			if(ValidData.checkNull(from_date) == true){
+				Date fromDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(from_date + " 00:00:00");  
+				query.setParameter("from_date", fromDate);
+			}
+			if(ValidData.checkNull(to_date) == true){
+				Date toDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(to_date + " 23:59:59");  
+				query.setParameter("to_date", toDate);
+			}
+			if(ValidData.checkNull(calculate_profit_type) == true){
+				query.setParameter("calculate_profit_type", Integer.parseInt(calculate_profit_type));
+			}
+			query.setFirstResult(Integer.parseInt(offSet));
+			query.setMaxResults(Integer.parseInt(limit));
+			list = query.getResultList();
+			
+			System.out.println(list.size());
+			for (int i = 0; i<  list.size(); i++){
+				Object[] row = (Object[]) list.get(i);		
+				ResContractListSponsor resContractListSponsor = new ResContractListSponsor();
+				for (int j = 0; j < row.length; j++) {		
+					try {
+						resContractListSponsor.setLoan_code(row[0]+"");
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setLoan_name(row[1]+"");
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setProduct_name(row[2]+"");
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setApproved_amount(Long.parseLong(row[3]+""));
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setFinal_status(Long.parseLong(row[4]+""));
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setDisbursement_date(row[5]+"");
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setBorrower_fullname(row[6]+"");
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setLoan_id(Long.parseLong(row[7]+""));
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setCalculateProfitType(Long.parseLong(row[8]+""));
+					} catch (Exception e) {
+					}
+					try {
+						resContractListSponsor.setLoan_for_month(Long.parseLong(row[9]+""));
+					} catch (Exception e) {
+					}
+				}
+				System.out.println("----------------------------------------------");
+				lisResContractListSponsor.add(resContractListSponsor);
+			}
+			System.out.println(list.size());
+			return lisResContractListSponsor;
+		} catch (Exception e) {
+			FileLogger.log(">> lisResContractListSponsor err " + e.getMessage(),LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
 	
+	public long listCounListSponsor(int sponsorID, String loan_code, List<Integer> final_status, String borrower_name, String from_date, String to_date, String calculate_profit_type, String limit, String offSet) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		List<ResContractList> lisResContractList = new ArrayList<>();		
+		String time = String.valueOf(10);
+		int loan = 1;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "SELECT count(lr.loanCode)"
+								+ "FROM TblLoanReqDetail ld "
+								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
+								+ "INNER JOIN TblLoanSponsorMapp ls ON ls.loanId = ld.loanId "
+								+ "Where ls.sponsorId =:sponsorID ";
+			
+			if(ValidData.checkNull(loan_code) == true){
+				sql = sql + "and lr.loanCode =:loan_code ";
+			}
+			if(final_status.size() > 0){
+				sql = sql + "and lr.finalStatus in :final_status ";
+			}
+			if(ValidData.checkNull(borrower_name) == true){
+				sql = sql + "and ld.borrowerFullname =:borrower_name ";
+			}
+			if(ValidData.checkNull(from_date) == true){
+				sql = sql + "and lr.createdDate >= :from_date ";
+			}
+			if(ValidData.checkNull(to_date) == true){
+				sql = sql + "and lr.createdDate <= :to_date ";
+			}
+			if(ValidData.checkNull(calculate_profit_type) == true){
+				sql = sql + "and lr.calculateProfitType =:calculate_profit_type ";
+			}
+			System.out.println("sql: "+ sql);
+			session = HibernateUtil.getSessionFactory().openSession();
+			Query query = session.createQuery(sql);
+			query.setParameter("sponsorID", sponsorID);
+			if(ValidData.checkNull(loan_code) == true){
+				query.setParameter("loan_code", loan_code);
+			}
+			if(final_status.size() > 0){
+				query.setParameter("final_status", final_status);
+			}	
+			if(ValidData.checkNull(borrower_name) == true){
+				query.setParameter("borrower_name", borrower_name);
+			}
+			if(ValidData.checkNull(from_date) == true){
+				Date fromDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(from_date + " 00:00:00");  
+				query.setParameter("from_date", fromDate);
+			}
+			if(ValidData.checkNull(to_date) == true){
+				Date toDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(to_date + " 23:59:59");  
+				query.setParameter("to_date", toDate);
+			}
+			if(ValidData.checkNull(calculate_profit_type) == true){
+				query.setParameter("calculate_profit_type", Integer.parseInt(calculate_profit_type));
+			}
+			list = query.getResultList();
+			
+			System.out.println(list.get(0));
+			System.out.println(list.size());
+			return (long)list.get(0);
+		} catch (Exception e) {
+			FileLogger.log(">> listResContractList err " + e.getMessage(),LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return 0l;
+	}
 	
 	public ResContractList getBranchRoom(int branchID, int roomID, int loanID) {
 		Session session = null;

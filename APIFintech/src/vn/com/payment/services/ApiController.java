@@ -147,6 +147,7 @@ public class ApiController {
 	   return bussiness.updateStatus(formParams);
    }
    
+	//Thẩm định lần 2
    @POST
    @Path("/api/updateAppraisal")
    @Produces({MediaType.APPLICATION_JSON})
@@ -157,6 +158,7 @@ public class ApiController {
 	   return bussiness.updateAppraisal(formParams);
    }
    
+   //Phân bổ nhà đầu tư
    @POST
    @Path("/api/setAllotment")
    @Produces({MediaType.APPLICATION_JSON})
@@ -165,6 +167,17 @@ public class ApiController {
 	   Bussiness bussiness = new Bussiness();
    	   System.out.println(formParams);
 	   return bussiness.setAllotment(formParams);
+   }
+   
+   
+   @POST
+   @Path("/api/getContractListSponsor")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getContractListSponsor(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong setAllotment");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getContractListSponsor(formParams);
    }
    
    

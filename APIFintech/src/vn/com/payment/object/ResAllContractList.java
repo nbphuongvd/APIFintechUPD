@@ -9,6 +9,7 @@ public class ResAllContractList {
 	public String message;
 	public long totalRecord;
 	public List<ResContractList> contract_list;
+	public List<ResContractListSponsor> contract_list_sponsor;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -42,6 +43,12 @@ public class ResAllContractList {
 	}
 	public void setTotalRecord(long totalRecord) {
 		this.totalRecord = totalRecord;
+	}
+	public List<ResContractListSponsor> getContract_list_sponsor() {
+		return contract_list_sponsor;
+	}
+	public void setContract_list_sponsor(List<ResContractListSponsor> contract_list_sponsor) {
+		this.contract_list_sponsor = contract_list_sponsor;
 	}
 	
 }

@@ -43,6 +43,7 @@ import vn.com.payment.object.ReqAllotment;
 import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqChangePass;
 import vn.com.payment.object.ReqContractList;
+import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ReqStepLog;
@@ -53,6 +54,7 @@ import vn.com.payment.object.ResAppraisal;
 import vn.com.payment.object.ResChangePass;
 import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
+import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResLogin;
 import vn.com.payment.object.ResStepLog;
@@ -390,22 +392,6 @@ public class Bussiness {
 					room_id = Integer.parseInt(msg.get(0).toString());
 				}
 			}
-//			
-//			List<Integer> branchID11 = new ArrayList<>();
-//			List<Integer> roomID11 = new ArrayList<>();
-//			if (ValidData.checkNull(acc.getBranchId()) == true) {
-//				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-//				Iterator<String> keys = isJsonObject.keys();
-//				while (keys.hasNext()) {
-//					String key = keys.next();
-//					System.out.println(key);
-//					JSONArray msg = (JSONArray) isJsonObject.get(key);
-//					branchID.add(new Integer(key.toString()));
-//					for (int i = 0; i < msg.length(); i++) {
-//						roomID.add(Integer.parseInt(msg.get(i).toString()));
-//					}
-//				}
-//			}
 			System.out.println("aaa");
 			TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();
 			BigInteger loanID = tblLoanReqDetailHome.getIDAutoIncrement();
@@ -884,6 +870,7 @@ public class Bussiness {
 		}
 	}
 
+	// Update trạng thái giao dịch
 	public Response updateStatus(String dataUpdateStatus) {
 		FileLogger.log("----------------Bat dau updateStatus--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -976,7 +963,7 @@ public class Bussiness {
 		}
 	}
 	
-	
+	   //Phân bổ nhà đầu tư
 	public Response setAllotment(String dataAllotment) {
 		FileLogger.log("----------------Bat dau setAllotment--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -1035,10 +1022,9 @@ public class Bussiness {
 							TblLoanSponsorMapp tblLoanSponsorMapp = new TblLoanSponsorMapp();
 							tblLoanSponsorMapp.setLoanId(tblLoanRequest.getLoanId());
 							tblLoanSponsorMapp.setSponsorId(Integer.parseInt(string));
-							tblLoanSponsorMapp.setCreatedDate(new Date());
-							tblLoanSponsorMapp.setDisbursementDate(Utils.convertStringToDate("MMddyyyy HH:mm:ss", tblLoanReqDetail.getDisbursementDate().toString()));
+							tblLoanSponsorMapp.setCreatedDate(Utils.getTimeStampNow());
+							tblLoanSponsorMapp.setDisbursementDate(Utils.stringToTimestamp(tblLoanReqDetail.getDisbursementDate().toString()));
 							tblLoanSponsorMapp.setDisbursementStatus(0);
-							
 							boolean checkINS = dbFintechHome.createTblLoanSponsorMapp(tblLoanSponsorMapp);
 							FileLogger.log("setAllotment tblLoanRequest.getLoanId: " + tblLoanRequest.getLoanId() + "createTblLoanSponsorMapp: " + checkINS, LogType.BUSSINESS);
 						}
@@ -1228,6 +1214,8 @@ public class Bussiness {
 		}
 	}
 
+	
+	//Thẩm định lần 2
 	public Response updateAppraisal(String dataAppraisal) {
 		FileLogger.log("----------------Bat dau updateAppraisal--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -1337,6 +1325,63 @@ public class Bussiness {
 			resAppraisal.setMessage("Yeu cau that bai - Da co loi xay ra");
 			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
 			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAppraisal.toJSON()).build();
+		}
+	}
+	
+	public Response getContractListSponsor(String dataGetContractListSpon) {
+		FileLogger.log("----------------Bat dau getContractListSponsor--------------------------", LogType.BUSSINESS);
+		ResponseBuilder response = Response.status(Status.OK).entity("x");
+		ResAllContractList resAllContractList = new ResAllContractList();
+		List<ResContractListSponsor> resContractListSponsors = new ArrayList<>();
+		try {
+			FileLogger.log("getContractListSponsor dataGetContractListSpon: " + dataGetContractListSpon, LogType.BUSSINESS);
+			ReqContractListSponsor reqContractListSponsor = gson.fromJson(dataGetContractListSpon, ReqContractListSponsor.class);
+			ResAllContractList resContractListSponsor2 = validData.validListSponsor(reqContractListSponsor);
+			if (resContractListSponsor2 != null) {
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resContractListSponsor2.toJSON()).build();
+			}
+//			Account acc = accountHome.getAccountUsename(reqContractListSponsor.getUsername());
+			String loan_code = "";
+			try {
+				loan_code = reqContractListSponsor.getLoan_code();
+			} catch (Exception e) {
+			}
+			List<Integer> final_statusAR = new ArrayList<>(); 
+			try {
+				List<String> final_status = reqContractListSponsor.getFinal_status();
+				for (String string : final_status) {
+					final_statusAR.add(Integer.parseInt(string));
+				}
+			} catch (Exception e) {
+			}
+			String borrower_name = reqContractListSponsor.getBorrower_name();
+			String from_date = reqContractListSponsor.getFrom_date();
+			String to_date = reqContractListSponsor.getTo_date();
+			String calculate_profit_type = reqContractListSponsor.getCalculate_profit_type();
+			List<ResContractListSponsor> listListSponsor = dbFintechHome.listListSponsor(Integer.parseInt(reqContractListSponsor.getSponsor_id()), loan_code,final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
+			long total = dbFintechHome.listCounListSponsor(Integer.parseInt(reqContractListSponsor.getSponsor_id()),loan_code, final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
+			if (listListSponsor != null) {
+				resAllContractList.setStatus(statusSuccess);
+				resAllContractList.setMessage("Yeu cau thanh cong");
+				resAllContractList.setContract_list_sponsor(listListSponsor);
+				resAllContractList.setTotalRecord(total);
+			} else {
+				resAllContractList.setStatus(statusFale);
+				resAllContractList.setMessage("Yeu cau that bai - Da co loi xay ra");
+				resAllContractList.setContract_list_sponsor(resContractListSponsors);
+			}
+			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+			FileLogger.log("getContractListSponsor: " + reqContractListSponsor.getUsername() + " response to client:" + resAllContractList.toJSON(), LogType.BUSSINESS);
+			FileLogger.log("----------------Ket thuc getContractListSponsor: ", LogType.BUSSINESS);
+			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAllContractList.toJSON()).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("----------------Ket thuc getContractListSponsor Exception " + e, LogType.ERROR);
+			resAllContractList.setStatus(statusFale);
+			resAllContractList.setMessage("Yeu cau that bai - Da co loi xay ra");
+			response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+			return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resAllContractList.toJSON()).build();
 		}
 	}
 

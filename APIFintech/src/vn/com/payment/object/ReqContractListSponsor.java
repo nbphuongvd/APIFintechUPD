@@ -12,7 +12,8 @@ public class ReqContractListSponsor {
 	public String calculate_profit_type; 	// [1: du no. giam dan;2:tat toan cuoi ky]
 	public List<String> final_status;		// trạng thái các hồ sơ muốn tìm kiếm(=-1 nếu muốn search all status)
 	public String loan_code;				// ma hop dong
-	public String sponsor_id;				// tên khách hàng
+	public String sponsor_id;				
+	public String borrower_name;			// tên khách hàng
 	public String limit;
 	public String offSet;
 
@@ -105,6 +106,14 @@ public class ReqContractListSponsor {
 
 	public void setOffSet(String offSet) {
 		this.offSet = offSet;
+	}
+
+	public String getBorrower_name() {
+		return borrower_name;
+	}
+
+	public void setBorrower_name(String borrower_name) {
+		this.borrower_name = borrower_name;
 	}
 	
 }
