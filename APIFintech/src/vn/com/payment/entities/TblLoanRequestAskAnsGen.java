@@ -5,10 +5,10 @@ import java.util.List;
 public class TblLoanRequestAskAnsGen {
 	private Integer QAId;
 	private int loanId;
-	private String QAThamDinh2;
 	private Float thamDinh1Rate;
 	private Float thamDinh2Rate;
 	public List<Object> QAThamDinh1;
+	public List<Object> QAThamDinh2;
 	public Integer getQAId() {
 		return QAId;
 	}
@@ -21,10 +21,11 @@ public class TblLoanRequestAskAnsGen {
 	public void setLoanId(int loanId) {
 		this.loanId = loanId;
 	}
-	public String getQAThamDinh2() {
+	
+	public List<Object> getQAThamDinh2() {
 		return QAThamDinh2;
 	}
-	public void setQAThamDinh2(String qAThamDinh2) {
+	public void setQAThamDinh2(List<Object> qAThamDinh2) {
 		QAThamDinh2 = qAThamDinh2;
 	}
 	public Float getThamDinh1Rate() {

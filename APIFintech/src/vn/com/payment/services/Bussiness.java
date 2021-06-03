@@ -823,17 +823,18 @@ public class Bussiness {
 							.getRequestAskAns(tblLoanRequest.getLoanId());
 
 					List<TblLoanRequestAskAnsGen> resListLoanRequestAskAns = new ArrayList<>();
-					Type listTypeAskAns = new TypeToken<List<Object>>() {
-					}.getType();
+					Type listTypeAskAns1 = new TypeToken<List<Object>>() {}.getType();
+					Type listTypeAskAns2 = new TypeToken<List<Object>>() {}.getType();
 					for (TblLoanRequestAskAns tblAskAns : tblLoanRequestAskAns) {
 						TblLoanRequestAskAnsGen tblLoanRequestAskAnsGen = new TblLoanRequestAskAnsGen();
-						ArrayList<Object> lstObj = GsonUltilities.fromJson(tblAskAns.getQAThamDinh1(), listTypeAskAns);
+						ArrayList<Object> lstObj1 = GsonUltilities.fromJson(tblAskAns.getQAThamDinh1(), listTypeAskAns1);
+						ArrayList<Object> lstObj2 = GsonUltilities.fromJson(tblAskAns.getQAThamDinh2(), listTypeAskAns2);
 						tblLoanRequestAskAnsGen.setQAId(tblAskAns.getQAId());
 						tblLoanRequestAskAnsGen.setLoanId(tblAskAns.getLoanId());
-						tblLoanRequestAskAnsGen.setQAThamDinh2(tblAskAns.getQAThamDinh2());
 						tblLoanRequestAskAnsGen.setThamDinh1Rate(tblAskAns.getThamDinh1Rate());
 						tblLoanRequestAskAnsGen.setThamDinh2Rate(tblAskAns.getThamDinh2Rate());
-						tblLoanRequestAskAnsGen.setQAThamDinh1(lstObj);
+						tblLoanRequestAskAnsGen.setQAThamDinh1(lstObj1);
+						tblLoanRequestAskAnsGen.setQAThamDinh2(lstObj2);
 						resListLoanRequestAskAns.add(tblLoanRequestAskAnsGen);
 					}
 					resContractDetail.setQuestion_and_answears(resListLoanRequestAskAns);
