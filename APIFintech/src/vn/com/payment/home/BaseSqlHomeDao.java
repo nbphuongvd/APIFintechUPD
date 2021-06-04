@@ -94,29 +94,6 @@ public class BaseSqlHomeDao {
 		return objold;
 	}
 
-	// public void persist(Object transientInstance) {
-	// // log.debug("persisting TblACategories instance");
-	// Session session = null;
-	// Transaction trs = null;
-	// try {
-	// Long preProcess = System.currentTimeMillis();
-	// session = HibernateUtil.getSessionFactory().openSession();
-	// Long finishProcess = System.currentTimeMillis();
-	// // log.info(">>>>>>>>>>>>>>>>>Total get connection="
-	// // + (finishProcess - preProcess));
-	// trs = session.beginTransaction();
-	// session.persist(transientInstance);
-	// // log.debug("persist successful");
-	// trs.commit();
-	// } catch (Exception re) {
-	// re.printStackTrace();
-	//// log.fatal("persist failed", re);
-	//
-	// } finally {
-	// releaseSession(session);
-	// }
-	// }
-
 	public int persist(Object transientInstance) {
 		// log.debug("persisting TblACategories instance");
 		int finish = -1;

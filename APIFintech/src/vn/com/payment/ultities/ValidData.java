@@ -17,6 +17,7 @@ import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
@@ -26,6 +27,7 @@ import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUpdateStatus;
 import vn.com.payment.services.UserInfo;
@@ -979,13 +981,13 @@ public class ValidData {
 				return resContractListSponsor;
 			}
 			
-			if (ValidData.checkNull(reqContractListSponsor.getSponsor_id()) == false){
-				String messageErr = "Valid ListSponsor Sponsor_id invalid";
-				FileLogger.log(messageErr, LogType.BUSSINESS);
-				resContractListSponsor.setStatus(statusFale);
-				resContractListSponsor.setMessage(messageErr);
-				return resContractListSponsor;
-			}
+//			if (ValidData.checkNull(reqContractListSponsor.getSponsor_id()) == false){
+//				String messageErr = "Valid ListSponsor Sponsor_id invalid";
+//				FileLogger.log(messageErr, LogType.BUSSINESS);
+//				resContractListSponsor.setStatus(statusFale);
+//				resContractListSponsor.setMessage(messageErr);
+//				return resContractListSponsor;
+//			}
 			
 			boolean checkLG = userInfo.checkLogin(reqContractListSponsor.getUsername(), reqContractListSponsor.getToken());
 			if(!checkLG){
@@ -999,6 +1001,59 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid resContractList exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	
+	
+	public ResDisbursement validDisbursement(ReqDisbursement reqDisbursement){
+		ResDisbursement resDisbursement = new ResDisbursement();
+		try {
+			if (ValidData.checkNull(reqDisbursement.getUsername()) == false){
+				String messageErr = "Valid validDisbursement Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage(messageErr);
+				return resDisbursement;
+			}
+			if (ValidData.checkNull(reqDisbursement.getToken()) == false){
+				String messageErr = "Valid validDisbursement token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage(messageErr);
+				return resDisbursement;
+			}
+			
+			if (ValidData.checkNull(reqDisbursement.getLoan_code()) == false){
+				String messageErr = "Valid validDisbursement Loan_code invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage(messageErr);
+				return resDisbursement;
+			}
+			
+			if (ValidData.checkNullLong(reqDisbursement.getExpertise_status()) == false){
+				String messageErr = "Valid validDisbursement Expertise_status invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage(messageErr);
+				return resDisbursement;
+			}
+			
+			boolean checkLG = userInfo.checkLogin(reqDisbursement.getUsername(), reqDisbursement.getToken());
+			if(!checkLG){
+				FileLogger.log("validDisbursement : " + reqDisbursement.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage(messageErr);
+				return resDisbursement;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validDisbursement exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

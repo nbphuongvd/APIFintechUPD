@@ -1,5 +1,6 @@
 package vn.com.payment.home;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
@@ -382,6 +384,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 								+ "roomId in :listRoom and "
 								+ "branchId in :listbranchId";
 			System.out.println("sql: "+ sql);
+			sql = sql + " ORDER BY createdDate DESC";
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
 			query.setParameter("loanCode", loanCode);
@@ -402,7 +405,37 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		}
 		return null;
 	}
-	
+	public TblLoanRequest getLoanRoleNDT(String loanCode) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		TblLoanRequest tblLoanRequest = new TblLoanRequest();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "FROM TblLoanRequest Where "
+								+ "loanCode =:loanCode";
+			System.out.println("sql: "+ sql);
+			session = HibernateUtil.getSessionFactory().openSession();
+			sql = sql + " ORDER BY createdDate DESC";
+			Query query = session.createQuery(sql);
+			query.setParameter("loanCode", loanCode);
+//			query.setParameter("listRoom", roomID);
+//			query.setParameter("listbranchId", branchID);
+			list = query.getResultList();
+			if(list.size() > 0){
+				tblLoanRequest = (TblLoanRequest) list.get(0);
+				return tblLoanRequest;
+			}
+			System.out.println(list.size());
+			
+		} catch (Exception e) {
+			FileLogger.log(">> checkLoan err " + e.getMessage(),LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
 	public boolean createTblLoanExpertiseSteps(TblLoanExpertiseSteps tblLoanExpertiseSteps) {
 		try {
 			save(tblLoanExpertiseSteps);
@@ -783,6 +816,36 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		}
 		return result;
     }
+	
+	public TblLoanRequest getLoanRequet() {
+		Session session = null;
+		BigDecimal sumAmount = null;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sqlUpd = "update SeqContract SET rowId = LAST_INSERT_ID(rowId+1)";
+			String sqlSel = "select sum(row_id) from seq_contract";
+			System.out.println("sql: "+ sqlUpd);
+			Query updateQ = session.createQuery(sqlUpd);
+			SQLQuery<BigDecimal> selectQ = session.createSQLQuery(sqlSel);
+			Transaction transaction = session.beginTransaction();
+			try {
+				int result = updateQ.executeUpdate();
+				if(result == 1){
+					transaction.commit();
+					sumAmount = selectQ.uniqueResult();
+				}				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return sumAmount;
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.fatal("getListVaMap = " +e);
+		}finally {
+			releaseSession(session);
+		}
+		return null;
+	}
 	
 	public static void main(String[] args) {
 

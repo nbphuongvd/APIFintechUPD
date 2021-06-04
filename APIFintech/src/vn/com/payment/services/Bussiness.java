@@ -45,6 +45,7 @@ import vn.com.payment.object.ReqChangePass;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
@@ -56,6 +57,7 @@ import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResLogin;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUpdateStatus;
@@ -768,20 +770,27 @@ public class Bussiness {
 			List<Integer> branchID = new ArrayList<>();
 			List<Integer> roomID = new ArrayList<>();
 			Account acc = accountHome.getAccountUsename(reqStepLog.getUsername());
-			if (ValidData.checkNull(acc.getBranchId()) == true) {
-				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-				Iterator<String> keys = isJsonObject.keys();
-				while (keys.hasNext()) {
-					String key = keys.next();
-					System.out.println(key);
-					JSONArray msg = (JSONArray) isJsonObject.get(key);
-					branchID.add(new Integer(key.toString()));
-					for (int i = 0; i < msg.length(); i++) {
-						roomID.add(Integer.parseInt(msg.get(i).toString()));
+			TblLoanRequest tblLoanRequest = null;
+			System.out.println(acc.getBranchId());
+			if(acc.getRolesId().equals("3")){
+				tblLoanRequest = dbFintechHome.getLoanRoleNDT(reqStepLog.getLoan_id());
+			}else{
+				if (ValidData.checkNull(acc.getBranchId()) == true) {
+					JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+					Iterator<String> keys = isJsonObject.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						System.out.println(key);
+						JSONArray msg = (JSONArray) isJsonObject.get(key);
+						branchID.add(new Integer(key.toString()));
+						for (int i = 0; i < msg.length(); i++) {
+							roomID.add(Integer.parseInt(msg.get(i).toString()));
+						}
 					}
 				}
+				tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqStepLog.getLoan_id());
 			}
-			TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqStepLog.getLoan_id());
+			
 			// boolean checkLoan = dbFintechHome.checkLoan(branchID, roomID,
 			// Integer.parseInt(reqStepLog.getLoan_id()));
 			if (tblLoanRequest != null) {
@@ -1329,6 +1338,7 @@ public class Bussiness {
 		}
 	}
 	
+	// Lấy danh sach khoan vay phan bo cho nha dau tu
 	public Response getContractListSponsor(String dataGetContractListSpon) {
 		FileLogger.log("----------------Bat dau getContractListSponsor--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -1342,7 +1352,7 @@ public class Bussiness {
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
 				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resContractListSponsor2.toJSON()).build();
 			}
-//			Account acc = accountHome.getAccountUsename(reqContractListSponsor.getUsername());
+			Account acc = accountHome.getAccountUsename(reqContractListSponsor.getUsername());
 			String loan_code = "";
 			try {
 				loan_code = reqContractListSponsor.getLoan_code();
@@ -1360,8 +1370,8 @@ public class Bussiness {
 			String from_date = reqContractListSponsor.getFrom_date();
 			String to_date = reqContractListSponsor.getTo_date();
 			String calculate_profit_type = reqContractListSponsor.getCalculate_profit_type();
-			List<ResContractListSponsor> listListSponsor = dbFintechHome.listListSponsor(Integer.parseInt(reqContractListSponsor.getSponsor_id()), loan_code,final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
-			long total = dbFintechHome.listCounListSponsor(Integer.parseInt(reqContractListSponsor.getSponsor_id()),loan_code, final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
+			List<ResContractListSponsor> listListSponsor = dbFintechHome.listListSponsor(acc.getRowId(), loan_code,final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
+			long total = dbFintechHome.listCounListSponsor(acc.getRowId(), loan_code, final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqContractListSponsor.getLimit(), reqContractListSponsor.getOffSet());
 			if (listListSponsor != null) {
 				resAllContractList.setStatus(statusSuccess);
 				resAllContractList.setMessage("Yeu cau thanh cong");
@@ -1386,7 +1396,41 @@ public class Bussiness {
 		}
 	}
 
-	
+	// Giai ngan
+		public Response disbursement(String dataDisbursement) {
+			FileLogger.log("----------------Bat dau disbursement--------------------------", LogType.BUSSINESS);
+			ResponseBuilder response = Response.status(Status.OK).entity("x");
+			List<ResContractListSponsor> resContractListSponsors = new ArrayList<>();
+			ResDisbursement resDisbursement = new ResDisbursement();
+			try {
+				FileLogger.log("disbursement dataDisbursement: " + dataDisbursement, LogType.BUSSINESS);
+				ReqDisbursement reqDisbursement = gson.fromJson(dataDisbursement, ReqDisbursement.class);
+				ResDisbursement resDisbursement2 = validData.validDisbursement(reqDisbursement);
+				if (resDisbursement2 != null) {
+					response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDisbursement2.toJSON()).build();
+				}
+				Account acc = accountHome.getAccountUsename(reqDisbursement.getUsername());
+				int accountID = acc.getRowId();
+				String loan_code = "";
+				try {
+					loan_code = reqDisbursement.getLoan_code();
+				} catch (Exception e) {
+				}
+
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				FileLogger.log("disbursement: " + reqDisbursement.getUsername() + " response to client:" + resDisbursement.toJSON(), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc disbursement: ", LogType.BUSSINESS);
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDisbursement.toJSON()).build();
+			} catch (Exception e) {
+				e.printStackTrace();
+				FileLogger.log("----------------Ket thuc disbursement Exception " + e, LogType.ERROR);
+				resDisbursement.setStatus(statusFale);
+				resDisbursement.setMessage("Yeu cau that bai - Da co loi xay ra");
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDisbursement.toJSON()).build();
+			}
+		}
 	public static void main(String[] args) {
 		try {
 			Bussiness bussiness = new Bussiness();
