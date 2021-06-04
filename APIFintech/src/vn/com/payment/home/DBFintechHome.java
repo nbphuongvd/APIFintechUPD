@@ -23,6 +23,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.NativeQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 import com.google.gson.Gson;
 
@@ -83,6 +84,28 @@ public class DBFintechHome extends BaseSqlHomeDao{
 	public boolean updateExpertiseSteps(TblLoanExpertiseSteps TblLoanExpertiseSteps) {
 		try {
 			updateObj(TblLoanExpertiseSteps, TblLoanExpertiseSteps.getLoanExpertiseId());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("updateExpertiseSteps Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
+	
+	public boolean updateTblLoanSponsorMapp(TblLoanSponsorMapp tblLoanSponsorMapp) {
+		try {
+			updateObj(tblLoanSponsorMapp, tblLoanSponsorMapp.getLoanSponsorMappId());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("updateExpertiseSteps Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
+	
+	public boolean updateTblLoanRequest(TblLoanRequest tblLoanRequest) {
+		try {
+			updateObj(tblLoanRequest, tblLoanRequest.getLoanId());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -440,6 +463,18 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		try {
 			save(tblLoanExpertiseSteps);
 			System.out.println("id: " + tblLoanExpertiseSteps.getLoanExpertiseId());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("createTblLoanExpertiseSteps Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
+	
+	public boolean createTblImages(TblImages tblImages) {
+		try {
+			save(tblImages);
+			System.out.println("id: " + tblImages.getImageId());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -817,27 +852,42 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return result;
     }
 	
-	public TblLoanRequest getLoanRequet() {
+	public TblLoanSponsorMapp getLoanRequet(int loanID, int sponsorID) {
 		Session session = null;
 		BigDecimal sumAmount = null;
+		List<Object> list = null;
 		try {
+			int statusDis = 5;
+			int statusDisCreater = 0;
 			session = HibernateUtil.getSessionFactory().openSession();
-			String sqlUpd = "update SeqContract SET rowId = LAST_INSERT_ID(rowId+1)";
-			String sqlSel = "select sum(row_id) from seq_contract";
-			System.out.println("sql: "+ sqlUpd);
+			String sqlUpd = "update TblLoanSponsorMapp set disbursementStatus =:statusDis where loanId =:loanIDUPD and sponsorId =:sponsorIDUPD and disbursementStatus =:statusDisCreater";
+			String sqlSel = "from TblLoanSponsorMapp where loanId =:loanID and sponsorId =:sponsorID and disbursementStatus =:statusDisCreater";
 			Query updateQ = session.createQuery(sqlUpd);
-			SQLQuery<BigDecimal> selectQ = session.createSQLQuery(sqlSel);
+			Query query = session.createQuery(sqlSel);
+			updateQ.setParameter("statusDis", statusDis);
+			updateQ.setParameter("loanIDUPD", loanID);
+			updateQ.setParameter("sponsorIDUPD", sponsorID);
+			updateQ.setParameter("statusDisCreater", statusDisCreater);
+			
+			query.setParameter("statusDisCreater", statusDis);
+			query.setParameter("loanID", loanID);
+			query.setParameter("sponsorID", sponsorID);
 			Transaction transaction = session.beginTransaction();
 			try {
 				int result = updateQ.executeUpdate();
-				if(result == 1){
+				if(result == 1){					
+					TblLoanSponsorMapp tbLoanSponsorMapp = null;
+					list = query.getResultList();
+					System.out.println(list.size());
+					tbLoanSponsorMapp = (TblLoanSponsorMapp) list.get(0);
 					transaction.commit();
-					sumAmount = selectQ.uniqueResult();
+					return tbLoanSponsorMapp;
 				}				
 			} catch (Exception e) {
+				transaction.rollback();
 				e.printStackTrace();
 			}
-			return sumAmount;
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.fatal("getListVaMap = " +e);
@@ -874,8 +924,15 @@ public class DBFintechHome extends BaseSqlHomeDao{
 				}
 			}
 		}
-		TblLoanRequest lisResContractList = dbFintechHome.getLoan(branchID, roomID, "MHD.43.10027");
-		System.out.println(lisResContractList.getLoanName());
+		TblLoanSponsorMapp lisResContractList = dbFintechHome.getLoanRequet(139, 11);
+		System.out.println(lisResContractList.getLoanId());
+		System.out.println(lisResContractList.getDisbursementDate().compareTo(new Date()));
+		int aaa = lisResContractList.getDisbursementDate().compareTo(new Date());
+		if(aaa < 0){
+			System.out.println("a");
+		}else{
+			System.out.println("b");
+		}
 //		for (ResContractList resContractList : lisResContractList) {
 //			System.out.println(resContractList.getLoan_code());
 //		}

@@ -180,6 +180,17 @@ public class ApiController {
 	   return bussiness.getContractListSponsor(formParams);
    }
    
+   //Giai ngan
+   @POST
+   @Path("/api/disbursement")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response disbursement(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong setAllotment");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.disbursement(formParams);
+   }
+   
    
 //   @POST
 //   @Path("/api/test")

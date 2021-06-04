@@ -1411,13 +1411,96 @@ public class Bussiness {
 					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDisbursement2.toJSON()).build();
 				}
 				Account acc = accountHome.getAccountUsename(reqDisbursement.getUsername());
+				String fullName = reqDisbursement.getUsername();
+				try {
+					fullName = acc.getFirstName() + " " + acc.getLastName();
+				} catch (Exception e) {
+				}
 				int accountID = acc.getRowId();
 				String loan_code = "";
 				try {
 					loan_code = reqDisbursement.getLoan_code();
 				} catch (Exception e) {
 				}
+				TblLoanRequest tblLoanRequest = dbFintechHome.getTblLoanRequest(loan_code);
+				if(tblLoanRequest != null){
+					TblLoanSponsorMapp tblLoanSponsorMapp = dbFintechHome.getLoanRequet(tblLoanRequest.getLoanId(), accountID);
+					if(tblLoanSponsorMapp != null){
+						int checkDisbursementDate = tblLoanSponsorMapp.getDisbursementDate().compareTo(new Date());
+						FileLogger.log("disbursement checkDisbursementDate: " + checkDisbursementDate, LogType.BUSSINESS);
+						if(checkDisbursementDate > 0){							
+							//Khoan vay chua den han thanh toan
+							FileLogger.log("disbursement checkDisbursementDate: " + checkDisbursementDate, LogType.BUSSINESS);
+							if(reqDisbursement.getExpertise_status() == 1){
+								//Cập nhật trạng thái final_status bảng tbl_loan_request về: đã giải ngân(117).
+								//disbursement_date = current
+								tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
+								tblLoanRequest.setFinalStatus(117);
+								tblLoanSponsorMapp.setDisbursementDate(new Date());
+								tblLoanSponsorMapp.setDisbursementStatus(1);
+							}else{
+								//disbursement_status = 0, disbursement_date = current
+								tblLoanSponsorMapp.setDisbursementDate(new Date());
+								tblLoanSponsorMapp.setDisbursementStatus(0);
+							}
+							TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+							tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
+							tblLoanExpertiseSteps.setExpertiseUser(fullName);
+							tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
+							tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
+							tblLoanExpertiseSteps.setExpertiseStep(1);
+//							tblLoanExpertiseSteps.setExpertiseComment(reqAppraisal.getMemo());
+							tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
+							tblLoanExpertiseSteps.setAction(reqDisbursement.getAction());
 
+							resDisbursement.setStatus(statusSuccess);
+							resDisbursement.setMessage("Yeu cau thanh cong");
+							resDisbursement.setLoan_code(loan_code);
+							TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
+							if (reqDisbursement.getImages() != null) {
+								List<ObjImage> imagesList = reqDisbursement.getImages();
+								for (ObjImage objImage : imagesList) {
+									TblImages tblImages = new TblImages();
+									tblImages.setLoanRequestDetailId(tblLoanReqDetail.getReqDetailId());
+									tblImages.setImageName(objImage.getImage_name());
+									tblImages.setImageInputName(objImage.getImage_input_name());
+									tblImages.setPartnerImageId(objImage.getPartner_image_id());
+									tblImages.setImageType((int) objImage.getImage_type());
+									tblImages.setImageByte(objImage.getImage_byte());
+									tblImages.setImageUrl(objImage.getImage_url());
+									tblImages.setImageIsFront((int) objImage.getImage_is_front());
+									boolean checkINSEImage = dbFintechHome.createTblImages(tblImages);
+									FileLogger.log("disbursement checkINSEImage: " + checkINSEImage, LogType.BUSSINESS);
+								}
+							}
+							
+							boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+							FileLogger.log("disbursement checkINSExpertiseSteps: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+
+							boolean checkUPDSpon = dbFintechHome.updateTblLoanSponsorMapp(tblLoanSponsorMapp);
+							FileLogger.log("disbursement checkUPDSpon: " + checkUPDSpon, LogType.BUSSINESS);
+							
+							boolean checkUPDLoan = dbFintechHome.updateTblLoanRequest(tblLoanRequest);
+							FileLogger.log("disbursement checkINS: " + checkUPDLoan, LogType.BUSSINESS);
+							
+						}else{
+							//Khoan vay qua han
+							tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
+							tblLoanRequest.setFinalStatus(117);
+							tblLoanRequest.setLatestUpdate(new Date());
+							boolean checkUPDLoan = dbFintechHome.updateTblLoanRequest(tblLoanRequest);
+							FileLogger.log("disbursement checkUPDLoan: " + checkUPDLoan, LogType.BUSSINESS);
+							resDisbursement.setStatus(statusFale);
+							resDisbursement.setMessage("Yeu cau that bai - Khoan vay da thoi gian cho phep giai ngan");
+						}
+					}else{
+						resDisbursement.setStatus(statusFale);
+						resDisbursement.setMessage("Yeu cau that bai - Khoan vay nay khong duoc phep dau tu");
+					}
+				}else{
+					resDisbursement.setStatus(statusFale);
+					resDisbursement.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
+				}
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
 				FileLogger.log("disbursement: " + reqDisbursement.getUsername() + " response to client:" + resDisbursement.toJSON(), LogType.BUSSINESS);
 				FileLogger.log("----------------Ket thuc disbursement: ", LogType.BUSSINESS);
