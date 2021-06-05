@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated 25-May-2021 21:30:25 by Hibernate Tools 3.5.0.Final
+// Generated Jun 6, 2021 1:19:10 AM by Hibernate Tools 3.5.0.Final
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -36,6 +36,15 @@ public class TblLoanBill implements java.io.Serializable {
 	private BigDecimal extFeeIfIndPayBefore;
 	private BigDecimal totalPayIfSettleRequest;
 	private Integer dayMustPay;
+	private Integer billStatus;
+	private Integer billPaymentStatus;
+	private Date paymentDate;
+	private Long paymentAmt;
+	private String billCollectBy;
+	private Integer isASpecialPayment;
+	private String comment;
+	private Integer overDueDay;
+	private Integer billIndex;
 
 	public TblLoanBill() {
 	}
@@ -53,7 +62,9 @@ public class TblLoanBill implements java.io.Serializable {
 	public TblLoanBill(int loanId, long loanRemainAmount, int paymentPeriodFrom, int paymentPeriodTo,
 			Integer lastDayAcceptPay, int plusDay, Integer overDueFee, Date createdDate, BigDecimal amtToDecrYourLoan,
 			BigDecimal monthlyInterest, BigDecimal totalOnAMonth, BigDecimal advisoryFee, BigDecimal serviceFee,
-			BigDecimal extFeeIfIndPayBefore, BigDecimal totalPayIfSettleRequest, Integer dayMustPay) {
+			BigDecimal extFeeIfIndPayBefore, BigDecimal totalPayIfSettleRequest, Integer dayMustPay, Integer billStatus,
+			Integer billPaymentStatus, Date paymentDate, Long paymentAmt, String billCollectBy,
+			Integer isASpecialPayment, String comment, Integer overDueDay, Integer billIndex) {
 		this.loanId = loanId;
 		this.loanRemainAmount = loanRemainAmount;
 		this.paymentPeriodFrom = paymentPeriodFrom;
@@ -70,6 +81,15 @@ public class TblLoanBill implements java.io.Serializable {
 		this.extFeeIfIndPayBefore = extFeeIfIndPayBefore;
 		this.totalPayIfSettleRequest = totalPayIfSettleRequest;
 		this.dayMustPay = dayMustPay;
+		this.billStatus = billStatus;
+		this.billPaymentStatus = billPaymentStatus;
+		this.paymentDate = paymentDate;
+		this.paymentAmt = paymentAmt;
+		this.billCollectBy = billCollectBy;
+		this.isASpecialPayment = isASpecialPayment;
+		this.comment = comment;
+		this.overDueDay = overDueDay;
+		this.billIndex = billIndex;
 	}
 
 	@Id
@@ -227,6 +247,88 @@ public class TblLoanBill implements java.io.Serializable {
 
 	public void setDayMustPay(Integer dayMustPay) {
 		this.dayMustPay = dayMustPay;
+	}
+
+	@Column(name = "bill_status")
+	public Integer getBillStatus() {
+		return this.billStatus;
+	}
+
+	public void setBillStatus(Integer billStatus) {
+		this.billStatus = billStatus;
+	}
+
+	@Column(name = "bill_payment_status")
+	public Integer getBillPaymentStatus() {
+		return this.billPaymentStatus;
+	}
+
+	public void setBillPaymentStatus(Integer billPaymentStatus) {
+		this.billPaymentStatus = billPaymentStatus;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "payment_date", length = 19)
+	public Date getPaymentDate() {
+		return this.paymentDate;
+	}
+
+	public void setPaymentDate(Date paymentDate) {
+		this.paymentDate = paymentDate;
+	}
+
+	@Column(name = "payment_amt", precision = 11, scale = 0)
+	public Long getPaymentAmt() {
+		return this.paymentAmt;
+	}
+
+	public void setPaymentAmt(Long paymentAmt) {
+		this.paymentAmt = paymentAmt;
+	}
+
+	@Column(name = "bill_collect_by")
+	public String getBillCollectBy() {
+		return this.billCollectBy;
+	}
+
+	public void setBillCollectBy(String billCollectBy) {
+		this.billCollectBy = billCollectBy;
+	}
+
+	@Column(name = "is_a_special_payment")
+	public Integer getIsASpecialPayment() {
+		return this.isASpecialPayment;
+	}
+
+	public void setIsASpecialPayment(Integer isASpecialPayment) {
+		this.isASpecialPayment = isASpecialPayment;
+	}
+
+	@Column(name = "comment")
+	public String getComment() {
+		return this.comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	@Column(name = "over_due_day")
+	public Integer getOverDueDay() {
+		return this.overDueDay;
+	}
+
+	public void setOverDueDay(Integer overDueDay) {
+		this.overDueDay = overDueDay;
+	}
+
+	@Column(name = "bill_index")
+	public Integer getBillIndex() {
+		return this.billIndex;
+	}
+
+	public void setBillIndex(Integer billIndex) {
+		this.billIndex = billIndex;
 	}
 
 }

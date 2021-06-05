@@ -191,6 +191,17 @@ public class ApiController {
 	   return bussiness.disbursement(formParams);
    }
    
+   //Lay danh sach nhac no
+   @POST
+   @Path("/api/listDebtReminder")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response getdebtReminder(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong setAllotment");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.getdebtReminder(formParams);
+   }
+   
    
 //   @POST
 //   @Path("/api/test")

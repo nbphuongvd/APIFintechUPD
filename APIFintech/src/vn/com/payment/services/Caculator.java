@@ -18,8 +18,7 @@ import vn.com.payment.ultities.FileLogger;
 import vn.com.payment.ultities.Utils;
 
 public class Caculator {
-	
-	
+
 	public int questionPercent(String userName, List<ObjQuestions> questionsList){
 		TblQuestionsHome tblQuestionsHome = new TblQuestionsHome();
 		TblQuestions tblQuestions = new TblQuestions();
@@ -56,6 +55,7 @@ public class Caculator {
 			FileLogger.log("getIllustration: " + userName + " illustrationIns:" + loaitrano, LogType.BUSSINESS);
 			double sotienconlai_a = sotienvay;
 			double gocconlai = sotienvay;
+			double gocconlaiTinhtattoan = sotienvay;
 			double laixuatNam = 0;
 			double phidichvu = 0;
 			double phituvan = 0;
@@ -75,14 +75,15 @@ public class Caculator {
 			double tinhphituvan = 0;
 			double tientrahangthang = 0;
 			double tinhphitattoan = 0;
+			
 			if (loaitrano == 1) {
 				// Lịch trả nợ theo dư nợ giảm dần
 
 				int kyvay = 0;
+				int tinhPhiTT = 0;
 				for (int i = 1; i <= sothangvay; i++) {
 
 					double tiengoctramoiky_a = sotienvay / sothangvay;
-					;
 					double tiencantt = tienThanhtoan(userName, billID, sotienvay, sothangvay, loaitrano, listFee);
 					for (Fees fees : listFee) {
 						switch (String.valueOf(fees.getFee_type())) {
@@ -134,6 +135,7 @@ public class Caculator {
 								// tinhphitattoan_a = sotienconlai_a +
 								// tienlaithang_a + tinhphidichvu_a +
 								// tinhphituvan_a + tinhphitranotruochan_a;
+								tinhPhiTT = 1;
 							} else {
 								phitattoantruochan = (double) fees.getFix_fee_amount();
 								tinhphitattoan_a = phitattoantruochan;
@@ -146,6 +148,9 @@ public class Caculator {
 					// '1:Lai suat, 2:Phi tu van, 3:phi dich vu,4:phitra no
 					// trươc han,5:phi tat toan truoc han',
 					double tiengoc = tiencantt - (tienlaithang_a + tinhphituvan_a + tinhphidichvu_a);
+					if(tinhPhiTT == 1){
+						tinhphitattoan_a = gocconlai * phitattoantruochan;
+					}
 					gocconlai = gocconlai - tiengoc;
 					Document doc = new Document("idMinhhoa", billID).append("Kyvay", i)
 							.append("Ngaythanhtoan", Utils.getNgayvay(ngayvay))
@@ -157,9 +162,10 @@ public class Caculator {
 							.append("Phitattoan", Math.round(tinhphitattoan_a))
 							// .append("Phitranoquahan",
 							// Math.round(tinhphitranotruochan_a))
-							.append("Sotientattoantaikynay", Math.round(gocconlai + tinhphitattoan_a));
+							.append("Sotientattoantaikynay", Math.round(gocconlaiTinhtattoan + tinhphitattoan_a));
 					array.add(doc);
-
+					gocconlaiTinhtattoan = gocconlaiTinhtattoan - tiengoc;
+					
 					TblLoanBill tblLoanBill = new TblLoanBill();
 					tblLoanBill.setLoanId(123);
 					tblLoanBill.setLoanRemainAmount((new Double(gocconlai)).longValue());
@@ -171,14 +177,18 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu_a));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
-					feesListSet.add(tblLoanBill);
+					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
 					kyvay = kyvay + 1;
+					tblLoanBill.setBillIndex(kyvay);
+					feesListSet.add(tblLoanBill);
+					
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));
 					// }
 				}
 			} else {
 				// Lịch trả nợ gốc cuối kỳ
 				// double sotientattoantaikynay = 0;
+				int kyvay = 0;
 				for (int i = 1; i <= sothangvay; i++) {
 					double sotienconlai = sotienvay;
 					int check = 0;
@@ -263,6 +273,9 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
+					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					kyvay = kyvay + 1;
+					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);
 
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));
@@ -298,6 +311,7 @@ public class Caculator {
 			FileLogger.log("getIllustration: " + userName + " illustrationIns:" + loaitrano, LogType.BUSSINESS);
 			double sotienconlai_a = sotienvay;
 			double gocconlai = sotienvay;
+			double gocconlaiTinhtattoan = sotienvay;
 			double laixuatNam = 0;
 			double phidichvu = 0;
 			double phituvan = 0;
@@ -318,6 +332,7 @@ public class Caculator {
 			double tientrahangthang = 0;
 			double tinhphitattoan = 0;
 			int ngaytrano =  Integer.parseInt(Utils.getNgayTrano((int)sothangvay, ngayvay));
+			int tinhPhiTT = 0;
 			if (loaitrano == 1) {
 				// Lịch trả nợ theo dư nợ giảm dần
 				int kyvay = 0;
@@ -330,8 +345,7 @@ public class Caculator {
 						case "1":
 							if (fees.getFix_fee_amount() <= 0) {
 								laixuatNam = (double) fees.getFix_fee_percent();
-								tienlaithang_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay) * laixuatNam
-										* 30.41666667 / 365;
+								tienlaithang_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay) * laixuatNam * 30.41666667 / 365;
 							} else {
 								laixuatNam = (double) fees.getFix_fee_amount();
 								tienlaithang_a = laixuatNam;
@@ -350,8 +364,7 @@ public class Caculator {
 						case "3":
 							if (fees.getFix_fee_amount() <= 0) {
 								phidichvu = (double) fees.getFix_fee_percent();
-								tinhphidichvu_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay) * phidichvu
-										* 30.41666667 / 365;
+								tinhphidichvu_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay) * phidichvu * 30.41666667 / 365;
 							} else {
 								phidichvu = (double) fees.getFix_fee_amount();
 								tinhphidichvu_a = phidichvu;
@@ -360,8 +373,7 @@ public class Caculator {
 						case "4":
 							if (fees.getFix_fee_amount() <= 0) {
 								phitratruochan = (double) fees.getFix_fee_percent();
-								tinhphitranotruochan_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay)
-										* phitratruochan;
+								tinhphitranotruochan_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay)* phitratruochan;
 							} else {
 								phitratruochan = (double) fees.getFix_fee_amount();
 								tinhphitranotruochan_a = phitratruochan;
@@ -370,11 +382,11 @@ public class Caculator {
 						case "5":
 							if (fees.getFix_fee_amount() <= 0) {
 								phitattoantruochan = (double) fees.getFix_fee_percent();
-								tinhphitattoan_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay)
-										* phitattoantruochan;
+								tinhphitattoan_a = (sotienconlai_a - kyvay * sotienconlai_a / sothangvay)* phitattoantruochan;
 								// tinhphitattoan_a = sotienconlai_a +
 								// tienlaithang_a + tinhphidichvu_a +
 								// tinhphituvan_a + tinhphitranotruochan_a;
+								tinhPhiTT = 1;
 							} else {
 								phitattoantruochan = (double) fees.getFix_fee_amount();
 								tinhphitattoan_a = phitattoantruochan;
@@ -385,6 +397,9 @@ public class Caculator {
 						}
 					}
 					double tiengoc = tiencantt - (tienlaithang_a + tinhphituvan_a + tinhphidichvu_a);
+					if(tinhPhiTT == 1){
+						tinhphitattoan_a = gocconlai * phitattoantruochan;
+					}
 					gocconlai = gocconlai - tiengoc;
 					Document doc = new Document("idMinhhoa", billID).append("Kyvay", i)
 							.append("Ngaythanhtoan", Utils.getNgayvay(ngayvay))
@@ -396,8 +411,9 @@ public class Caculator {
 							.append("Phitattoan", Math.round(tinhphitattoan_a))
 							// .append("Phitranoquahan",
 							// Math.round(tinhphitranotruochan_a))
-							.append("Sotientattoantaikynay", Math.round(gocconlai + tinhphitattoan_a));
-					array.add(doc);
+							.append("Sotientattoantaikynay", Math.round(gocconlaiTinhtattoan + tinhphitattoan_a));
+							array.add(doc);
+							gocconlaiTinhtattoan = gocconlaiTinhtattoan - tiengoc;
 
 					TblLoanBill tblLoanBill = new TblLoanBill();
 					tblLoanBill.setLoanId(loanID);
@@ -410,15 +426,17 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu_a));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
-					tblLoanBill.setDayMustPay(ngaytrano);
-					feesListSet.add(tblLoanBill);
+					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
 					kyvay = kyvay + 1;
+					tblLoanBill.setBillIndex(kyvay);
+					feesListSet.add(tblLoanBill);
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));
 					// }
 				}
 			} else {
 				// Lịch trả nợ gốc cuối kỳ
 				// double sotientattoantaikynay = 0;
+				int kyvay = 0;
 				for (int i = 1; i <= sothangvay; i++) {
 					double sotienconlai = sotienvay;
 					int check = 0;
@@ -475,8 +493,7 @@ public class Caculator {
 						}
 					}
 					if (check == 1) {
-						tinhphitattoan = sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan
-								+ tinhphitranotruochan;
+						tinhphitattoan = sotienconlai + tienlaithang + tinhphidichvu + tinhphituvan+ tinhphitranotruochan;
 					}
 					tientrahangthang = tienlaithang + tinhphituvan + tinhphidichvu;
 
@@ -505,7 +522,9 @@ public class Caculator {
 					tblLoanBill.setServiceFee(new BigDecimal(tinhphidichvu));
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
-					tblLoanBill.setDayMustPay(ngaytrano);
+					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					kyvay = kyvay + 1;
+					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);
 
 					ngayvay = Utils.getNgayvayNew(Utils.getNgayvay(ngayvay));
@@ -551,7 +570,6 @@ public class Caculator {
 			for (int i = 0; i <= sothangvay; i++) {
 
 				double tiengoctramoiky_a = sotienvay / sothangvay;
-				;
 
 				for (Fees fees : listFee) {
 					switch (String.valueOf(fees.getFee_type())) {

@@ -17,6 +17,7 @@ import vn.com.payment.object.ReqAppraisal;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUpdateStatus;
@@ -27,6 +28,7 @@ import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUpdateStatus;
@@ -963,6 +965,40 @@ public class ValidData {
 		return null;
 	}
 	
+	public ResDebtReminder validGetdebtReminder(ReqDebtReminder reqDebtReminder){
+		ResDebtReminder resDebtReminder = new ResDebtReminder();
+		try {
+			if (ValidData.checkNull(reqDebtReminder.getUsername()) == false){
+				String messageErr = "Valid validGetdebtReminder Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDebtReminder.setStatus(statusFale);
+				resDebtReminder.setMessage(messageErr);
+				return resDebtReminder;
+			}
+			if (ValidData.checkNull(reqDebtReminder.getToken()) == false){
+				String messageErr = "Valid validGetdebtReminder token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDebtReminder.setStatus(statusFale);
+				resDebtReminder.setMessage(messageErr);
+				return resDebtReminder;
+			}
+			boolean checkLG = userInfo.checkLogin(reqDebtReminder.getUsername(), reqDebtReminder.getToken());
+			if(!checkLG){
+				FileLogger.log("GetdebtReminder : " + reqDebtReminder.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resDebtReminder.setStatus(statusFale);
+				resDebtReminder.setMessage(messageErr);
+				return resDebtReminder;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validGetdebtReminder exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
 	public ResAllContractList validListSponsor(ReqContractListSponsor reqContractListSponsor){
 		ResAllContractList resContractListSponsor = new ResAllContractList();
 		try {
@@ -1005,8 +1041,6 @@ public class ValidData {
 		}
 		return null;
 	}
-	
-	
 	
 	public ResDisbursement validDisbursement(ReqDisbursement reqDisbursement){
 		ResDisbursement resDisbursement = new ResDisbursement();

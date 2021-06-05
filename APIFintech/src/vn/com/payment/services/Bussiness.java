@@ -30,6 +30,7 @@ import vn.com.payment.object.ContractObjRes;
 import vn.com.payment.object.Fees;
 import vn.com.payment.object.NotifyObject;
 import vn.com.payment.object.ObjBillRes;
+import vn.com.payment.object.ObjDebtReminderDetail;
 import vn.com.payment.object.ObjImage;
 import vn.com.payment.object.ObjMinhhoa;
 import vn.com.payment.object.ObjQuestions;
@@ -45,6 +46,7 @@ import vn.com.payment.object.ReqChangePass;
 import vn.com.payment.object.ReqContractList;
 import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
+import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ReqStepLog;
@@ -57,6 +59,7 @@ import vn.com.payment.object.ResContractDetail;
 import vn.com.payment.object.ResContractList;
 import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
+import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResLogin;
 import vn.com.payment.object.ResStepLog;
@@ -143,7 +146,8 @@ public class Bussiness {
 	long statusFaleToken = 104l;
 	int statusPending = 107;
 	int statusReject = 110;
-
+	int statusDisbursement = 116;
+	SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");
 	public Response getContractNumber(String dataContract) {
 		FileLogger.log("----------------Bat dau getContractNumber--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -828,8 +832,7 @@ public class Bussiness {
 				} catch (Exception e) {
 				}
 				try {
-					List<TblLoanRequestAskAns> tblLoanRequestAskAns = dbFintechHome
-							.getRequestAskAns(tblLoanRequest.getLoanId());
+					List<TblLoanRequestAskAns> tblLoanRequestAskAns = dbFintechHome.getRequestAskAns(tblLoanRequest.getLoanId());
 
 					List<TblLoanRequestAskAnsGen> resListLoanRequestAskAns = new ArrayList<>();
 					Type listTypeAskAns1 = new TypeToken<List<Object>>() {}.getType();
@@ -1013,7 +1016,7 @@ public class Bussiness {
 //			System.out.println(tblLoanRequest);
 //			System.out.println(tblLoanRequest.getLoanId());
 			if (tblLoanRequest != null) {
-				TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
+//				TblLoanReqDetail tblLoanReqDetail = dbFintechHome.getLoanDetail(tblLoanRequest.getLoanId());
 				FileLogger.log("setAllotment tblLoanRequest: " + gson.toJson(tblLoanRequest), LogType.BUSSINESS);
 				FileLogger.log("setAllotment tblLoanRequest.getLoanId: " + tblLoanRequest.getLoanId(), LogType.BUSSINESS);
 				tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
@@ -1033,8 +1036,9 @@ public class Bussiness {
 							tblLoanSponsorMapp.setLoanId(tblLoanRequest.getLoanId());
 							tblLoanSponsorMapp.setSponsorId(Integer.parseInt(string));
 							tblLoanSponsorMapp.setCreatedDate(Utils.getTimeStampNow());
-							tblLoanSponsorMapp.setDisbursementDate(Utils.stringToTimestamp(tblLoanReqDetail.getDisbursementDate().toString()));
+//							tblLoanSponsorMapp.setDisbursementDate(Utils.stringToTimestamp(tblLoanReqDetail.getDisbursementDate().toString()));
 							tblLoanSponsorMapp.setDisbursementStatus(0);
+							tblLoanSponsorMapp.setEntryExpireTime(Utils.getMin15());
 							boolean checkINS = dbFintechHome.createTblLoanSponsorMapp(tblLoanSponsorMapp);
 							FileLogger.log("setAllotment tblLoanRequest.getLoanId: " + tblLoanRequest.getLoanId() + "createTblLoanSponsorMapp: " + checkINS, LogType.BUSSINESS);
 						}
@@ -1154,6 +1158,8 @@ public class Bussiness {
 		}
 	}
 
+	
+	//Minh hoa khoan vay
 	public Response getIllustration(String dataIllustration) {
 		FileLogger.log("----------------Bat dau getIllustration--------------------------", LogType.BUSSINESS);
 		ResponseBuilder response = Response.status(Status.OK).entity("x");
@@ -1274,7 +1280,7 @@ public class Bussiness {
 					List<ObjImage> imagesList = reqAppraisal.getImages();
 					for (ObjImage objImage : imagesList) {
 						TblImages tblImages = new TblImages();
-						tblImages.setLoanRequestDetailId(tblLoanReqDetail.getReqDetailId());
+						tblImages.setLoanRequestDetailId(tblLoanReqDetail.getLoanId());
 						tblImages.setImageName(objImage.getImage_name());
 						tblImages.setImageInputName(objImage.getImage_input_name());
 						tblImages.setPartnerImageId(objImage.getPartner_image_id());
@@ -1426,22 +1432,23 @@ public class Bussiness {
 				if(tblLoanRequest != null){
 					TblLoanSponsorMapp tblLoanSponsorMapp = dbFintechHome.getLoanRequet(tblLoanRequest.getLoanId(), accountID);
 					if(tblLoanSponsorMapp != null){
-						int checkDisbursementDate = tblLoanSponsorMapp.getDisbursementDate().compareTo(new Date());
+//						int checkDisbursementDate = tblLoanSponsorMapp.getDisbursementDate().compareTo(new Date());
+						int checkDisbursementDate = tblLoanSponsorMapp.getEntryExpireTime().compareTo(sm.parse(sm.format(new Date())));
 						FileLogger.log("disbursement checkDisbursementDate: " + checkDisbursementDate, LogType.BUSSINESS);
 						if(checkDisbursementDate > 0){							
 							//Khoan vay chua den han thanh toan
 							FileLogger.log("disbursement checkDisbursementDate: " + checkDisbursementDate, LogType.BUSSINESS);
 							if(reqDisbursement.getExpertise_status() == 1){
-								//Cập nhật trạng thái final_status bảng tbl_loan_request về: đã giải ngân(117).
+								//Cập nhật trạng thái final_status bảng tbl_loan_request về: đã giải ngân(116).
 								//disbursement_date = current
 								tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
-								tblLoanRequest.setFinalStatus(117);
+								tblLoanRequest.setFinalStatus(statusDisbursement);
 								tblLoanSponsorMapp.setDisbursementDate(new Date());
 								tblLoanSponsorMapp.setDisbursementStatus(1);
 							}else{
 								//disbursement_status = 0, disbursement_date = current
 								tblLoanSponsorMapp.setDisbursementDate(new Date());
-								tblLoanSponsorMapp.setDisbursementStatus(0);
+								tblLoanSponsorMapp.setDisbursementStatus(2);
 							}
 							TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
 							tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
@@ -1461,7 +1468,7 @@ public class Bussiness {
 								List<ObjImage> imagesList = reqDisbursement.getImages();
 								for (ObjImage objImage : imagesList) {
 									TblImages tblImages = new TblImages();
-									tblImages.setLoanRequestDetailId(tblLoanReqDetail.getReqDetailId());
+									tblImages.setLoanRequestDetailId(tblLoanReqDetail.getLoanId());
 									tblImages.setImageName(objImage.getImage_name());
 									tblImages.setImageInputName(objImage.getImage_input_name());
 									tblImages.setPartnerImageId(objImage.getPartner_image_id());
@@ -1486,12 +1493,12 @@ public class Bussiness {
 						}else{
 							//Khoan vay qua han
 							tblLoanRequest.setPreviousStatus(tblLoanRequest.getFinalStatus());
-							tblLoanRequest.setFinalStatus(117);
+							tblLoanRequest.setFinalStatus(123);
 							tblLoanRequest.setLatestUpdate(new Date());
 							boolean checkUPDLoan = dbFintechHome.updateTblLoanRequest(tblLoanRequest);
 							FileLogger.log("disbursement checkUPDLoan: " + checkUPDLoan, LogType.BUSSINESS);
 							resDisbursement.setStatus(statusFale);
-							resDisbursement.setMessage("Yeu cau that bai - Khoan vay da thoi gian cho phep giai ngan");
+							resDisbursement.setMessage("Yeu cau that bai - Khoan vay da qua thoi gian cho phep giai ngan");
 						}
 					}else{
 						resDisbursement.setStatus(statusFale);
@@ -1512,6 +1519,63 @@ public class Bussiness {
 				resDisbursement.setMessage("Yeu cau that bai - Da co loi xay ra");
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
 				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDisbursement.toJSON()).build();
+			}
+		}
+
+		public Response getdebtReminder(String dataGetdebtReminder) {
+			FileLogger.log("----------------Bat dau getdebtReminder--------------------------", LogType.BUSSINESS);
+			ResponseBuilder response = Response.status(Status.OK).entity("x");
+			ResDebtReminder resDebtReminder = new ResDebtReminder();
+			List<ObjDebtReminderDetail> getDebtReminder = new ArrayList<>();
+			try {
+				FileLogger.log("getdebtReminder dataGetdebtReminder: " + dataGetdebtReminder, LogType.BUSSINESS);
+				ReqDebtReminder reqDebtReminder = gson.fromJson(dataGetdebtReminder, ReqDebtReminder.class);
+				ResDebtReminder resDebtReminder2 = validData.validGetdebtReminder(reqDebtReminder);
+				if (resDebtReminder2 != null) {
+					response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDebtReminder2.toJSON()).build();
+				}
+				Account acc = accountHome.getAccountUsename(reqDebtReminder.getUsername());
+				String loan_code = "";
+				try {
+					loan_code = reqDebtReminder.getLoan_code();
+				} catch (Exception e) {
+				}
+				List<Integer> final_statusAR = new ArrayList<>(); 
+				try {
+					List<String> final_status = reqDebtReminder.getFinal_status();
+					for (String string : final_status) {
+						final_statusAR.add(Integer.parseInt(string));
+					}
+				} catch (Exception e) {
+				}
+				String borrower_name = reqDebtReminder.getBorrower_name();
+				String from_date = reqDebtReminder.getFrom_date();
+				String to_date = reqDebtReminder.getTo_date();
+				String id_number = reqDebtReminder.getId_number();
+				List<ObjDebtReminderDetail> listDebtReminderDetail = dbFintechHome.listDebtReminderDetail(loan_code,final_statusAR, borrower_name, from_date, to_date, id_number, reqDebtReminder.getLimit(), reqDebtReminder.getOffSet());
+//				long total = dbFintechHome.listCounListSponsor(acc.getRowId(), loan_code, final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqDebtReminder.getLimit(), reqDebtReminder.getOffSet());
+				if (listDebtReminderDetail != null) {
+					resDebtReminder.setStatus(statusSuccess);
+					resDebtReminder.setMessage("Yeu cau thanh cong");
+					resDebtReminder.setLoan_request_details(listDebtReminderDetail);
+//					resDebtReminder.setTotalRecord(total);
+				} else {
+					resDebtReminder.setStatus(statusFale);
+					resDebtReminder.setMessage("Yeu cau that bai - Da co loi xay ra");
+					resDebtReminder.setLoan_request_details(getDebtReminder);
+				}
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				FileLogger.log("getContractListSponsor: " + reqDebtReminder.getUsername() + " response to client:" + reqDebtReminder.toJSON(), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc getContractListSponsor: ", LogType.BUSSINESS);
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDebtReminder.toJSON()).build();
+			} catch (Exception e) {
+				e.printStackTrace();
+				FileLogger.log("----------------Ket thuc getContractListSponsor Exception " + e, LogType.ERROR);
+				resDebtReminder.setStatus(statusFale);
+				resDebtReminder.setMessage("Yeu cau that bai - Da co loi xay ra");
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDebtReminder.toJSON()).build();
 			}
 		}
 	public static void main(String[] args) {

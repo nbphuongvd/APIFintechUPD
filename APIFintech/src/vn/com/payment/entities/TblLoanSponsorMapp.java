@@ -1,5 +1,5 @@
 package vn.com.payment.entities;
-// Generated Jun 3, 2021 2:06:55 AM by Hibernate Tools 3.5.0.Final
+// Generated Jun 5, 2021 4:20:29 PM by Hibernate Tools 3.5.0.Final
 
 import java.util.Date;
 import javax.persistence.Column;
@@ -24,6 +24,7 @@ public class TblLoanSponsorMapp implements java.io.Serializable {
 	private Date createdDate;
 	private Date disbursementDate;
 	private Integer disbursementStatus;
+	private Date entryExpireTime;
 
 	public TblLoanSponsorMapp() {
 	}
@@ -34,12 +35,13 @@ public class TblLoanSponsorMapp implements java.io.Serializable {
 	}
 
 	public TblLoanSponsorMapp(int loanId, int sponsorId, Date createdDate, Date disbursementDate,
-			Integer disbursementStatus) {
+			Integer disbursementStatus, Date entryExpireTime) {
 		this.loanId = loanId;
 		this.sponsorId = sponsorId;
 		this.createdDate = createdDate;
 		this.disbursementDate = disbursementDate;
 		this.disbursementStatus = disbursementStatus;
+		this.entryExpireTime = entryExpireTime;
 	}
 
 	@Id
@@ -99,6 +101,16 @@ public class TblLoanSponsorMapp implements java.io.Serializable {
 
 	public void setDisbursementStatus(Integer disbursementStatus) {
 		this.disbursementStatus = disbursementStatus;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "entry_expire_time", length = 19)
+	public Date getEntryExpireTime() {
+		return this.entryExpireTime;
+	}
+
+	public void setEntryExpireTime(Date entryExpireTime) {
+		this.entryExpireTime = entryExpireTime;
 	}
 
 }

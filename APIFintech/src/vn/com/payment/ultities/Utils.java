@@ -59,6 +59,13 @@ public class Utils {
 		calendar.set(Calendar.SECOND, 59);
 		return calendar.getTime();
 	}
+	
+	public static Date getMin15() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.MINUTE, + 15);
+		return calendar.getTime();
+	}
 
 	public static Date getDateSubtractMinite(Date date, int minute) {
 		Calendar calendar = Calendar.getInstance();
@@ -266,6 +273,26 @@ public class Utils {
 		}
 		return result;
 	}
+	
+	public static String getDayMustPay(String date) {
+		String result = "";
+		try {
+			Date date1 = new SimpleDateFormat("yyyyMMdd").parse(date);
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+			Calendar calendar = new GregorianCalendar(/*
+														 * remember about
+														 * timezone!
+														 */);
+			calendar.setTime(date1);
+			calendar.add(Calendar.DATE, 30);
+			Date dateReturn = calendar.getTime();
+			System.out.println(dateReturn);
+			result = format.format(dateReturn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 
 	public static String getNgayvayNew(String date) {
 		String result = "";
@@ -340,9 +367,60 @@ public class Utils {
 
 	public static void main(String[] args) {
 //		Timestamp getTimeStampNow()
-		System.out.println(new Date());
-		System.out.println(Utils.getTimeStampNow());
-		String s = new SimpleDateFormat("yyMMdd").format(Utils.getTimeStampNow());
-		System.out.println("a:"+ s);
+		
+		
+		Date aaa = Utils.getMin15();
+		System.out.println(aaa);
+		
+//		SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");
+//		// myDate is the java.util.Date in yyyy-mm-dd format
+//		// Converting it into String using formatter
+//		String strDate = sm.format(new Date());
+//		//Converting the String back to java.util.Date
+//		try {
+//			Date dt = sm.parse(sm.format(new Date()));
+//			System.out.println(dt);
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+//		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+//		Date dt = new Date().getTime();
+//		System.out.println( format.format(new Date().getTime()));
+		
+		
+//		DateFormat df = new SimpleDateFormat("yyyyMMdd 00:00:00");
+//		try {
+//			Date startDate = df.parse(format.format(new Date().getTime()));
+//			System.out.println(startDate);
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		// System.out.println(format.format(dt));
+//		return format.format(dt);
+		
+		
+		
+//		Date aab = Utils.convertStringToDate("yyyyMMdd 00:00:00", getTimeEXP() + "00:00:00");
+//		System.out.println(aab);
+		
+//		System.out.println(new Date());
+//		System.out.println(Utils.getTimeStampNow());
+//		String s = new SimpleDateFormat("yyyyMMdd").format(new Date());
+////		System.out.println("a:"+ s);
+		
+//		Timestamp aaa = Utils.getTimeStampNow();
+//		System.out.println(aaa);
+//		int cc = 20210604;
+//		int bb = Integer.parseInt(s);
+//		
+//		if(bb < cc){
+//			System.out.println("xx");
+//		}else{
+//			System.out.println("yy");
+//		}
 	}
 }
