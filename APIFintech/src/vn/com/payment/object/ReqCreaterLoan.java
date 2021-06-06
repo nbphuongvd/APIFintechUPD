@@ -19,6 +19,7 @@ public class ReqCreaterLoan {
 	public String borrower_name;
 	public String loan_expect_date;
 	public long product_type;
+	public long product_id;
 	public String product_brand;
 	public String product_modal;
 	public long total_run; // So km da di
@@ -60,6 +61,23 @@ public class ReqCreaterLoan {
 		}
 		return json;
 	}
+	
+	public long getProduct_id() {
+		return product_id;
+	}
+
+	public void setProduct_id(long product_id) {
+		this.product_id = product_id;
+	}
+
+	public long getStatus() {
+		return status;
+	}
+
+	public void setStatus(long status) {
+		this.status = status;
+	}
+
 	public String getUsername() {
 		return username;
 	}

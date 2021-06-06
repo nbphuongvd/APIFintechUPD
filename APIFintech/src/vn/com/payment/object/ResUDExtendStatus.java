@@ -1,14 +1,11 @@
 package vn.com.payment.object;
 
-import java.util.List;
-
 import com.google.gson.Gson;
 
-public class ResDebtReminder {
+public class ResUDExtendStatus {
 	public long status;
 	public String message;
-	public long totalRecord;
-	public List<ObjDebtReminderDetail> loan_request_details;
+	public String loan_code;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -19,29 +16,27 @@ public class ResDebtReminder {
 		}
 		return json;
 	}
+	
 	public long getStatus() {
 		return status;
 	}
+
 	public void setStatus(long status) {
 		this.status = status;
 	}
+
 	public String getMessage() {
 		return message;
 	}
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public List<ObjDebtReminderDetail> getLoan_request_details() {
-		return loan_request_details;
+
+	public String getLoan_code() {
+		return loan_code;
 	}
-	public void setLoan_request_details(List<ObjDebtReminderDetail> loan_request_details) {
-		this.loan_request_details = loan_request_details;
+
+	public void setLoan_code(String loan_code) {
+		this.loan_code = loan_code;
 	}
-	public long getTotalRecord() {
-		return totalRecord;
-	}
-	public void setTotalRecord(long totalRecord) {
-		this.totalRecord = totalRecord;
-	}
-	
 }

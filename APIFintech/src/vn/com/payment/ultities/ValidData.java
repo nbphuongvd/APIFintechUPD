@@ -20,6 +20,7 @@ import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqStepLog;
+import vn.com.payment.object.ReqUDExtendStatus;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
 import vn.com.payment.object.ResAllotment;
@@ -31,6 +32,7 @@ import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResStepLog;
+import vn.com.payment.object.ResUDExtendStatus;
 import vn.com.payment.object.ResUpdateStatus;
 import vn.com.payment.services.UserInfo;
 
@@ -878,6 +880,68 @@ public class ValidData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String messageErr = "Valid validUpdateStatus exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	public ResUDExtendStatus updateExtendStatus(ReqUDExtendStatus reqUDExtendStatus){
+		ResUDExtendStatus resUDExtendStatus = new ResUDExtendStatus();
+		try {
+			if (ValidData.checkNull(reqUDExtendStatus.getUsername()) == false){
+				String messageErr = "Valid updateExtendStatus Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			if (ValidData.checkNull(reqUDExtendStatus.getToken()) == false){
+				String messageErr = "Valid updateExtendStatus token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			if (ValidData.checkNull(reqUDExtendStatus.getLoan_code()) == false){
+				String messageErr = "Valid updateExtendStatus Loan_code invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			if (ValidData.checkNull(reqUDExtendStatus.getExtend_status()) == false){
+				String messageErr = "Valid updateExtendStatus Extend_status invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			if (!reqUDExtendStatus.getExtend_status().equals("1163") && !reqUDExtendStatus.getExtend_status().equals("1164")){
+				String messageErr = "Valid updateExtendStatus Extend_status is incorrect";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			if (ValidData.checkNull(reqUDExtendStatus.getBill_index()) == false){
+				String messageErr = "Valid updateExtendStatus Bill_index invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+			boolean checkLG = userInfo.checkLogin(reqUDExtendStatus.getUsername(), reqUDExtendStatus.getToken());
+			if(!checkLG){
+				FileLogger.log("updateExtendStatus: " + reqUDExtendStatus.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage(messageErr);
+				return resUDExtendStatus;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid updateExtendStatus exception: "+ e;
 			FileLogger.log(messageErr, LogType.ERROR);
 		}
 		return null;

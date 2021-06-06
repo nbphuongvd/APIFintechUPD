@@ -50,6 +50,7 @@ import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqLogin;
 import vn.com.payment.object.ReqStepLog;
+import vn.com.payment.object.ReqUDExtendStatus;
 import vn.com.payment.object.ReqUpdateStatus;
 import vn.com.payment.object.ResAllContractList;
 import vn.com.payment.object.ResAllotment;
@@ -63,6 +64,7 @@ import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResLogin;
 import vn.com.payment.object.ResStepLog;
+import vn.com.payment.object.ResUDExtendStatus;
 import vn.com.payment.object.ResUpdateStatus;
 import vn.com.payment.object.TokenRedis;
 import vn.com.payment.redis.RedisBusiness;
@@ -484,12 +486,16 @@ public class Bussiness {
 				tblLoanReqDetail.setBorrowerEmail(reqCreaterLoan.getBorrower_email());
 			} catch (Exception e) {
 			}
+			try {
+				tblLoanReqDetail.setProductType((int) reqCreaterLoan.getProduct_type());
+			} catch (Exception e) {
+			}
 			tblLoanReqDetail.setBorrowerId(reqCreaterLoan.getBorrower_id_number());
 			tblLoanReqDetail.setDisburseToBankNo(reqCreaterLoan.getDisburse_to_bank_no());
 			tblLoanReqDetail.setDisburseToBankName(reqCreaterLoan.getDisburse_to_bank_name());
 			tblLoanReqDetail.setDisburseToBankCode(reqCreaterLoan.getDisburse_to_bank_code());
 			
-
+			tblLoanReqDetail.setProductId((int) reqCreaterLoan.getProduct_id());
 			tblLoanReqDetail.setCreatedDate(new Date());
 			tblLoanReqDetail.setEditedDate(new Date());
 			tblLoanReqDetail.setExpectAmount(reqCreaterLoan.getLoan_amount());
@@ -852,8 +858,7 @@ public class Bussiness {
 					resContractDetail.setQuestion_and_answears(resListLoanRequestAskAns);
 				} catch (Exception e) {
 				}
-				Type listType = new TypeToken<List<Object>>() {
-				}.getType();
+				Type listType = new TypeToken<List<Object>>() {}.getType();
 				ArrayList<Object> lstObj = GsonUltilities.fromJson(tblLoanReqDetail.getFees(), listType);
 				resContractDetail.setFees(lstObj);
 				tblLoanReqDetail.setFees("");
@@ -1554,30 +1559,155 @@ public class Bussiness {
 				String to_date = reqDebtReminder.getTo_date();
 				String id_number = reqDebtReminder.getId_number();
 				List<ObjDebtReminderDetail> listDebtReminderDetail = dbFintechHome.listDebtReminderDetail(loan_code,final_statusAR, borrower_name, from_date, to_date, id_number, reqDebtReminder.getLimit(), reqDebtReminder.getOffSet());
-//				long total = dbFintechHome.listCounListSponsor(acc.getRowId(), loan_code, final_statusAR, borrower_name, from_date, to_date, calculate_profit_type, reqDebtReminder.getLimit(), reqDebtReminder.getOffSet());
+				long total = dbFintechHome.countDebtReminderDetail(loan_code,final_statusAR, borrower_name, from_date, to_date, id_number, reqDebtReminder.getLimit(), reqDebtReminder.getOffSet());
 				if (listDebtReminderDetail != null) {
 					resDebtReminder.setStatus(statusSuccess);
 					resDebtReminder.setMessage("Yeu cau thanh cong");
 					resDebtReminder.setLoan_request_details(listDebtReminderDetail);
-//					resDebtReminder.setTotalRecord(total);
+					resDebtReminder.setTotalRecord(total);
 				} else {
 					resDebtReminder.setStatus(statusFale);
 					resDebtReminder.setMessage("Yeu cau that bai - Da co loi xay ra");
 					resDebtReminder.setLoan_request_details(getDebtReminder);
 				}
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
-				FileLogger.log("getContractListSponsor: " + reqDebtReminder.getUsername() + " response to client:" + reqDebtReminder.toJSON(), LogType.BUSSINESS);
-				FileLogger.log("----------------Ket thuc getContractListSponsor: ", LogType.BUSSINESS);
+				FileLogger.log("getdebtReminder: " + reqDebtReminder.getUsername() + " response to client:" + resDebtReminder.toJSON(), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc getdebtReminder: ", LogType.BUSSINESS);
 				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDebtReminder.toJSON()).build();
 			} catch (Exception e) {
 				e.printStackTrace();
-				FileLogger.log("----------------Ket thuc getContractListSponsor Exception " + e, LogType.ERROR);
+				FileLogger.log("----------------Ket thuc getdebtReminder Exception " + e, LogType.ERROR);
 				resDebtReminder.setStatus(statusFale);
 				resDebtReminder.setMessage("Yeu cau that bai - Da co loi xay ra");
 				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
 				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resDebtReminder.toJSON()).build();
 			}
 		}
+		
+		
+		// Update trạng thái giao dịch
+		public Response updateExtendStatus(String dataExtendStatus) {
+			FileLogger.log("----------------Bat dau updateExtendStatus--------------------------", LogType.BUSSINESS);
+			ResponseBuilder response = Response.status(Status.OK).entity("x");
+			ResUDExtendStatus resUDExtendStatus = new ResUDExtendStatus();
+			try {
+				FileLogger.log("updateExtendStatus dataUpdateStatus: " + dataExtendStatus, LogType.BUSSINESS);
+				ReqUDExtendStatus reqUDExtendStatus = gson.fromJson(dataExtendStatus, ReqUDExtendStatus.class);
+				ResUDExtendStatus resUDExtendStatus2 = validData.updateExtendStatus(reqUDExtendStatus);
+				if (resUDExtendStatus2 != null) {
+					response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resUDExtendStatus2.toJSON()).build();
+				}
+				List<Integer> branchID = new ArrayList<>();
+				List<Integer> roomID = new ArrayList<>();
+				Account acc = accountHome.getAccountUsename(reqUDExtendStatus.getUsername());
+				String fullName = reqUDExtendStatus.getUsername();
+				try {
+					fullName = acc.getFirstName() + " " + acc.getLastName();
+				} catch (Exception e) {
+				}
+				if (ValidData.checkNull(acc.getBranchId()) == true) {
+					JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+					Iterator<String> keys = isJsonObject.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						System.out.println(key);
+						JSONArray msg = (JSONArray) isJsonObject.get(key);
+						branchID.add(new Integer(key.toString()));
+						for (int i = 0; i < msg.length(); i++) {
+							roomID.add(Integer.parseInt(msg.get(i).toString()));
+						}
+					}
+				}
+				System.out.println(gson.toJson(reqUDExtendStatus));
+				
+				TblLoanRequest tblLoanRequest = dbFintechHome.getLoan(branchID, roomID, reqUDExtendStatus.getLoan_code());
+				boolean checkUPDAll = false;
+				if (tblLoanRequest != null) {
+					FileLogger.log("updateExtendStatus tblLoanRequest: " + gson.toJson(tblLoanRequest), LogType.BUSSINESS);
+					FileLogger.log("updateExtendStatus tblLoanRequest.getLoanId: " + tblLoanRequest.getLoanId(), LogType.BUSSINESS);
+					
+					Integer last_day_accept_pay = null;
+					String memo = "";
+					if(reqUDExtendStatus.getExtend_status().equals("1163")){
+						//Nhac no thanh cong
+						try {
+							last_day_accept_pay = Integer.parseInt(reqUDExtendStatus.getLast_day_accept_pay());
+						} catch (Exception e) {
+						}
+						try {
+							if(reqUDExtendStatus.getLast_day_accept_pay() != null){
+								memo = reqUDExtendStatus.getLast_day_accept_pay() + " - " + reqUDExtendStatus.getMemo();
+							}else{
+								memo = reqUDExtendStatus.getMemo();
+							}
+						} catch (Exception e) {
+						}
+						
+						
+						boolean checkUPDBill = dbFintechHome.updateLoanBill(tblLoanRequest.getLoanId(), Integer.parseInt(reqUDExtendStatus.getBill_index()), last_day_accept_pay);
+						FileLogger.log("updateExtendStatus checkUPDBill: " + checkUPDBill, LogType.BUSSINESS);
+						Integer extenStt = null;
+						boolean checkUPDLoan = tbLoanRequestHome.updateTblLoanRequest(tblLoanRequest.getLoanId(), extenStt);
+						FileLogger.log("updateExtendStatus checkUPDLoan: " + checkUPDLoan, LogType.BUSSINESS);
+						
+						if(checkUPDBill && checkUPDLoan){
+							checkUPDAll = true;
+						}
+						
+					}else{
+						//Nhac no that bai
+						try {
+							memo = reqUDExtendStatus.getMemo();
+						} catch (Exception e) {
+						}
+						checkUPDAll = true;
+					}
+					
+					
+					if(checkUPDAll){
+						resUDExtendStatus.setStatus(statusSuccess);
+						resUDExtendStatus.setMessage("Yeu cau thanh cong");
+						resUDExtendStatus.setLoan_code(reqUDExtendStatus.getLoan_code());
+						TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+						tblLoanExpertiseSteps.setLoanId(tblLoanRequest.getLoanId());
+						tblLoanExpertiseSteps.setExpertiseUser(fullName);
+						tblLoanExpertiseSteps.setExpertiseDate(Utils.getTimeStampNow());
+						tblLoanExpertiseSteps.setExpertiseStatus(tblLoanRequest.getFinalStatus());
+						tblLoanExpertiseSteps.setExpertiseStep(5);
+						tblLoanExpertiseSteps.setExpertiseComment(memo);
+						tblLoanExpertiseSteps.setLoanCode(tblLoanRequest.getLoanCode());
+						try {
+							tblLoanExpertiseSteps.setAction(reqUDExtendStatus.getAction());
+						} catch (Exception e) {
+						}
+						boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+						FileLogger.log("updateExtendStatus checkINS: " + checkINSExpertiseSteps, LogType.BUSSINESS);						
+					}else{
+						resUDExtendStatus.setStatus(statusFale);
+						resUDExtendStatus.setMessage("Yeu cau that bai -  Da co loi xay ra");
+						resUDExtendStatus.setLoan_code(reqUDExtendStatus.getLoan_code());
+					}			
+				}else {
+					FileLogger.log("updateExtendStatus tblLoanRequest null: ", LogType.BUSSINESS);
+					resUDExtendStatus.setStatus(statusFale);
+					resUDExtendStatus.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
+				}
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				FileLogger.log("updateExtendStatus: " + reqUDExtendStatus.getUsername() + " response to client:"+ resUDExtendStatus.toJSON().replace("'\'", ""), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc updateExtendStatus: ", LogType.BUSSINESS);
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resUDExtendStatus.toJSON()).build();
+			} catch (Exception e) {
+				e.printStackTrace();
+				FileLogger.log("----------------Ket thuc updateExtendStatus Exception " + e, LogType.ERROR);
+				resUDExtendStatus.setStatus(statusFale);
+				resUDExtendStatus.setMessage("Yeu cau that bai - Da co loi xay ra");
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resUDExtendStatus.toJSON()).build();
+			}
+		}
+		
+		
 	public static void main(String[] args) {
 		try {
 			Bussiness bussiness = new Bussiness();

@@ -203,6 +203,18 @@ public class ApiController {
    }
    
    
+   //Nhac no updateExtendStatus
+   @POST
+   @Path("/api/updateExtendStatus")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response updateExtendStatus(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong setAllotment");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.updateExtendStatus(formParams);
+   }
+   
+   
 //   @POST
 //   @Path("/api/test")
 //   @Produces({MediaType.APPLICATION_JSON})

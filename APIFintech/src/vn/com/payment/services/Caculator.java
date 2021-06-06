@@ -178,6 +178,7 @@ public class Caculator {
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
 					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					tblLoanBill.setBillPaymentStatus(0);
 					kyvay = kyvay + 1;
 					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);
@@ -274,6 +275,7 @@ public class Caculator {
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
 					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					tblLoanBill.setBillPaymentStatus(0);
 					kyvay = kyvay + 1;
 					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);
@@ -427,6 +429,7 @@ public class Caculator {
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitattoan_a));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(gocconlai + tinhphitattoan_a));
 					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					tblLoanBill.setBillPaymentStatus(0);
 					kyvay = kyvay + 1;
 					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);
@@ -523,6 +526,7 @@ public class Caculator {
 					tblLoanBill.setExtFeeIfIndPayBefore(new BigDecimal(tinhphitranotruochan));
 					tblLoanBill.setTotalPayIfSettleRequest(new BigDecimal(tinhphitattoan));
 					tblLoanBill.setDayMustPay(Integer.parseInt(Utils.getDayMustPay(ngayvay)));
+					tblLoanBill.setBillPaymentStatus(0);
 					kyvay = kyvay + 1;
 					tblLoanBill.setBillIndex(kyvay);
 					feesListSet.add(tblLoanBill);

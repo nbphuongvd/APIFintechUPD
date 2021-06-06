@@ -13,6 +13,7 @@ public class ResContractListSponsor {
 	public String borrower_fullname; 
 	public long loan_for_month;
 	public long calculateProfitType;
+	public long disbursementStatus;
 	public String toJSON(){
 		String json	=	"";
 		try {
@@ -22,6 +23,14 @@ public class ResContractListSponsor {
 			e.printStackTrace();
 		}
 		return json;
+	}
+
+	public long getDisbursementStatus() {
+		return disbursementStatus;
+	}
+
+	public void setDisbursementStatus(long disbursementStatus) {
+		this.disbursementStatus = disbursementStatus;
 	}
 
 	public long getLoan_id() {

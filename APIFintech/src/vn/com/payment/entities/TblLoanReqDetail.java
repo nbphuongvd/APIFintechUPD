@@ -59,6 +59,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 	private Integer idExpireDate;
 	private String fees;
 	private Integer changeFee;
+	private Integer productType;
 	
 
 	public TblLoanReqDetail() {
@@ -80,7 +81,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 			String disburseToBankName, String disburseToBankCode, Long productValuation, Long borrowerIncome,
 			String borrowerFullname, String borrowerAddress, String idIssueAt, Integer idIssueDate, String productDesc,
 			Integer borrowerBirthday, String productMachineNumber, String contractSerialNum, String bankBranch,
-			Integer idExpireDate, String fees, Integer changeFee) {
+			Integer idExpireDate, String fees, Integer changeFee, Integer productType) {
 		this.loanId = loanId;
 		this.productId = productId;
 		this.importFrom = importFrom;
@@ -119,6 +120,7 @@ public class TblLoanReqDetail implements java.io.Serializable {
 		this.idExpireDate = idExpireDate;
 		this.fees = fees;
 		this.changeFee = changeFee;
+		this.productType = productType;
 	}
 
 	@Id
@@ -475,5 +477,14 @@ public class TblLoanReqDetail implements java.io.Serializable {
 
 	public void setChangeFee(Integer changeFee) {
 		this.changeFee = changeFee;
+	}
+	
+	@Column(name = "product_type")
+	public Integer getProductType() {
+		return this.productType;
+	}
+
+	public void setProductType(Integer productType) {
+		this.productType = productType;
 	}
 }

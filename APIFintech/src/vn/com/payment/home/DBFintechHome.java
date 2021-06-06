@@ -581,6 +581,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		List<Object> list = null;
 		List<ResContractListSponsor> lisResContractListSponsor = new ArrayList<>();		
 		String time = String.valueOf(10);
+		int disStatus = 1;
 		try {
 //			String s = new SimpleDateFormat("yyyyMMdd").format(new Date());
 //			int dateNow = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(new Date()));
@@ -588,15 +589,15 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			session = HibernateUtil.getSessionFactory().openSession();
 			int loan = 1;
 			String sql = "SELECT lr.loanCode, "
-								+ "lr.loanName, ld.productBrand, "
+								+ "lr.loanName, ld.productType, "
 								+ "ld.approvedAmount, lr.finalStatus, "
 								+ "ld.disbursementDate, ld.borrowerFullname, "
-								+ "lr.loanId, lr.calculateProfitType, lr.loanForMonth "
+								+ "lr.loanId, lr.calculateProfitType, lr.loanForMonth, ls.disbursementStatus "
 								+ "FROM TblLoanReqDetail ld "
 								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
 								+ "INNER JOIN TblLoanSponsorMapp ls ON ls.loanId = ld.loanId "
 								+ "Where ls.sponsorId =:sponsorID "
-								+ "and ls.entryExpireTime >= :dateNowInt ";
+								+ "and (ls.entryExpireTime >= :dateNowInt or  ls.disbursementStatus =:disStatus) ";
 			if(ValidData.checkNull(loan_code) == true){
 				sql = sql + "and lr.loanCode =:loan_code ";
 			}
@@ -619,6 +620,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			System.out.println("sql: "+ sql);
 			session = HibernateUtil.getSessionFactory().openSession();
 			Query query = session.createQuery(sql);
+			query.setParameter("disStatus", disStatus);
 			query.setParameter("sponsorID", sponsorID);
 			query.setParameter("dateNowInt", dateNowInt);
 			if(ValidData.checkNull(loan_code) == true){
@@ -690,6 +692,10 @@ public class DBFintechHome extends BaseSqlHomeDao{
 						resContractListSponsor.setLoan_for_month(Long.parseLong(row[9]+""));
 					} catch (Exception e) {
 					}
+					try {
+						resContractListSponsor.setDisbursementStatus(Long.parseLong(row[10]+""));
+					} catch (Exception e) {
+					}
 				}
 				System.out.println("----------------------------------------------");
 				lisResContractListSponsor.add(resContractListSponsor);
@@ -716,7 +722,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		Date dateNowInt = new Date();
 		try {
 			session = HibernateUtil.getSessionFactory().openSession();
-			String sql = "SELECT count(lr.loanCode)"
+			String sql = "SELECT count(lr.loanCode) "
 								+ "FROM TblLoanReqDetail ld "
 								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
 								+ "INNER JOIN TblLoanSponsorMapp ls ON ls.loanId = ld.loanId "
@@ -926,7 +932,7 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			String sql = "SELECT lr.loanId, lr.loanCode, lr.createdBy, lr.finalStatus, ld.productDesc, "
 								+ "lr.createdDate, ld.borrowerFullname, ld.borrowerId, ld.borrowerPhone, "
 								+ "ld.approvedAmount, tr.roomName, br.branchName, lb.paymentAmt, "
-								+ "lb.paymentDate, lb.billIndex "
+								+ "lb.paymentDate, lb.billIndex, ld.productType, lb.dayMustPay, lb.totalOnAMonth, lb.billStatus "
 								+ "FROM TblLoanReqDetail ld "
 								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
 								+ "INNER JOIN TblLoanBill lb ON lb.loanId = ld.loanId "
@@ -992,11 +998,6 @@ public class DBFintechHome extends BaseSqlHomeDao{
 						objDebtReminderDetail.setLoanId(Integer.parseInt(row[0]+""));
 					} catch (Exception e) {
 					}
-
-					try {
-						objDebtReminderDetail.setLoan_code(row[0]+"");
-					} catch (Exception e) {
-					}
 					try {
 						objDebtReminderDetail.setLoan_code(row[1]+"");
 					} catch (Exception e) {
@@ -1035,11 +1036,11 @@ public class DBFintechHome extends BaseSqlHomeDao{
 					} catch (Exception e) {
 					}
 					try {
-						objDebtReminderDetail.setRoom_name(Integer.parseInt(row[10]+""));
+						objDebtReminderDetail.setRoom_name(row[10]+"");
 					} catch (Exception e) {
 					}
 					try {
-						objDebtReminderDetail.setBranch(Integer.parseInt(row[11]+""));
+						objDebtReminderDetail.setBranch(row[11]+"");
 					} catch (Exception e) {
 					}
 					try {
@@ -1051,7 +1052,23 @@ public class DBFintechHome extends BaseSqlHomeDao{
 					} catch (Exception e) {
 					}
 					try {
-						objDebtReminderDetail.setBill_index(Integer.parseInt(row[11]+""));
+						objDebtReminderDetail.setBill_index(Integer.parseInt(row[141]+""));
+					} catch (Exception e) {
+					}
+					try {
+						objDebtReminderDetail.setProduct_id(Integer.parseInt(row[15]+""));
+					} catch (Exception e) {
+					}
+					try {
+						objDebtReminderDetail.setDay_must_pay(Integer.parseInt(row[16]+""));
+					} catch (Exception e) {
+					}
+					try {
+						objDebtReminderDetail.setTotal_on_a_month(Long.parseLong(row[17]+""));
+					} catch (Exception e) {
+					}
+					try {
+						objDebtReminderDetail.setBill_status(Integer.parseInt(row[18]+""));
 					} catch (Exception e) {
 					}
 				}
@@ -1068,6 +1085,112 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		}
 		return null;
 	}
+	
+	
+	public long countDebtReminderDetail(String loan_code, List<Integer> final_status, String borrower_name, String from_date, String to_date, String id_number, String limit, String offSet) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		List<ObjDebtReminderDetail> lisResDebtReminderDetail = new ArrayList<>();		
+		String time = String.valueOf(10);
+		int finalSTT = 116;
+		int billSTT = 1161;
+		try {
+//			String s = new SimpleDateFormat("yyyyMMdd").format(new Date());
+//			int dateNow = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(new Date()));
+			Date dateNowInt = new Date();
+			session = HibernateUtil.getSessionFactory().openSession();
+			int loan = 1;
+			
+			String sql = "SELECT count(lr.loanCode) "
+								+ "FROM TblLoanReqDetail ld "
+								+ "INNER JOIN TblLoanRequest lr ON lr.loanId = ld.loanId "
+								+ "INNER JOIN TblLoanBill lb ON lb.loanId = ld.loanId "
+								+ "INNER JOIN Branch br ON br.rowId in lr.branchId "
+								+ "INNER JOIN TransasctionRoom tr ON tr.rowId in lr.roomId "
+								+ "Where lr.loanId >=:loanID "
+								+ "and lr.finalStatus =:finalStt "
+								+ "and lb.billStatus =:billStt ";
+			if(ValidData.checkNull(loan_code) == true){
+				sql = sql + "and lr.loanCode =:loan_code ";
+			}
+//			if(final_status.size() > 0){
+//				sql = sql + "and lr.finalStatus in :final_status ";
+//			}
+			if(ValidData.checkNull(borrower_name) == true){
+				sql = sql + "and ld.borrowerFullname =:borrower_name ";
+			}
+			if(ValidData.checkNull(from_date) == true){
+				sql = sql + "and lr.createdDate >= :from_date ";
+			}
+			if(ValidData.checkNull(to_date) == true){
+				sql = sql + "and lr.createdDate <= :to_date ";
+			}
+			if(ValidData.checkNull(id_number) == true){
+				sql = sql + "and ld.borrowerId =:id_number ";
+			}
+			sql = sql + "ORDER BY lr.createdDate DESC";
+			System.out.println("sql: "+ sql);
+			session = HibernateUtil.getSessionFactory().openSession();
+			Query query = session.createQuery(sql);
+			query.setParameter("loanID", loan);
+			if(ValidData.checkNull(loan_code) == true){
+				query.setParameter("loan_code", loan_code);
+			}
+//			if(final_status.size() > 0){
+				query.setParameter("finalStt", finalSTT);
+				query.setParameter("billStt", billSTT);
+//			}	
+			if(ValidData.checkNull(borrower_name) == true){
+				query.setParameter("borrower_name", borrower_name);
+			}
+			if(ValidData.checkNull(from_date) == true){
+				Date fromDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(from_date + " 00:00:00");  
+				query.setParameter("from_date", fromDate);
+			}
+			if(ValidData.checkNull(to_date) == true){
+				Date toDate = new SimpleDateFormat("yyyyMMdd HH:mm:ss").parse(to_date + " 23:59:59");  
+				query.setParameter("to_date", toDate);
+			}
+			if(ValidData.checkNull(id_number) == true){
+				query.setParameter("id_number", id_number);
+			}
+			query.setFirstResult(Integer.parseInt(offSet));
+			query.setMaxResults(Integer.parseInt(limit));
+			list = query.getResultList();
+
+			System.out.println(list.size());
+			return (long)list.get(0);
+		} catch (Exception e) {
+			FileLogger.log(">> lisResDebtReminderDetail err " + e.getMessage(),LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return 0l;
+	}
+	
+	public boolean updateLoanBill(int loan_id, int bill_index, Integer last_day_accept_pay) {
+		Session session = null;
+		Transaction tx = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "update TblLoanBill set lastDayAcceptPay =:lastDayUPD where loanId =:loanIDUPD and billIndex =:billIndexUPD";	
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			query.setParameter("lastDayUPD", last_day_accept_pay);
+			query.setParameter("loanIDUPD", loan_id);
+			query.setParameter("billIndexUPD", bill_index);
+			int check = query.executeUpdate();
+			tx.commit();
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log(">> updateLoanBill err " + e,LogType.ERROR);
+		}
+		return result;
+    }
 	
 	public static void main(String[] args) {
 		SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");

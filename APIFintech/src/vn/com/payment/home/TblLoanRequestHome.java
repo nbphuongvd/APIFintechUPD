@@ -164,6 +164,28 @@ public class TblLoanRequestHome extends BaseSqlHomeDao{
 		return null;
 	}
 	
+	public boolean updateTblLoanRequest(int loan_id, Integer extendStatus) {
+		Session session = null;
+		Transaction tx = null;
+		boolean result = false;
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "update TblLoanRequest set extendStatus =:extendStatusPD, latestUpdate=:sysDate  where loanId =:loanIDUPD";	
+			tx = session.beginTransaction();
+			Query query = session.createQuery(sql);
+			query.setParameter("sysDate", new Date());
+			query.setParameter("loanIDUPD", loan_id);
+			query.setParameter("extendStatusPD", extendStatus);
+			int check = query.executeUpdate();
+			tx.commit();
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log(">> updateTblLoanRequest err " + e,LogType.ERROR);
+		}
+		return result;
+    }
+	
 	public static void main(String[] args) {
 		
 		TblLoanRequestHome tblLoanReqDetailHome = new TblLoanRequestHome();

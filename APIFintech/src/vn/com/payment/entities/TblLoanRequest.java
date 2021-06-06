@@ -37,6 +37,7 @@ public class TblLoanRequest implements java.io.Serializable {
 	private String contractSerialNum;
 	private Integer branchId;
 	private Integer roomId;
+	private Integer extendStatus;
 
 	public TblLoanRequest() {
 	}
@@ -50,7 +51,7 @@ public class TblLoanRequest implements java.io.Serializable {
 	public TblLoanRequest(Date createdDate, Date editedDate, Date expireDate, Date approvedDate, String createdBy,
 			String approvedBy, Integer finalStatus, Integer previousStatus, Integer sponsorId, Date latestUpdate,
 			String approveRejectedReason, Integer calculateProfitType, Integer loanForMonth, String loanCode,
-			String loanName, String contractSerialNum, Integer branchId, Integer roomId) {
+			String loanName, String contractSerialNum, Integer branchId, Integer roomId, Integer extendStatus) {
 		this.createdDate = createdDate;
 		this.editedDate = editedDate;
 		this.expireDate = expireDate;
@@ -69,6 +70,7 @@ public class TblLoanRequest implements java.io.Serializable {
 		this.contractSerialNum = contractSerialNum;
 		this.branchId = branchId;
 		this.roomId = roomId;
+		this.extendStatus = extendStatus;
 	}
 
 	@Id
@@ -249,5 +251,12 @@ public class TblLoanRequest implements java.io.Serializable {
 	public void setRoomId(Integer roomId) {
 		this.roomId = roomId;
 	}
+	@Column(name = "extend_status")
+	public Integer getExtendStatus() {
+		return this.extendStatus;
+	}
 
+	public void setExtendStatus(Integer extendStatus) {
+		this.extendStatus = extendStatus;
+	}
 }
