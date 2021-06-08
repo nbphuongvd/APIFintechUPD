@@ -49,6 +49,8 @@ import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
 import vn.com.payment.object.ReqLogin;
+import vn.com.payment.object.ReqPayment;
+import vn.com.payment.object.ReqSettlement;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUDExtendStatus;
 import vn.com.payment.object.ReqUpdateStatus;
@@ -63,6 +65,8 @@ import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
 import vn.com.payment.object.ResLogin;
+import vn.com.payment.object.ResPayment;
+import vn.com.payment.object.ResSettlement;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUDExtendStatus;
 import vn.com.payment.object.ResUpdateStatus;
@@ -1708,6 +1712,306 @@ public class Bussiness {
 		}
 		
 		
+		public Response settlement(String dataSettlement) {
+			FileLogger.log("----------------Bat dau settlement--------------------------", LogType.BUSSINESS);
+			ResponseBuilder response = Response.status(Status.OK).entity("x");
+			ResSettlement resSettlement = new ResSettlement();
+			try {
+				FileLogger.log("settlement dataSettlement: " + dataSettlement, LogType.BUSSINESS);
+				ReqSettlement reqSettlement = gson.fromJson(dataSettlement, ReqSettlement.class);
+				ResSettlement resSettlement2 = validData.validSettlement(reqSettlement);
+				if (resSettlement2 != null) {
+					response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resSettlement2.toJSON()).build();
+				}
+				Account acc = accountHome.getAccountUsename(reqSettlement.getUsername());
+				String fullName = reqSettlement.getUsername();
+				try {
+					fullName = acc.getFirstName() + " " + acc.getLastName();
+				} catch (Exception e) {
+				}
+				String loan_code = "";
+				try {
+					loan_code = reqSettlement.getLoan_code();
+				} catch (Exception e) {
+				}
+				
+				List<Integer> branchID = new ArrayList<>();
+				List<Integer> roomID = new ArrayList<>();
+				if (ValidData.checkNull(acc.getBranchId()) == true) {
+					JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+					Iterator<String> keys = isJsonObject.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						System.out.println(key);
+						JSONArray msg = (JSONArray) isJsonObject.get(key);
+						branchID.add(new Integer(key.toString()));
+						for (int i = 0; i < msg.length(); i++) {
+							roomID.add(Integer.parseInt(msg.get(i).toString()));
+						}
+					}
+				}
+				
+				TblLoanRequest getLoanBranchID = dbFintechHome.getLoanBranchID(branchID, loan_code);
+				if(getLoanBranchID != null){
+					if(getLoanBranchID.getFinalStatus().toString().equals("122") == false){
+						System.out.println(getLoanBranchID.getFinalStatus());
+						TblLoanBillHome tblLoanBillHome = new TblLoanBillHome();
+						List<TblLoanBill> getListTblLoanBill = tblLoanBillHome.getListTblLoanBill(getLoanBranchID.getLoanId(), 0);
+						for (TblLoanBill tblLoanBill : getListTblLoanBill) {
+							tblLoanBill.setBillPaymentStatus(1);
+							tblLoanBill.setPaymentDate(new Date());
+							tblLoanBill.setPaymentAmt(0l);
+							tblLoanBill.setBillStatus(122);
+							tblLoanBill.setBillCollectBy(fullName);
+							boolean updLoanBill = dbFintechHome.updateTblLoanBill(tblLoanBill);
+							FileLogger.log("settlement updLoanBill BillIndex: " + tblLoanBill.getBillIndex() + " " + updLoanBill, LogType.BUSSINESS);
+						}
+						
+						if (reqSettlement.getImages() != null) {
+							List<ObjImage> imagesList = reqSettlement.getImages();
+							for (ObjImage objImage : imagesList) {
+								TblImages tblImages = new TblImages();
+								tblImages.setLoanRequestDetailId(getLoanBranchID.getLoanId());
+								tblImages.setImageName(objImage.getImage_name());
+								tblImages.setImageInputName(objImage.getImage_input_name());
+								tblImages.setPartnerImageId(objImage.getPartner_image_id());
+								tblImages.setImageType((int) objImage.getImage_type());
+								tblImages.setImageByte(objImage.getImage_byte());
+								tblImages.setImageUrl(objImage.getImage_url());
+								tblImages.setImageIsFront((int) objImage.getImage_is_front());
+								boolean checkINSEImage = dbFintechHome.createTblImages(tblImages);
+								FileLogger.log("settlement checkINSEImage: " + checkINSEImage, LogType.BUSSINESS);
+							}
+						}
+						
+						FileLogger.log("settlement tblLoanBill tat toan: ", LogType.BUSSINESS);
+						getLoanBranchID.setPreviousStatus(getLoanBranchID.getFinalStatus());
+						getLoanBranchID.setFinalStatus(122); // 122 = tat toan
+						getLoanBranchID.setSettleDate(Utils.getDateNow());
+						getLoanBranchID.setSettleAmount(new BigDecimal(0));
+						getLoanBranchID.setLatestUpdate(new Date());
+						boolean checkUPDLoan = dbFintechHome.updateTblLoanRequest(getLoanBranchID);
+						FileLogger.log("settlement tat toan checkUPDLoan: " + checkUPDLoan, LogType.BUSSINESS);
+						
+						TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+						tblLoanExpertiseSteps.setLoanId(getLoanBranchID.getLoanId());
+						tblLoanExpertiseSteps.setExpertiseUser(fullName);
+						tblLoanExpertiseSteps.setExpertiseDate(new Date());
+						tblLoanExpertiseSteps.setExpertiseStatus(getLoanBranchID.getFinalStatus());
+						tblLoanExpertiseSteps.setExpertiseStep(6);
+						tblLoanExpertiseSteps.setExpertiseComment(reqSettlement.getMemo());
+						tblLoanExpertiseSteps.setLoanCode(getLoanBranchID.getLoanCode());
+						tblLoanExpertiseSteps.setAction(reqSettlement.getAction());
+						
+						boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+						FileLogger.log("settlement checkINSExpertiseSteps: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+						
+						if(checkUPDLoan && checkINSExpertiseSteps){
+							resSettlement.setStatus(statusSuccess);
+							resSettlement.setMessage("Yeu cau thanh cong");
+							resSettlement.setLoan_code(loan_code);
+						}else{
+							resSettlement.setStatus(statusFale);
+							resSettlement.setMessage("Yeu cau that bai");
+						}
+					}else{
+						FileLogger.log("settlement tblLoanRequest status = tat toan: ", LogType.BUSSINESS);
+						resSettlement.setStatus(statusFale);
+						resSettlement.setMessage("Yeu cau that bai - Khoan vay da duoc tat toan truoc do");
+					}
+				}else{
+					FileLogger.log("settlement tblLoanRequest null: ", LogType.BUSSINESS);
+					resSettlement.setStatus(statusFale);
+					resSettlement.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
+				}
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				FileLogger.log("settlement: " + reqSettlement.getUsername() + " response to client:" + resSettlement.toJSON(), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc settlement: ", LogType.BUSSINESS);
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resSettlement.toJSON()).build();
+			} catch (Exception e) {
+				e.printStackTrace();
+				FileLogger.log("----------------Ket thuc settlement Exception " + e, LogType.ERROR);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage("Yeu cau that bai - Da co loi xay ra");
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resSettlement.toJSON()).build();
+			}
+		}
+		
+		public Response paymentLoan(String dataPaymentLoan) {
+			FileLogger.log("----------------Bat dau paymentLoan--------------------------", LogType.BUSSINESS);
+			ResponseBuilder response = Response.status(Status.OK).entity("x");
+			ResPayment resPayment = new ResPayment();
+			try {
+				FileLogger.log("paymentLoan dataPaymentLoan: " + dataPaymentLoan, LogType.BUSSINESS);
+				ReqPayment reqPayment = gson.fromJson(dataPaymentLoan, ReqPayment.class);
+				ResPayment resPayment2 = validData.validDataPaymentLoan(reqPayment);
+				if (resPayment2 != null) {
+					response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+					return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resPayment2.toJSON()).build();
+				}
+				Account acc = accountHome.getAccountUsename(reqPayment.getUsername());
+				String fullName = reqPayment.getUsername();
+				try {
+					fullName = acc.getFirstName() + " " + acc.getLastName();
+				} catch (Exception e) {
+				}
+				String loan_code = "";
+				try {
+					loan_code = reqPayment.getLoan_code();
+				} catch (Exception e) {
+				}
+				
+				List<Integer> branchID = new ArrayList<>();
+				List<Integer> roomID = new ArrayList<>();
+				if (ValidData.checkNull(acc.getBranchId()) == true) {
+					JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+					Iterator<String> keys = isJsonObject.keys();
+					while (keys.hasNext()) {
+						String key = keys.next();
+						System.out.println(key);
+						JSONArray msg = (JSONArray) isJsonObject.get(key);
+						branchID.add(new Integer(key.toString()));
+						for (int i = 0; i < msg.length(); i++) {
+							roomID.add(Integer.parseInt(msg.get(i).toString()));
+						}
+					}
+				}
+				
+				TblLoanRequest getLoanBranchID = dbFintechHome.getLoanBranchID(branchID, loan_code);
+				if(getLoanBranchID != null){
+					if(getLoanBranchID.getFinalStatus().toString().equals("122") == false){
+						TblLoanBill tblLoanBill = tblLoanBillHome.getTblLoanBillIndex(getLoanBranchID.getLoanId(), Integer.parseInt(reqPayment.getBill_index()));
+						if(tblLoanBill != null){
+							int maxBillIndex = dbFintechHome.maxBillIndex(getLoanBranchID.getLoanId());
+							
+							TblLoanExpertiseSteps tblLoanExpertiseSteps = new TblLoanExpertiseSteps();
+							tblLoanExpertiseSteps.setLoanId(getLoanBranchID.getLoanId());
+							tblLoanExpertiseSteps.setExpertiseUser(fullName);
+							tblLoanExpertiseSteps.setExpertiseDate(new Date());
+							tblLoanExpertiseSteps.setExpertiseStatus(getLoanBranchID.getFinalStatus());
+							tblLoanExpertiseSteps.setExpertiseStep(6);
+							tblLoanExpertiseSteps.setExpertiseComment(reqPayment.getMemo());
+							tblLoanExpertiseSteps.setLoanCode(getLoanBranchID.getLoanCode());
+							tblLoanExpertiseSteps.setAction(reqPayment.getAction());
+							BigDecimal tieTT =  new BigDecimal(reqPayment.getPay_amount());
+							if(reqPayment.getIs_a_special_payment().equals("0")){
+								// Đóng lãi thường
+								BigDecimal tiencanTT = tblLoanBill.getTotalOnAMonth();
+								if(tieTT.compareTo(tiencanTT) > 0){
+									// Chap nhan thanh toan
+									tblLoanBill.setBillPaymentStatus(1);
+									tblLoanBill.setPaymentDate(new Date());
+									tblLoanBill.setPaymentAmt(tieTT.longValue());
+									tblLoanBill.setBillCollectBy(fullName);
+									tblLoanBill.setIsASpecialPayment(0);
+									
+									FileLogger.log("paymentLoan tblLoanBill success dong lai thuong: ", LogType.BUSSINESS);
+
+									boolean updLoanBill = dbFintechHome.updateTblLoanBill(tblLoanBill);
+									FileLogger.log("paymentLoan updLoanBill: " + updLoanBill, LogType.BUSSINESS);
+
+									boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+									FileLogger.log("paymentLoan checkINSExpertiseSteps: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+									if(updLoanBill && checkINSExpertiseSteps){
+										resPayment.setStatus(statusSuccess);
+										resPayment.setMessage("Yeu cau thanh cong");
+										resPayment.setLoan_code(loan_code);
+									}else{
+										resPayment.setStatus(statusFale);
+										resPayment.setMessage("Yeu cau that bai");
+									}
+								}else{
+									// Khong chap nhan thanh toan
+									FileLogger.log("paymentLoan tblLoanBill false so tien dong no < tien can thanh toan: ", LogType.BUSSINESS);
+									resPayment.setStatus(statusFale);
+									resPayment.setMessage("Yeu cau that bai - so tien dong no < tien can thanh toan");
+								}
+							}else if(reqPayment.getIs_a_special_payment().equals("1")){
+								// Đóng lãi đặc biệt
+								tblLoanBill.setBillPaymentStatus(1);
+								tblLoanBill.setPaymentDate(new Date());
+								tblLoanBill.setPaymentAmt(tieTT.longValue());
+								tblLoanBill.setBillCollectBy(fullName);
+								tblLoanBill.setIsASpecialPayment(1);
+								
+								boolean updLoanBill = dbFintechHome.updateTblLoanBill(tblLoanBill);
+								FileLogger.log("paymentLoan updLoanBill: " + updLoanBill, LogType.BUSSINESS);
+								
+								boolean checkINSExpertiseSteps = dbFintechHome.createExpertiseSteps(tblLoanExpertiseSteps);
+								FileLogger.log("paymentLoan checkINSExpertiseSteps: " + checkINSExpertiseSteps, LogType.BUSSINESS);
+								
+								FileLogger.log("paymentLoan tblLoanBill success dong lai dac biet: ", LogType.BUSSINESS);
+								if(updLoanBill && checkINSExpertiseSteps){
+									resPayment.setStatus(statusSuccess);
+									resPayment.setMessage("Yeu cau thanh cong");
+									resPayment.setLoan_code(loan_code);
+								}else{
+									resPayment.setStatus(statusFale);
+									resPayment.setMessage("Yeu cau that bai");
+								}
+							}else{
+								FileLogger.log("paymentLoan tblLoanBill null: ", LogType.BUSSINESS);
+								resPayment.setStatus(statusFale);
+								resPayment.setMessage("Yeu cau that bai - type đong lai Is_a_special_payment khong dung");
+							}
+
+							if (reqPayment.getImages() != null) {
+								List<ObjImage> imagesList = reqPayment.getImages();
+								for (ObjImage objImage : imagesList) {
+									TblImages tblImages = new TblImages();
+									tblImages.setLoanRequestDetailId(getLoanBranchID.getLoanId());
+									tblImages.setImageName(objImage.getImage_name());
+									tblImages.setImageInputName(objImage.getImage_input_name());
+									tblImages.setPartnerImageId(objImage.getPartner_image_id());
+									tblImages.setImageType((int) objImage.getImage_type());
+									tblImages.setImageByte(objImage.getImage_byte());
+									tblImages.setImageUrl(objImage.getImage_url());
+									tblImages.setImageIsFront((int) objImage.getImage_is_front());
+									boolean checkINSEImage = dbFintechHome.createTblImages(tblImages);
+									FileLogger.log("paymentLoan checkINSEImage: " + checkINSEImage, LogType.BUSSINESS);
+								}
+							}
+							if(Integer.parseInt(reqPayment.getBill_index()) == maxBillIndex){
+								//Tat toan
+								FileLogger.log("paymentLoan tblLoanBill tat toan: ", LogType.BUSSINESS);
+								getLoanBranchID.setPreviousStatus(getLoanBranchID.getFinalStatus());
+								getLoanBranchID.setFinalStatus(122); // 122 = tat toan
+								getLoanBranchID.setSettleDate(Utils.getDateNow());
+								getLoanBranchID.setSettleAmount(new BigDecimal(0));
+								getLoanBranchID.setLatestUpdate(new Date());
+								boolean checkUPDLoan = dbFintechHome.updateTblLoanRequest(getLoanBranchID);
+								FileLogger.log("paymentLoan tat toan checkUPDLoan: " + checkUPDLoan, LogType.BUSSINESS);
+							}
+						}else{
+							FileLogger.log("paymentLoan tblLoanBill null: ", LogType.BUSSINESS);
+							resPayment.setStatus(statusFale);
+							resPayment.setMessage("Yeu cau that bai - Khong tim thay thong tin ky vay truyen len ung voi hop dong nay");
+						}
+					}else{
+						FileLogger.log("paymentLoan tblLoanRequest status = tat toan: ", LogType.BUSSINESS);
+						resPayment.setStatus(statusFale);
+						resPayment.setMessage("Yeu cau that bai - Khoan vay da duoc tat toan truoc do");
+					}	
+				}else{
+					FileLogger.log("paymentLoan tblLoanRequest null: ", LogType.BUSSINESS);
+					resPayment.setStatus(statusFale);
+					resPayment.setMessage("Yeu cau that bai - Khong co log cua hop dong nay - Hoac nguoi dung khong co quyen truy xuat");
+				}
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				FileLogger.log("paymentLoan: " + reqPayment.getUsername() + " response to client:" + resPayment.toJSON(), LogType.BUSSINESS);
+				FileLogger.log("----------------Ket thuc paymentLoan: ", LogType.BUSSINESS);
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resPayment.toJSON()).build();
+			} catch (Exception e) {
+				e.printStackTrace();
+				FileLogger.log("----------------Ket thuc paymentLoan Exception " + e, LogType.ERROR);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage("Yeu cau that bai - Da co loi xay ra");
+				response = response.header(Commons.ReceiveTime, Utils.getTimeNow());
+				return response.header(Commons.ResponseTime, Utils.getTimeNow()).entity(resPayment.toJSON()).build();
+			}
+		}
 	public static void main(String[] args) {
 		try {
 			Bussiness bussiness = new Bussiness();

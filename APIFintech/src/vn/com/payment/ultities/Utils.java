@@ -235,7 +235,15 @@ public class Utils {
 		// System.out.println(format.format(dt));
 		return format.format(dt);
 	}
-
+    
+    public static Date getDateNow() {
+		try {
+			Date date = new SimpleDateFormat("yyyyMMdd").parse(getTimeNowDate());
+			return date;
+		} catch (ParseException e) {
+		}
+		return null;
+	}
 	
 	public static String getNgayTrano(int sothangvay, String ngayvay) {
 		String result = "";
@@ -369,8 +377,8 @@ public class Utils {
 //		Timestamp getTimeStampNow()
 		
 		
-		Date aaa = Utils.getMin15();
-		System.out.println(aaa);
+//		Date aaa = Utils.getMin15();
+		System.out.println(getDateNow());
 		
 //		SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");
 //		// myDate is the java.util.Date in yyyy-mm-dd format

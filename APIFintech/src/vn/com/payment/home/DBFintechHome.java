@@ -82,10 +82,20 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return false;
 	}
 	
-
 	public boolean updateExpertiseSteps(TblLoanExpertiseSteps TblLoanExpertiseSteps) {
 		try {
 			updateObj(TblLoanExpertiseSteps, TblLoanExpertiseSteps.getLoanExpertiseId());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			FileLogger.log("updateExpertiseSteps Exception "+ e, LogType.ERROR);
+		}
+		return false;
+	}
+
+	public boolean updateTblLoanBill(TblLoanBill tblLoanBill) {
+		try {
+			updateObj(tblLoanBill, tblLoanBill.getBillId());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -414,6 +424,39 @@ public class DBFintechHome extends BaseSqlHomeDao{
 			Query query = session.createQuery(sql);
 			query.setParameter("loanCode", loanCode);
 			query.setParameter("listRoom", roomID);
+			query.setParameter("listbranchId", branchID);
+			list = query.getResultList();
+			if(list.size() > 0){
+				tblLoanRequest = (TblLoanRequest) list.get(0);
+				return tblLoanRequest;
+			}
+			System.out.println(list.size());
+			
+		} catch (Exception e) {
+			FileLogger.log(">> checkLoan err " + e.getMessage(),LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
+	
+	public TblLoanRequest getLoanBranchID(List<Integer> branchID, String loanCode) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		TblLoanRequest tblLoanRequest = new TblLoanRequest();
+		try {
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "FROM TblLoanRequest Where "
+								+ "loanCode =:loanCode and "
+								+ "branchId in :listbranchId";
+			System.out.println("sql: "+ sql);
+			sql = sql + " ORDER BY createdDate DESC";
+			session = HibernateUtil.getSessionFactory().openSession();
+			Query query = session.createQuery(sql);
+			query.setParameter("loanCode", loanCode);
 			query.setParameter("listbranchId", branchID);
 			list = query.getResultList();
 			if(list.size() > 0){
@@ -1192,39 +1235,75 @@ public class DBFintechHome extends BaseSqlHomeDao{
 		return result;
     }
 	
-	public static void main(String[] args) {
-		SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");
+	
+	public int maxBillIndex(int loanID) {
+		Session session = null;
+		Transaction tx = null;
+		List<Object> list = null;
+		List<ObjDebtReminderDetail> lisResDebtReminderDetail = new ArrayList<>();		
+		String time = String.valueOf(10);
+		int finalSTT = 116;
+		int billSTT = 1161;
 		try {
-			AccountHome accountHome = new AccountHome();
-			DBFintechHome dbFintechHome = new DBFintechHome();
-			Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
-			List<Integer> branchID = new ArrayList<>();
-			List<Integer> roomID = new ArrayList<>();
-			if (ValidData.checkNull(acc.getBranchId()) == true) {
-				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
-				Iterator<String> keys = isJsonObject.keys();
-				while (keys.hasNext()) {
-					String key = keys.next();
-					System.out.println(key);
-					JSONArray msg = (JSONArray) isJsonObject.get(key);
-					branchID.add(new Integer(key.toString()));
-					for (int i = 0; i < msg.length(); i++) {
-						roomID.add(Integer.parseInt(msg.get(i).toString()));
-					}
-				}
-			}
-			TblLoanSponsorMapp lisResContractList = dbFintechHome.getLoanRequet(139, 11);
-			System.out.println(lisResContractList.getLoanId());
-			System.out.println(lisResContractList.getDisbursementDate().compareTo(sm.parse(sm.format(new Date()))));
-			int aaa = lisResContractList.getDisbursementDate().compareTo(sm.parse(sm.format(new Date())));
-			if(aaa < 0){
-				System.out.println("a");
-			}else{
-				System.out.println("b");
-			}
+			Date dateNowInt = new Date();
+			session = HibernateUtil.getSessionFactory().openSession();
+			String sql = "SELECT max(billIndex) FROM TblLoanBill ld where loanId =:loanID";
+			session = HibernateUtil.getSessionFactory().openSession();
+			Query query = session.createQuery(sql);
+			query.setParameter("loanID", loanID);
+			list = query.getResultList();
+			System.out.println(list.size());
+			return (int)list.get(0);
 		} catch (Exception e) {
+			FileLogger.log(">> lisResDebtReminderDetail err " + e.getMessage(),LogType.ERROR);
 			e.printStackTrace();
+		} finally {
+			releaseSession(session);
 		}
+		return 0;
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		DBFintechHome dbFintechHome = new DBFintechHome();
+		
+		int maxBillIndex = dbFintechHome.maxBillIndex(160);
+		
+		System.out.println(maxBillIndex);
+		
+//		SimpleDateFormat sm = new SimpleDateFormat("yyyyMMdd 00:00:00");
+//		try {
+//			AccountHome accountHome = new AccountHome();
+//			DBFintechHome dbFintechHome = new DBFintechHome();
+//			Account acc = accountHome.getAccountUsename("dinhphuong.v@gmail.com");
+//			List<Integer> branchID = new ArrayList<>();
+//			List<Integer> roomID = new ArrayList<>();
+//			if (ValidData.checkNull(acc.getBranchId()) == true) {
+//				JSONObject isJsonObject = (JSONObject) new JSONObject(acc.getBranchId());
+//				Iterator<String> keys = isJsonObject.keys();
+//				while (keys.hasNext()) {
+//					String key = keys.next();
+//					System.out.println(key);
+//					JSONArray msg = (JSONArray) isJsonObject.get(key);
+//					branchID.add(new Integer(key.toString()));
+//					for (int i = 0; i < msg.length(); i++) {
+//						roomID.add(Integer.parseInt(msg.get(i).toString()));
+//					}
+//				}
+//			}
+//			TblLoanSponsorMapp lisResContractList = dbFintechHome.getLoanRequet(139, 11);
+//			System.out.println(lisResContractList.getLoanId());
+//			System.out.println(lisResContractList.getDisbursementDate().compareTo(sm.parse(sm.format(new Date()))));
+//			int aaa = lisResContractList.getDisbursementDate().compareTo(sm.parse(sm.format(new Date())));
+//			if(aaa < 0){
+//				System.out.println("a");
+//			}else{
+//				System.out.println("b");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		 List<Integer> list1 = new ArrayList<>();
 //	      list1.add(new Integer(41));
 //	      list1.add(new Integer(42));

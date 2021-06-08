@@ -152,9 +152,11 @@ public class Caculator {
 						tinhphitattoan_a = gocconlai * phitattoantruochan;
 					}
 					gocconlai = gocconlai - tiengoc;
-					Document doc = new Document("idMinhhoa", billID).append("Kyvay", i)
+					Document doc = new Document("idMinhhoa", billID)
+							.append("Kyvay", i)
 							.append("Ngaythanhtoan", Utils.getNgayvay(ngayvay))
-							.append("Sotiencanthanhtoan", Math.round(tiencantt)).append("Tiengoc", Math.round(tiengoc))
+							.append("Sotiencanthanhtoan", Math.round(tiencantt))
+							.append("Tiengoc", Math.round(tiengoc))
 							.append("Tienlai", Math.round(tienlaithang_a))
 							.append("Phituvandichvu", Math.round(tinhphituvan_a))
 							.append("Phiquanly", Math.round(tinhphidichvu_a))

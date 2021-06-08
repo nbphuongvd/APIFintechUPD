@@ -17,6 +17,7 @@ import org.hibernate.criterion.Restrictions;
 import vn.com.payment.config.LogType;
 import vn.com.payment.entities.TblLoanBill;
 import vn.com.payment.entities.TblLoanReqDetail;
+import vn.com.payment.entities.TblLoanRequest;
 import vn.com.payment.ultities.FileLogger;
 
 /**
@@ -55,11 +56,67 @@ public class TblLoanBillHome extends BaseSqlHomeDao{
 			results = crtProduct.list();
 			return results;
 		} catch (Exception e) {
-			FileLogger.log(" getLoanDetail Exception "+ e, LogType.ERROR);
+			FileLogger.log(" getTblLoanBill Exception "+ e, LogType.ERROR);
 			e.printStackTrace();
 		} finally {
 			releaseSession(session);
 		}
 		return null;
+	}
+	
+	public List<TblLoanBill> getListTblLoanBill(int loan_id, int billPaymentStatus) {
+		List<TblLoanBill> results = new ArrayList<>();
+		Session session = null;
+		TblLoanBill tblLoanBill = new TblLoanBill();
+		try {
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(TblLoanBill.class);
+			Criterion getLoan 				= Restrictions.eq("loanId", loan_id);
+			Criterion billPStatus 			= Restrictions.eq("billPaymentStatus", billPaymentStatus);
+			crtProduct.add(getLoan);
+			crtProduct.add(billPStatus);
+			results = crtProduct.list();
+			return results;
+		} catch (Exception e) {
+			FileLogger.log(" getTblLoanBill Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
+	
+	public TblLoanBill getTblLoanBillIndex(int loan_id, int bill_Index) {
+		List<TblLoanBill> results = new ArrayList<>();
+		Session session = null;
+		TblLoanBill tblLoanBill = new TblLoanBill();
+		try {
+			session						 	= HibernateUtil.getSessionFactory().openSession();
+			Criteria crtProduct 			= session.createCriteria(TblLoanBill.class);
+			Criterion loanID 				= Restrictions.eq("loanId", loan_id);
+			Criterion billID 				= Restrictions.eq("billIndex", bill_Index);
+			crtProduct.add(loanID);
+			crtProduct.add(billID);
+			results = crtProduct.list();
+			if(results.size() > 0){
+				tblLoanBill = (TblLoanBill) results.get(0);
+			}
+			return tblLoanBill;
+		} catch (Exception e) {
+			FileLogger.log(" getTblLoanBillIndex Exception "+ e, LogType.ERROR);
+			e.printStackTrace();
+		} finally {
+			releaseSession(session);
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		TblLoanBillHome tblLoanBillHome = new TblLoanBillHome();
+		List<TblLoanBill> getListTblLoanBill = tblLoanBillHome.getListTblLoanBill(160, 0);
+		for (TblLoanBill tblLoanBill : getListTblLoanBill) {
+			System.out.println(tblLoanBill.getBillIndex());
+		}
 	}
 }

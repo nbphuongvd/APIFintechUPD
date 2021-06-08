@@ -19,6 +19,8 @@ import vn.com.payment.object.ReqContractListSponsor;
 import vn.com.payment.object.ReqCreaterLoan;
 import vn.com.payment.object.ReqDebtReminder;
 import vn.com.payment.object.ReqDisbursement;
+import vn.com.payment.object.ReqPayment;
+import vn.com.payment.object.ReqSettlement;
 import vn.com.payment.object.ReqStepLog;
 import vn.com.payment.object.ReqUDExtendStatus;
 import vn.com.payment.object.ReqUpdateStatus;
@@ -31,6 +33,8 @@ import vn.com.payment.object.ResContractListSponsor;
 import vn.com.payment.object.ResCreaterLoan;
 import vn.com.payment.object.ResDebtReminder;
 import vn.com.payment.object.ResDisbursement;
+import vn.com.payment.object.ResPayment;
+import vn.com.payment.object.ResSettlement;
 import vn.com.payment.object.ResStepLog;
 import vn.com.payment.object.ResUDExtendStatus;
 import vn.com.payment.object.ResUpdateStatus;
@@ -1157,6 +1161,150 @@ public class ValidData {
 		return null;
 	}
 	
+	
+	public ResPayment validDataPaymentLoan(ReqPayment reqPayment){
+		ResPayment resPayment = new ResPayment();
+		try {
+			if (ValidData.checkNull(reqPayment.getUsername()) == false){
+				String messageErr = "Valid validDataPaymentLoan Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			if (ValidData.checkNull(reqPayment.getToken()) == false){
+				String messageErr = "Valid validDataPaymentLoan token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			if (ValidData.checkNull(reqPayment.getLoan_code()) == false){
+				String messageErr = "Valid validDataPaymentLoan Loan_code invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			if (ValidData.checkNull(reqPayment.getBill_index()) == false){
+				String messageErr = "Valid validDataPaymentLoan bill_index invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			if (ValidData.isNumberInt(reqPayment.getBill_index()) == false){
+				String messageErr = "Valid validDataPaymentLoan bill_index is incorrect";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			if (ValidData.checkNullLong(reqPayment.getPay_amount()) == false){
+				String messageErr = "Valid validDataPaymentLoanPay_amount invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			if (ValidData.isNumberInt(Long.toString(reqPayment.getPay_amount())) == false){
+				String messageErr = "Valid validDataPaymentLoan Pay_amount is incorrect";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			if (ValidData.checkNull(reqPayment.getIs_a_special_payment()) == false){
+				String messageErr = "Valid validDataPaymentLoan Is_a_special_payment invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+			boolean checkLG = userInfo.checkLogin(reqPayment.getUsername(), reqPayment.getToken());
+			if(!checkLG){
+				FileLogger.log("validDataPaymentLoan : " + reqPayment.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resPayment.setStatus(statusFale);
+				resPayment.setMessage(messageErr);
+				return resPayment;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validDataPaymentLoan exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
+	
+	
+	public ResSettlement validSettlement(ReqSettlement reqSettlement){
+		ResSettlement resSettlement = new ResSettlement();
+		try {
+			if (ValidData.checkNull(reqSettlement.getUsername()) == false){
+				String messageErr = "Valid validSettlement Username invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			if (ValidData.checkNull(reqSettlement.getToken()) == false){
+				String messageErr = "Valid validSettlement token invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			
+			if (ValidData.checkNull(reqSettlement.getLoan_code()) == false){
+				String messageErr = "Valid validSettlement Loan_code invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			
+			if (ValidData.checkNullLong(reqSettlement.getPay_amount()) == false){
+				String messageErr = "Valid validSettlement invalid";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			
+			if (ValidData.isNumberInt(Long.toString(reqSettlement.getPay_amount())) == false){
+				String messageErr = "Valid validSettlement Pay_amount is incorrect";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			
+			boolean checkLG = userInfo.checkLogin(reqSettlement.getUsername(), reqSettlement.getToken());
+			if(!checkLG){
+				FileLogger.log("validSettlement : " + reqSettlement.getUsername()+ " check login false:", LogType.BUSSINESS);
+				String messageErr = "Yeu cau that bai - Thong tin login sai";
+				FileLogger.log(messageErr, LogType.BUSSINESS);
+				resSettlement.setStatus(statusFale);
+				resSettlement.setMessage(messageErr);
+				return resSettlement;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			String messageErr = "Valid validSettlement exception: "+ e;
+			FileLogger.log(messageErr, LogType.ERROR);
+		}
+		return null;
+	}
 	
 //	100	Thành công
 //	101	Sai token

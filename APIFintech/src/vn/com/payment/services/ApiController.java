@@ -214,6 +214,28 @@ public class ApiController {
 	   return bussiness.updateExtendStatus(formParams);
    }
    
+ //Dong no paymentLoan
+   @POST
+   @Path("/api/paymentLoan")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response paymentLoan(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong paymentLoan");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.paymentLoan(formParams);
+   }
+   
+ //Tat toan settlement
+   @POST
+   @Path("/api/settlement")
+   @Produces({MediaType.APPLICATION_JSON})
+   public Response settlement(@Context HttpServletRequest requestContext, @javax.ws.rs.core.Context HttpHeaders headers, String formParams) {
+	   System.out.println("Vao xooong settlement");
+	   Bussiness bussiness = new Bussiness();
+   	   System.out.println(formParams);
+	   return bussiness.settlement(formParams);
+   }
+   
    
 //   @POST
 //   @Path("/api/test")
